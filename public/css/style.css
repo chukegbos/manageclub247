@@ -1,0 +1,31 @@
+[class*="sidebar-dark-"] {
+    background-color: #171E22 !important;
+    color: #fff !important;
+}
+
+.card-header{
+  background-color: background-color: transparent;;
+  color: #000000;
+}
+
+.router-link-exact-active {
+  background-color: #28A745;
+  color: #fff !important;
+}
+
+.btn-bar{
+  background:#000000;
+  color:#ffffff;
+}
+
+.nav-sidebar .nav-item > .nav-link {
+  font-size: 11px
+}
+
+a {
+	/*color: #28A745 !important;*/
+}
+
+.nav-link {
+	/*color: #fff ;*/
+}
