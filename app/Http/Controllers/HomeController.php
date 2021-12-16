@@ -8,6 +8,7 @@ use App\Inventory;
 use App\Notification;
 use App\User;
 use App\Sale;
+use App\Debit;
 use App\Store;
 use App\Member;
 use App\Room;
@@ -53,6 +54,64 @@ class HomeController extends Controller
     public function index()
     {
         set_time_limit(0);
+
+        /*$all_debits = array();
+
+        $members = Member::where('deleted_at', NULL)->get();
+        foreach ($members as $key => $member) {
+            $get_debit = array();
+            $each_debit = PaymentDebit::where('member_id', $member->id)->get();
+
+            foreach ($each_debit as $dt) {
+                $amt = $dt->amount * $dt->period;
+                array_push($get_debit, $amt);
+            }
+
+            $sum_debit =  array_sum($get_debit);
+            $sum_credit = Payment::where('member_id', $member->id)->sum('amount');
+
+            $debit =
+            [
+                'name' => $member->first_name. ' '. $member->last_name,
+                'description' => 'Outstanding balance as at migration', 
+                'debit' => $sum_debit,
+                'credit' => $sum_credit,
+                'balance' => $sum_debit - $sum_credit,
+                'member_id' => $member->id,
+                'membership_id' => $member->membership_id,                
+            ];
+
+            array_push($all_debits, $debit);
+        }
+    
+        foreach ($all_debits as $dbt) {
+            $payment_debit = Debit::create([
+                'member_id' => $dbt['member_id'],
+                'product' => 309,
+                'amount' => $dbt['balance'],
+                'description' => $dbt['description'],
+                'debit_type' => 1,
+                'grace_period' => 16,
+                'date_entered' => Carbon::today(),
+                'start_date' => Carbon::today(),
+                'created_by' => auth()->user()->id,
+            ]);
+        }
+
+        $all_debits = Debit::get();
+        foreach ($all_debits as $dbt) {
+            PaymentDebit::create([
+                'member_id' => $dbt->member_id,
+                'product' => $dbt->product,
+                'amount' => $dbt->amount,
+                'description' => $dbt->description,
+                'debit_type' => 1,
+                'grace_period' => 16,
+                'date_entered' => Carbon::today(),
+                'start_date' => Carbon::today(),
+                'created_by' => auth()->user()->id,
+            ]);
+        }*/
         return view('dashboard');
     }
 
@@ -61,9 +120,6 @@ class HomeController extends Controller
         return Auth::user();
     }
 
-    function getName() {
-        return 'checkmail@zallasoftng.com.ng';
-    }
 
     public function sync()
     {
@@ -97,14 +153,14 @@ class HomeController extends Controller
         }
 
         //sync payment with debit
-        $allpayment = Payment::get();
+        /*$allpayment = Payment::get();
         foreach ($allpayment as $pay) {
             $getdebt = PaymentDebit::where('deleted_at', NULL)->find($pay->debit_id);
-            if (($getdebt) && (($getdebt->status==0) || (!$getdebt->status))) {
+            if (($getdebt) && (($getdebt->status==0) || ($getdebt->status==NULL))) {
                 $getdebt->status = 1;
                 $getdebt->update();
             }
-        }
+        }*/
 
 
         $suspends = Suspend::where('deleted_at', NULL)->where('status', 0)->where('end_date', '<=', Carbon::today())->get();
@@ -128,7 +184,6 @@ class HomeController extends Controller
         }
 
         $pproducts = PaymentProduct::where('type', 1)->where('deleted_at', NULL)->get();
-
         $dt = Carbon::today();
 
         switch ($dt->month) {
@@ -194,10 +249,23 @@ class HomeController extends Controller
         }
 
         //Phone Switch
-        $users = User::where('deleted_at', NULL)->where('role', 0)->where('phone', NULL)->get();
+        /*$phoneusers = User::where('deleted_at', NULL)->where('role', 0)->where('phone', NULL)->get();
+        foreach ($phoneusers as $user) {
+            $user = User::find($user->id);
+            $user->door_access = 0;
+            $user->update();
+        }
+
+        $users = User::where('deleted_at', NULL)->where('role', 0)->get();
         foreach ($users as $user) {
-            
             $member = Member::where('membership_id', $user->unique_id)->first();
+            $user = User::find($user->id);
+
+            if ($member->entrance_date && !$user->entrance_date) {
+                $user->entrance_date = date('Y/m/d', $member->entrance_date);
+            }
+
+            $member = Member::where('membership_id', $user->unique_id)->where('member_type', '!=', 14)->first();
             foreach ($pproducts as $pp) {
                 $findPayment = PaymentDebit::where('member_id', $member->id)->where('product', $pp->id)->where('year', $dt->year)->where('month', $dt->month)->first();
 
@@ -217,63 +285,53 @@ class HomeController extends Controller
                     ]);
                 }
             }
-
-            $user = User::find($user->id);
-            $user->door_access = 0;
             $user->update();
-        }
+        }*/
 
-
-        $users = User::where('deleted_at', NULL)->where('role', 0)->get();
-        foreach ($users as $user) {
-            $member = Member::where('membership_id', $user->unique_id)->first();
-            $user = User::find($user->id);
-            if ($member->entrance_date && !$user->entrance_date) {
-                $user->entrance_date = date('Y/m/d', $member->entrance_date);
-            }
-            $user->update();
-        }
         //Debt Switch
-        $allUsers = User::where('deleted_at', NULL)->where('role', 0)->get();
+        $members = Member::where('deleted_at', NULL)->get();
 
-        foreach ($allUsers as $user) {
-            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $user->unique_id)->where('period', 0)->first();
+        foreach ($members as $user) {
+            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $user->id)->where('period', 0)->first();
             if ($debit) {
                 $user = User::find($user->id);
                 $user->door_access = 0;
                 $user->update();
             }
 
-            $approved = User::where('deleted_at', NULL)->where('approved', 0)->where('unique_id', $user->unique_id)->first();
+            $approved = User::where('deleted_at', NULL)->where('approved', 0)->where('unique_id', $user->membership_id)->first();
             if ($approved) {
-                $user = User::find($user->id);
-                $user->door_access = 0;
-                $user->update();
+                $approveduser = User::find($approved->id);
+                $approveduser->door_access = 0;
+                $approveduser->update();
             }
         }
 
-        $sameUsers = User::where('deleted_at', NULL)->where('role', 0)->where('phone', '!=', NULL)-> where('door_access', 0)->get();
-
+        $sameUsers = User::where('deleted_at', NULL)->where('role', 0)->get();
         foreach ($sameUsers as $user) {
+            $user = User::find($user->id);
+            $user->approved = 1;
+            $user->update();
+
             $suspend = Suspend::where('deleted_at', NULL)->where('status', 0)->where('membership_id', $user->unique_id)->first();
             $death = Death::where('deleted_at', NULL)->where('member_id', $user->unique_id)->first();
             $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $user->unique_id)->where('period', 0)->first();
             $approved = User::where('deleted_at', NULL)->where('approved', 0)->where('unique_id', $user->unique_id)->first();
-            if (!$suspend && !$death && !$debit && !$approved) {
+            if (!$suspend && !$death && !$debit && !$approved && $user->phone) {
                 $user = User::find($user->id);
                 $user->door_access = 1;
                 $user->update();
             }
         }
  
-        $alldebits = PaymentDebit::where('deleted_at', NULL)->where('status', 0)->get();
+        /*$alldebits = PaymentDebit::where('deleted_at', NULL)->where('status', 0)->get();
         foreach ($alldebits as $debt) {
             if (!$debt->date_entered && $debt->date_added) {
                 $db = PaymentDebit::find($debt->id);
                 $db->date_entered = date('Y/m/d', $debt->date_added);
                 $db->update();
             }
-        }
+        }*/
         return redirect()->route('index');
     }
 }

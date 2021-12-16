@@ -192,28 +192,8 @@ class CustomerController extends Controller
         $query = User::where('users.deleted_at', NULL)
             ->where('default_esc_members.deleted_at', NULL)
             ->where('users.role', 0)
-            ->join('default_esc_members', 'users.unique_id', '=', 'default_esc_members.membership_id');
-
-        if ($request->orderName==0) {
-            $query->orderBy('users.name', 'Desc');
-        }
-        elseif ($request->orderName==1) {
-            $query->orderBy('users.name', 'asc');
-        }
-
-        if ($request->orderEmail==0) {
-            $query->orderBy('users.email', 'Desc');
-        }
-        elseif ($request->orderEmail==1) {
-            $query->orderBy('users.email', 'asc');
-        }
-
-        if ($request->orderPerson==0) {
-            $query->orderBy('users.c_person', 'Desc');
-        }
-        elseif ($request->orderPerson==1) {
-            $query->orderBy('users.c_person', 'asc');
-        }
+            ->join('default_esc_members', 'users.unique_id', '=', 'default_esc_members.membership_id')
+            ->orderBy('users.created_at', 'desc');
 
         if ($request->state) {
             $query->where('users.state', $request->state);
@@ -250,23 +230,8 @@ class CustomerController extends Controller
         else{
             $params['customers'] =  $query->paginate($request->selected);
         }
-        
-        $query1 = User::where('users.deleted_at', NULL)
-            ->where('default_esc_members.deleted_at', NULL)
-            ->where('users.role', 0)
-            ->join('default_esc_members', 'users.unique_id', '=', 'default_esc_members.membership_id');
-        if ($request->state) {
-            $query1->where('users.state', $request->state);
-        }
-
-        if ($request->member_type) {
-            $query1->where('default_esc_members.member_type', $request->member_type);
-        }
-
-        if ($request->name) {
-            $query1->where('users.name', 'like', '%' . $request->name . '%')->orWhere('users.phone', 'like', '%' . $request->name . '%')->orWhere('users.email', 'like', '%' . $request->name . '%')->orWhere('users.c_person', 'like', '%' . $request->name . '%');
-        }
-        $params['all'] = $query1->count();
+      
+        $params['all'] = $query->count();
 
         return $params;
     }

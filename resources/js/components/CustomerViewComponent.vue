@@ -82,7 +82,7 @@
                                                         <td>{{ member.get_member_type }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <th>Induction Date</th>
+                                                        <th>Entrance Date</th>
                                                         <td>{{ user.entrance_date | myDate }}</td>
                                                     </tr>
                                                    
@@ -126,7 +126,7 @@
 
                                         <div class="col-md-6">
                                             <h6 class="text-center">Additional Information</h6>
-                                            <div class="table-responsive">
+                                            <div class="table-responsive" v-if="additional">
                                                 <table class="table table-hover">
                                                     <tr>
                                                         <th>Next of Kin</th>

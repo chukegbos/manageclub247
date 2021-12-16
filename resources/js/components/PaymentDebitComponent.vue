@@ -44,7 +44,10 @@
                                 <td>{{ debt.last_name }} {{ debt.first_name }} {{ debt.middle_name }}</td>
                                 <td><span v-if="debt.product">{{ debt.product.payment_name }}</span></td>
                                 <td>{{ debt.description }}</td>
-                                <td><span v-if="debt.product"><span v-html="nairaSign"></span>{{ formatPrice(debt.product.amount)  }} </span><br> <span class="badge badge-danger btn-sm">Unpaid</span></td>
+                                <td>
+                                    <span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }}
+                                    <br> <span class="badge badge-danger btn-sm">Unpaid</span>
+                                </td>
                                 <td>{{ debt.start_date | myDate }}</td> 
                                 <td>
                                     {{ debt.grace_period }} Days 

@@ -231,7 +231,8 @@ class UserController extends Controller
         $params = [];
         $params['customers'] = User::where('deleted_at', NULL)->where('role', 0)->get();
         $params['user'] = auth('api')->user();
-        $params['user_store'] = $params['user']->getOriginal('store');
+        //$params['user_store'] = $params['user']->getOriginal('store');
+
         $params['accounts'] = Account::where('deleted_at', NULL)->get();
         $params['types'] = AccountType::where('deleted_at', NULL)->get();
         $params['products'] = Inventory::where('deleted_at', NULL)->get();
@@ -319,11 +320,7 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|string|max:191',
             'email' => 'required|string|max:191|email|unique:users',
-            'phone' => 'required|string|max:19',
             'role' => 'required',
-            
-            'address' => 'required|string|max:191',
-            
         ]);
 
         $setting = Setting::findOrFail(1);

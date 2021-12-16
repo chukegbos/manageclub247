@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use DB;
 use App\User;
+use App\Member;
 use Carbon\Carbon;
 use App\PaymentProduct;
 
@@ -13,7 +14,7 @@ class PaymentDebit extends Model
     protected $table = 'default_esc_payment_debits';
 
     protected $fillable = [
-        'product', 'description', 'amount', 'debit_type', 'member_id', 'start_date', 'grace_period', 'created_by', 'status', 'month', 'year', 'get_member_id', 'date_added', 'date_entered'
+        'product', 'description', 'amount', 'debit_type', 'member_id', 'start_date', 'grace_period', 'created_by', 'status', 'month', 'year', 'get_member_id', 'date_added', 'date_entered', 'period'
     ];
 
     public function getCreatedByAttribute()
@@ -31,7 +32,7 @@ class PaymentDebit extends Model
     {
         $id = $this->attributes['product'];
         if ($id) {
-            return PaymentProduct::where('deleted_at', NULL)->find($id);
+            return PaymentProduct::find($id);
         } 
         else {
             return NULL;
@@ -40,11 +41,8 @@ class PaymentDebit extends Model
 
     public function getPeriodAttribute()
     {
-
-        $start_date = $this->attributes['start_date'];
-        $grace_period = $this->attributes['grace_period'];
         $today = Carbon::today();
-        if ($today > Carbon::parse($start_date)->addDays($grace_period)) {
+        if (($this->attributes['start_date']) && ($today > Carbon::parse($this->attributes['start_date'])->addDays($this->attributes['grace_period']))) {
             return 0;
         }
         else {
@@ -56,7 +54,7 @@ class PaymentDebit extends Model
     {
         $id = $this->attributes['member_id'];
         if ($id) {
-            return User::find($id);
+            return Member::find($id);
         } 
         else {
             return NULL;

@@ -60,6 +60,7 @@ class PaymentController extends Controller
             'default_esc_members.first_name as first_name',
             'default_esc_members.last_name as last_name',
             'default_esc_payment_debits.period as period',
+            'default_esc_payment_debits.amount as amount',
             'default_esc_payment_debits.product as product',
             'default_esc_payment_debits.description as description',
             'default_esc_payment_debits.start_date as start_date',
@@ -354,6 +355,7 @@ class PaymentController extends Controller
             'door_access' => $request->door_access,
             'grace_period' => $request->grace_period,
             'reoccuring_day' => ($request->type==1) ? $request->reoccuring_day : NULL,
+
             'type' => $request->type,
             'product_id' => $code,
             'created_by' => auth('api')->user()->id,

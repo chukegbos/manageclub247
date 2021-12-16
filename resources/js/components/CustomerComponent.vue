@@ -58,40 +58,13 @@
                         <thead>
                             <tr>
                                 <th v-if="unprintable==false"><input type="checkbox" v-model="selectAll"></th>
-                               
-                                <th width="200px">
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Name</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByName()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Member ID</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByPerson()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
+                                <th width="200px">Name</th>
+                                <th>Member ID</th>
                                 <th>Member Type</th>
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Email</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByEmail()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                
+                                <th>Email</th>
                                 <th>Phone</th>
                                 <th>Approval</th>
                                 <th>Door Access</th>
-
                                 <th>Entrance Date</th>
                                 <th>Date Added</th>
                                 <th v-if="unprintable==false">Action</th>
@@ -153,6 +126,8 @@
                                         </span>
                                         <!--<hr>
                                         <b-dropdown-item href="javascript:void(0)" @click="createInvoice(user)">Create Invoice</b-dropdown-item>-->
+
+                                        <b-dropdown-item href="javascript:void(0)" @click="debitMember(user)">Debit Member</b-dropdown-item>
                                     </b-dropdown>
                                 </td>
                             </tr>
@@ -378,6 +353,61 @@
                     </div>
                 </div>
             </div>
+
+
+
+            <div class="modal fade" id="debitMember" tabindex="-1" role="dialog" aria-labelledby="addNewUserLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addNewUserLabel">
+                                Debit Member
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <form @submit.prevent="suspendGoUser()">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input v-model="formSuspend.name" type="text"
+                                        name="name" class="form-control" readonly="true"/>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input v-model="formSuspend.start_date" type="date"
+                                        class="form-control"
+                                        :class="{'is-invalid': form.errors.has('start_date')}"
+                                    />
+                                    <has-error :form="form" field="start_date"></has-error>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input v-model="formSuspend.end_date" type="date"
+                                        class="form-control"
+                                        :class="{'is-invalid': form.errors.has('end_date')}"
+                                    />
+                                    <has-error :form="form" field="end_date"></has-error>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    Suspend
+                                </button>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </b-overlay>
 </template>
@@ -400,6 +430,7 @@ export default {
             users: {},
             member_types: [],
             sections: [],
+            products: [],
             states: [],
             lgas: {},
             admin: "",
@@ -411,6 +442,13 @@ export default {
                 address: "",
                 state: "",
                 credit_unit: "",
+            }),
+
+            formDebit: new Form({
+                id: "",
+                name: "",
+                start_date: "",
+                end_date: "",
             }),
 
             formSuspend: new Form({
@@ -460,6 +498,7 @@ export default {
                     this.member_types = response.data.member_types;
                     this.sections = response.data.sections;
                     this.states = response.data.states;
+                    this.products = response.data.products;
                 })
             },
 
@@ -703,6 +742,11 @@ export default {
             this.loadOther();
         },
 
+        debitMember(user){ 
+            this.formDebit.id = user.unique_id;
+            this.formDebit.name = user.name;
+            $("#debitMember").modal("show");
+        },
 
         suspendUser(user) { 
             Swal.fire({
