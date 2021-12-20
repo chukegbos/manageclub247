@@ -11,6 +11,7 @@ use App\Ledger;
 use App\AccountType;
 use App\Account;
 use Carbon\Carbon;
+use App\Api;
 
 class LiveController extends Controller
 {
@@ -151,5 +152,11 @@ class LiveController extends Controller
        	return redirect()->back()->withErrors(['Email or password or PIN is incorrect']);
         //If unsuccessful, then redirect back to the login with the form data
         //return redirect()->back()->withInput($request->only('email', 'remember'));
+    }
+    public function apis(Request $request)
+    {
+        set_time_limit(0);
+        $apis = Api::where('deleted_at', NULL)->get();
+        return $apis;
     }
 }

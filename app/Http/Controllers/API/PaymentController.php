@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Member;
 use App\PaymentProduct;
 use App\PaymentDebit;
 use App\PaymentBank;
@@ -76,6 +77,8 @@ class PaymentController extends Controller
         }
 
         $params['all'] = $query->count();
+        $params['products'] = PaymentProduct::where('deleted_at', NULL)->get();
+        $params['members'] = Member::where('deleted_at', NULL)->get();
 
         return $params;
     }
@@ -83,33 +86,37 @@ class PaymentController extends Controller
     public function storedebit(Request $request)
     {
         $this->validate($request, [
-            'code' => 'required',
-            'name' => 'required',
+            'member' => 'required',
+            'product' => 'required',
+            'amount' => 'required',
         ]);
-        
-        $pos = PaymentPos::where('deleted_at', NULL)->where('code', $request['code'])->first();
-        if ($pos) {
-            return ['Error' => 'POS Already Exist'];
-        }
-        PaymentPos::create([
-            'code' => $request['code'],
-            'name' => $request['name'],
+        $product = PaymentProduct::find($request['product']);
+
+        PaymentDebit::create([
+            'product' => $request['product'],
+            'description' => $product->payment_name,
+            'member_id' => $request['member'],
+            'amount' => $request['amount'],
+            'grace_period' => $request['grace_period'],
+            'debit_type' => 0,
+            'member_id' => $request['member'],
+            'start_date' => Carbon::today(),
+            'date_entered' => Carbon::today(),
+            'created_by' => auth('api')->user()->id,
         ]);
 
-        return ['Message' => 'Updated'];
+        return ['Message' => 'Created'];
     }
 
     public function updatedebit(Request $request, $id)
     {
-        $pos = PaymentPos::findOrFail($id);
+        $debit = PaymentDebit::findOrFail($id);
         $this->validate($request, [
-            'code' => 'required',
-            'name' => 'required',
+            'amount' => 'required',
         ]);
 
-        $pos->update([
-            'code' => $request['code'],
-            'name' => $request['name'],
+        $debit->update([
+            'amount' => $request['amount'],
         ]);
 
         return ['Message' => 'Updated'];
@@ -118,7 +125,7 @@ class PaymentController extends Controller
     public function destroydebit(Request $request)
     {
         foreach ($request->selected as $id) {
-            PaymentPos::Destroy($id);
+            PaymentDebit::Destroy($id);
         }
         return 'ok';  
     }

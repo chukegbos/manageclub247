@@ -263,7 +263,7 @@ class CustomerController extends Controller
         $params['user'] = User::where('deleted_at', NULL)->where('unique_id', $unique_id)->first();
  
         if($params['user']){
-            $params['member']=Member::where('deleted_at', NULL)->where('membership_id', $unique_id)->first();
+            $params['member'] = Member::where('deleted_at', NULL)->where('membership_id', $unique_id)->first();
             if (!$params['member']) {
                 return ['error' => 'Member not found'];
             }
@@ -379,11 +379,10 @@ class CustomerController extends Controller
             ->sum('totalPrice');
 
             $query2 = Fund::where('funds.deleted_at', NULL)
-                ->where('funds.customer_id', $params['user']->id)
-                ->join('users', 'funds.user_id', '=', 'users.id')
-                ->where('users.deleted_at', NULL)
+                ->where('funds.customer_id', $params['member']->id)
+                ->join('default_esc_members', 'funds.user_id', '=', 'default_esc_members.id')
                 ->select(
-                    'users.name as name',
+                    'default_esc_members.get_member as name',
                     'funds.mop as mop',
                     'funds.ref_id as ref_id',
                     'funds.amount as amount',
@@ -401,20 +400,7 @@ class CustomerController extends Controller
                 $params['funds'] = $query2
             ->get();
 
-            $query4 = Fund::where('funds.deleted_at', NULL)
-                ->where('funds.customer_id', $params['user']->id)
-                ->join('users', 'funds.user_id', '=', 'users.id')
-                ->where('users.deleted_at', NULL);
-
-                if ($request->start_date) {
-                    $query4->where('funds.created_at', '>=', $request->start_date);
-                }
-
-                if ($request->end_date) {
-                    $query4->where('funds.created_at', '<=', $request->end_date);
-                }
-                $params['sum_fund'] = $query4
-            ->sum('funds.amount');
+                $params['sum_fund'] = $query2->sum('funds.amount');
 
             //$query5 = Item::where('sales.deleted_at', NULL)
                 //->join('sales', 'items.code', '=', 'sales.sale_id')
@@ -487,7 +473,7 @@ class CustomerController extends Controller
         $this->validate($request, [
             'last_name' => 'required|string|max:191',
             'first_name' => 'required|string|max:191',
-            'email' => 'required|string|max:191|email|unique:users',
+            //'email' => 'required|string|max:191|email|unique:users',
             'phone_1' => 'required|string|max:19',
             'state' => 'required',
             'address' => 'required|string|max:191',
@@ -511,13 +497,18 @@ class CustomerController extends Controller
         else {
             $image = NULL;
         }
-
+        if ($request->email) {
+            $email = $request->email;
+        }
+        else{
+            $email = $request['membership_id'].'@enugusportsclub.org';
+        }
         $user = User::create([
             'unique_id' => $request['membership_id'],
             'entrance_date' => $request['entrance_date'],
             'name' => $request['last_name'].' '.$request['first_name'].' '.$request['middle_name'],
             'c_person' => $request['last_name'].' '.$request['first_name'].' '.$request['middle_name'],
-            'email' => $request['email'],
+            'email' => $email,
             'phone' => $request['phone_1'],
             'dob' => $request['dob'],
             'image' => $image,
@@ -533,7 +524,7 @@ class CustomerController extends Controller
             'last_name' => $request['last_name'],
             'first_name' => $request['first_name'],
             'middle_name' => $request['middle_name'],
-            'email' => $request['email'],
+            'email' => $email,
             'phone_1' => $request['phone_1'],
             'phone_2' => $request['phone_2'],
             'state' => $request['state'],
@@ -569,27 +560,33 @@ class CustomerController extends Controller
             'sponsor_2' => $request['sponsor_2'],
         ]);
 
-        foreach ($request->card_numbers as $item) {
-            $memberCard = MemberCard::create([
-                'member_id' => $member->id,
-                'card_number' => $item['card_number'],
-            ]);
+        if($request->card_numbers){
+            foreach ($request->card_numbers as $item) {
+                $memberCard = MemberCard::create([
+                    'member_id' => $member->id,
+                    'card_number' => $item['card_number'],
+                ]);
+            }
         }
 
-        foreach ($request->educationItems as $item) {
-            MemberEducation::create([
-                'member_id' => $member->id,
-                'level' => $item['level'],
-                'institution' => $item['institution'],
-                'degree' => $item['degree'],
-            ]);
+        if($request->educationItems){
+            foreach ($request->educationItems as $item) {
+                MemberEducation::create([
+                    'member_id' => $member->id,
+                    'level' => $item['level'],
+                    'institution' => $item['institution'],
+                    'degree' => $item['degree'],
+                ]);
+            }
         }
         
-        foreach ($request->sections as $section_id) {
-            MemberSection::create([
-                'member_id' => $member->id,
-                'section_id' => $section_id,
-            ]);
+        if($request->sections){
+            foreach ($request->sections as $section_id) {
+                MemberSection::create([
+                    'member_id' => $member->id,
+                    'section_id' => $section_id,
+                ]);
+            }
         }
 
         return ['Update' => 'Updated'];
@@ -731,11 +728,11 @@ class CustomerController extends Controller
             'first_name' => 'required|string|max:191',
             'email' => 'required',
             'phone_1' => 'required|string|max:19',
-            'state' => 'required',
+            /*'state' => 'required',
             'address' => 'required|string|max:191',
             'member_type' => 'required',
             'dob' => 'required',
-            'membership_id' => 'required'
+            'membership_id' => 'required'*/
         ]);
 
         set_time_limit(0);

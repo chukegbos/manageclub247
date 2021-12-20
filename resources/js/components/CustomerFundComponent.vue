@@ -11,7 +11,7 @@
                 <div class="card">
                     <div class="card-body row">
                         <div class="form-group col-md-6">
-                            <label>Customer</label>
+                            <label>Member</label>
                             <!--<vue-typeahead-bootstrap
                                 v-model="userQuery"
                                 :ieCloseFix="false"
@@ -22,7 +22,7 @@
                                 @input="lookUser"
                             />-->
 
-                            <v-select label="name" :options="users" @input="setCustomer($event)"></v-select>
+                            <v-select label="get_member" :options="users" @input="setCustomer($event)"></v-select>
                         </div>
 
                         <div class="form-group col-md-6">
@@ -30,7 +30,7 @@
                             <input v-model="wallet.amount" type="number" class="form-control"/>
                         </div>
 
-                        <div class="form-group col-md-6">
+                        <!--<div class="form-group col-md-6">
                             <label>Method of Payment</label>
 
                             <select v-model="wallet.mop" class="form-control">
@@ -47,7 +47,7 @@
                             <label v-else>Cheque Number</label>
 
                             <input v-model="wallet.tran_type" type="text" class="form-control"/>
-                        </div>
+                        </div>-->
                     </div>
 
                     <div class="card-footer">

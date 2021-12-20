@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Member;
+use App\MemberCard;
 use App\Store;
 use App\Role;
 use App\User;
@@ -22,7 +23,7 @@ class User extends Authenticatable
     use HasApiTokens, SoftDeletes, Notifiable;
 
     protected $fillable = [
-        'name', 'email', 'phone', 'password', 'role', 'address', 'store', 'sale_percent', 'next_of_kin_address', 'next_of_kin_phone', 'next_of_kin', 'state', 'city', 'image', 'unique_id', 'salary', 'credit_unit', 'wallet_balance', 'c_person', 'pin', 'invoice', 'entrance_date', 'dob', 'gender', 'door_access', 'access', 'approved_by', 'approved', 'member_type', 'get_role', 'debt'
+        'card_numbers', 'name', 'email', 'phone', 'password', 'role', 'address', 'store', 'sale_percent', 'next_of_kin_address', 'next_of_kin_phone', 'next_of_kin', 'state', 'city', 'image', 'unique_id', 'salary', 'credit_unit', 'wallet_balance', 'c_person', 'pin', 'invoice', 'entrance_date', 'dob', 'gender', 'door_access', 'access', 'approved_by', 'approved', 'member_type', 'get_role', 'debt'
     ];
 
     /**
@@ -52,6 +53,26 @@ class User extends Authenticatable
         $id = $this->attributes['role'];
         $role = DB::table('roles')->where('id', $id)->first();
         return $role;
+    }
+    
+    public function getCardNumbersAttribute()
+    {
+        $id = $this->attributes['unique_id'];
+        if ($id) {
+            $member = Member::where('membership_id', $id)->first();
+            if ($member) {
+                
+                $member_card = MemberCard::where('member_id', $member->id)->get();
+               return $member_card;
+            }
+            else {
+                return null;
+            }
+            
+        }
+        else {
+            return null;
+        }
     }
 
     public function getCPersonAttribute()

@@ -11,8 +11,17 @@ class Member extends Model
     protected $table = 'default_esc_members';
 
     protected $fillable = [
-        'last_name', 'first_name', 'middle_name', 'email', 'phone_1', 'phone_2', 'state', 'address', 'city', 'country', 'office_address', 'lga', 'state_of_origin',  'membership_id', 'home_town', 'marital_status', 'spouse_name', 'children', 'member_type', 'get_state_of_origin', 'get_lga', 'get_state', 'get_city', 'get_member_type'
+        'last_name', 'first_name', 'middle_name', 'email', 'phone_1', 'phone_2', 'state', 'address', 'city', 'country', 'office_address', 'lga', 'state_of_origin',  'membership_id', 'home_town', 'marital_status', 'spouse_name', 'children', 'member_type', 'get_state_of_origin', 'get_lga', 'get_state', 'get_city', 'get_member_type', 'get_member'
     ];
+
+    public function getGetMemberAttribute()
+    {
+        $last_name = $this->attributes['last_name'];
+        $first_name = $this->attributes['first_name'];
+        $middle_name = $this->attributes['middle_name'];
+        $id = $this->attributes['membership_id'];
+        return $last_name.' '.$first_name.' '.$middle_name.' ('.$id.')';
+    }
 
     public function getGetMemberTypeAttribute()
     {

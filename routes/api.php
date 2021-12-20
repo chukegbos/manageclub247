@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 	Route::get('allusers', 'API\UserController@allusers');
 	Route::get('loadLGA/{id}', 'API\UserController@loadLGA');
 	Route::get('members', 'LiveController@members');
+	Route::get('ips', 'LiveController@apis');
 
 	Route::group(['prefix' => 'user'], function(){
 		Route::group(['prefix' => 'dashboard'], function(){

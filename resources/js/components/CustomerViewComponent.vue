@@ -52,7 +52,7 @@
                                                         <td><span v-html="nairaSign"></span>{{ formatPrice( value_order_count) }}</td>
                                                         <td>{{ quotes.length }}</td>
                                                         <td>{{ invoices.length }}</td> 
-                                                        <td>{{ all_orders.length }}</td>
+                                                        <td>{{ orders.length }}</td>
                                                     </tr>
                                                 </table>
                                             </div>
@@ -259,7 +259,7 @@
                                         <td>{{ index + 1 }}</td>
                                         <td><span v-if="debt.product">{{ debt.product.payment_name }}</span></td>
                                         <td>{{ debt.description }}</td>
-                                        <td><span v-if="debt.product"><span v-html="nairaSign"></span>{{ formatPrice(debt.product.amount)  }} </span><br> <span class="badge badge-danger btn-sm">Unpaid</span></td>
+                                        <td><span v-if="debt.product"><span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }} </span><br> <span class="badge badge-danger btn-sm">Unpaid</span></td>
                                         <td>{{ debt.start_date | myDate }}</td> 
                                         <td>
                                             {{ debt.grace_period }} Days 
@@ -272,7 +272,7 @@
                                             <a href="javascript:void(0)" @click="extendPeriod(debt)" class="btn btn-info btn-sm">Extend Period</a> 
 
                                             <a href="javascript:void(0)" @click="onPay(debt)" class="btn btn-success btn-sm">Pay</a>
-                                           
+                                            
                                         </td>
                                     </tr>
                                 </table>
@@ -356,7 +356,7 @@
                     <b-tab title="All Transactions">
                         <b-card-text>
                             <div style="border; height: 20em; overflow-y: auto; white-space: nowrap; padding:5px">
-                                <div  v-if="all_orders.length>0">
+                                <div  v-if="orders.length>0">
                                     <table class="table table-hover">
                                         <tr>
                                             <th>S/N</th>
@@ -367,7 +367,7 @@
                                             <th>Action</th>
                                         </tr>
 
-                                        <tr  v-for="(order, index) in all_orders">
+                                        <tr  v-for="(order, index) in orders">
                                             <td>{{ index + 1 }}</td>
                                             <td>{{ order.sale_id }}</td>
                                             <td>{{ order.main_date | myDate }}</td> 
@@ -565,7 +565,6 @@
                 educations: '',
                 card_numbers: [],
                 orders: [],
-                all_orders: [],
                 invoices: [],
                 quotes: [],
                 nairaSign: "&#x20A6;",
@@ -681,7 +680,6 @@
                         this.user = response.data.user;
                         this.card_numbers = response.data.card_numbers;
                         this.orders = response.data.orders;
-                        this.all_orders = response.data.all_orders;
                         this.invoices = response.data.invoices;
                         this.quotes = response.data.quotes;
                         this.funds = response.data.funds;
@@ -747,7 +745,6 @@
                         console.log(response.data)
                         this.user = response.data.user;
                         this.orders = response.data.orders;
-                        this.all_orders = response.data.all_orders;
                         this.invoices = response.data.invoices;
                         this.quotes = response.data.quotes;
                         this.funds = response.data.funds;

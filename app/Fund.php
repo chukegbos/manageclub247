@@ -31,7 +31,7 @@ class Fund extends Model
     {
         $id = $this->attributes['customer_id'];
         if ($id) {
-            $user = User::where('deleted_at', NULL)->find($id);
+            $user = Member::where('deleted_at', NULL)->find($id);
             if ($user) {
                 return $user;
             }

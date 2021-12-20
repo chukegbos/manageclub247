@@ -35,7 +35,7 @@
                                 </div>
                             </div>
 
-                            <b-form-group label="Customer:">
+                            <b-form-group label="Members:">
                                 <!--<vue-typeahead-bootstrap
                                   v-model="userQuery"
                                   :ieCloseFix="false"
@@ -45,7 +45,7 @@
                                   placeholder="Search for customer"
                                   @input="lookUser"
                                 />-->
-                                <v-select label="name" :options="users" @input="setCustomer($event)"></v-select>
+                                <v-select label="get_member" :options="users" @input="setCustomer($event)"></v-select>
                             </b-form-group>
                             <b-button type="submit" variant="primary">Filter</b-button>
                         </b-form>
@@ -57,24 +57,8 @@
                 <div class="card-body table-responsive p-0" v-if="fundings.data.length>0">
                     <table class="table table-hover">
                         <tr>
-                            <th>
-                                <div class="pull-left">
-                                    <span style="padding-right: 8px">Customer</span>
-                                    <a href="javascript:void(0)" class="fa fa-stack" @click="orderByName()">
-                                        <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                        <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="pull-left">
-                                    <span style="padding-right: 8px">Date</span>
-                                    <a href="javascript:void(0)" class="fa fa-stack" @click="orderByDate()">
-                                        <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                        <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                    </a>
-                                </div>
-                            </th>
+                            <th>Member</th>
+                            <th>Date</th>
                             <th>Amount (<span v-html="nairaSign"></span>)</th>
                             <th>Payment Type</th>
                             <th>Initiator</th>
@@ -83,7 +67,7 @@
                         </tr>
 
                         <tr v-for="fund in fundings.data" :key="fund.id">
-                            <td>{{ fund.customer_id.name }}</td>
+                            <td>{{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }}</td>
                             <td>{{ fund.created_at | myDate }}</td> 
                             <td>{{ formatPrice(fund.amount) }}</td>
                             <td>{{ fund.mop }} <br><span v-if="fund.tran_type">({{ fund.tran_type }})</span></td>  

@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal()" class="pull-right m-2">
                         Add Debit
                     </b-button>
                
@@ -28,7 +28,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==3"><input type="checkbox" v-model="selectAll"></th>
                                 <th>Member</th>
                                 <th>Payment</th>
                                 <th>Description</th>
@@ -40,7 +40,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="debt in debits.data" :key="debt.id">
-                                <td> <input type="checkbox" v-model="action.selected" :value="debt.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==3"> <input type="checkbox" v-model="action.selected" :value="debt.id" number></td>
                                 <td>{{ debt.last_name }} {{ debt.first_name }} {{ debt.middle_name }}</td>
                                 <td><span v-if="debt.product">{{ debt.product.payment_name }}</span></td>
                                 <td>{{ debt.description }}</td>
@@ -54,12 +54,16 @@
                                     <span class="badge badge-danger" v-if="debt.period==0">Expired</span><br>
                                     {{ startDateMoment(debt.start_date, debt.grace_period) }}
                                 </td> 
-                                
-                                <td>
-                                    <a href="javascript:void(0)" @click="extendPeriod(debt)" class="btn btn-info btn-sm">Extend Period</a> 
+                                <td v-if="unprintable==false">
+                                    <b-dropdown id="dropdown-right" text="Action" variant="info">
+                                        <span v-if="admin.role==1 || admin.role==3">
+                                            <b-dropdown-item href="javascript:void(0)" @click="extendPeriod(debt)">Extend Period</b-dropdown-item>
 
-                                    <a href="javascript:void(0)" @click="onPay(debt)" class="btn btn-success btn-sm">Pay</a>
-                                   
+                                            <b-dropdown-item href="javascript:void(0)" @click="onPay(debt)">Pay</b-dropdown-item>
+
+                                            <b-dropdown-item href="javascript:void(0)" @click="editDebit(debt)">Edit Debit</b-dropdown-item>
+                                        </span>
+                                    </b-dropdown>
                                 </td>
                             </tr>
                         </tbody>
@@ -140,14 +144,14 @@
                                 id="addNewdebitLabel"
                                 v-show="!editMode"
                             >
-                                Add New debit
+                                Add New Debit
                             </h5>
                             <h5
                                 class="modal-title"
                                 id="addNewdebitLabel"
                                 v-show="editMode"
                             >
-                                Update debit
+                                Update Debit
                             </h5>
                             <button
                                 type="button"
@@ -160,10 +164,35 @@
                         </div>
                         <form @submit.prevent="editMode ? updatedebit() : createdebit()">
                             <div class="modal-body">
+                                
+                                <div class="form-group" v-if="editMode">
+                                    <label>Product</label>
+                                    <input v-model="form.description" type="text" readonly="true" class="form-control"/>
+                                </div>
+
+                                <b-form-group v-else>
+                                    <label>Payment Products</label>
+                                    <v-select label="payment_name" :options="products" @input="setProduct" ></v-select>
+                                </b-form-group>
+
+                                <div class="form-group" v-if="editMode">
+                                    <label>Member</label>
+                                    <input v-model="form.name" type="text" readonly="true" class="form-control"/>
+                                </div>
+
+                                <b-form-group v-else>
+                                    <label>Members</label>
+                                    <v-select label="get_member" :options="members" @input="setMember" ></v-select>
+                                </b-form-group>
+
                                 <div class="form-group">
-                                    <label>Name<span class="text-danger pulll-right">*</span></label>
-                                    <input v-model="form.title" type="text" name="name" required class="form-control" :class="{'is-invalid': form.errors.has('title')}"/>
-                                    <has-error :form="form" field="title"></has-error>
+                                    <label>Amount</label>
+                                    <input v-model="form.amount" type="number" name="amount" class="form-control"/>
+                                </div>
+
+                                <div class="form-group" v-if="!editMode">
+                                    <label>Grace Period (Days)</label>
+                                    <input v-model="form.grace_period" type="number" max="30" name="grace_period" class="form-control"/>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -202,6 +231,7 @@
 
     export default {
         created() {
+            this.getUser();
             this.loadDebits();
         },
 
@@ -214,7 +244,12 @@
                 debit: "",
                 form: new Form({
                     id: "",
-                    title: "",
+                    amount: "",
+                    grace_period: "",
+                    product: "",
+                    member: "",
+                    description: '',
+                    name: '',
                 }),
                 nairaSign: "&#x20A6;",
                 filterForm: {
@@ -224,6 +259,7 @@
                 action: {
                     selected: []
                 },
+                admin: "",
                 debits: {
                     data: {},
                 },
@@ -232,7 +268,8 @@
                     id: '',
                     grace_period: '',
                 }),
-
+                members: [],
+                products: [],
                 count_all: '',
                 unprintable: false,
             };
@@ -241,7 +278,14 @@
         methods: {
             onChange(event) {
                 this.filterForm.selected = event.target.value;
+                this.getUser();
                 this.loadDebits();
+            },
+
+            getUser() {
+                axios.get("/api/user").then(({ data }) => {
+                    this.admin = data.user;
+                });
             },
 
             loadDebits() {
@@ -258,6 +302,8 @@
                         this.debits = data.debits;
                     }
                     this.count_all = data.all;
+                    this.products = data.products;
+                    this.members = data.members;
                 })
                 .catch(() => {
                     Swal.fire(
@@ -271,8 +317,15 @@
                 });
             },
 
+            setProduct(value) {
+                this.form.product = value.id;
+            },
+
+            setMember(value) {
+                this.form.member = value.id;
+            },
+
             newModal() {
-                (this.editMode = false), this.form.reset();
                 $("#addNewdebit").modal("show");
             },
 
@@ -301,10 +354,12 @@
                 });
             },
 
-            editModal(debit) {
-                (this.editMode = true), this.form.reset();
-                $("#addNewdebit").modal("show");
+            editDebit(debit) {
+                (this.editMode = true);
                 this.form.fill(debit);
+                this.form.name = debit.first_name +' '+debit.last_name
+                $("#addNewdebit").modal("show");
+                
             },
 
             startDateMoment(value, grace_period) {
@@ -332,7 +387,6 @@
                         "Payment debit Created Successfully.",
                         "success"
                     );
-                    this.loadDebits(); 
                 })
                 .catch(() => {
                     Swal.fire(
@@ -342,8 +396,8 @@
                     );
                 })
                 .finally(() => {
-                    
                     this.is_busy = false;
+                    this.getUser();
                     this.loadDebits(); 
                 });
             },
@@ -367,6 +421,7 @@
                 })
                 .finally(() => {
                     this.is_busy = false;
+                    this.getUser();
                     this.loadDebits(); 
                 });
             },

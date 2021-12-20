@@ -14,6 +14,7 @@ use App\Setting;
 use App\Supplier;
 use App\Credit;
 use App\Inventory;
+use App\Member;
 use App\InventoryStore;
 use App\Store;
 use Illuminate\Support\Facades\Hash;
@@ -229,7 +230,7 @@ class UserController extends Controller
         }*/
 
         $params = [];
-        $params['customers'] = User::where('deleted_at', NULL)->where('role', 0)->get();
+        $params['customers'] = Member::where('deleted_at', NULL)->get();
         $params['user'] = auth('api')->user();
         //$params['user_store'] = $params['user']->getOriginal('store');
 
@@ -599,22 +600,7 @@ class UserController extends Controller
     {
         $params = [];
 
-        $query =  Fund::where('funds.deleted_at', NULL);
-
-        if ($request->orderName==0) {
-            $query->orderBy('funds.customer_id', 'Desc');
-        }
-        elseif ($request->orderName==1) {
-            $query->orderBy('funds.customer_id', 'asc');
-        }
-
-        if ($request->orderDate==0) {
-            $query->orderBy('funds.created_at', 'Desc');
-        }
-        elseif ($request->orderDate==1) {
-            $query->orderBy('funds.created_at', 'asc');
-        }
-
+        $query =  Fund::where('funds.deleted_at', NULL)->latest();
 
 
         if($request->customer_id)
@@ -628,19 +614,6 @@ class UserController extends Controller
         if ($request->end_date) {
             $query->where('funds.created_at', '<=', $request->end_date . ' 23:59');
         }
-        $query->select(
-            'funds.id as id',
-            'funds.user_id as user_id',
-            'funds.ref_id as ref_id',
-            'funds.customer_id as customer_id',
-            'funds.tran_type as tran_type',
-            'funds.approved_by as approved_by',
-            'funds.status as status',
-            'funds.mop as mop',
-            'funds.status as status',
-            'funds.amount as amount',
-            'funds.created_at as created_at'
-        );
 
         if ($request->selected==0) {
             $params['fundings'] =  $query->get();
@@ -648,53 +621,14 @@ class UserController extends Controller
         else{
             $params['fundings'] =  $query->paginate($request->selected);
         }
-        
 
-
-        $query1 =  Fund::where('funds.deleted_at', NULL)
-            ->join('users', 'funds.customer_id', '=', 'users.id')
-            ->where('users.deleted_at', NULL);
-
-        if($request->customer_id)
-        {
-            $query1->where('funds.customer_id', $request->customer_id);
-        }
-
-        if ($request->start_date) {
-            $query1->where('funds.created_at', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $query1->where('funds.created_at', '<=', $request->end_date . ' 23:59');
-        }
-
-        $params['all'] = $query1->count();
+        $params['all'] = $query->count();
         return $params;
     }
 
     public function fundreceipt($ref_id)
     {
-        $fund = Fund::where('funds.deleted_at', NULL)
-            ->join('stores', 'funds.store_id', 'stores.id')
-            ->where('stores.deleted_at', NULL)
-            ->where('funds.ref_id', $ref_id)
-            ->select(
-                'stores.name as store_name',
-                'stores.phone as store_phone',
-                'stores.email as store_email',
-                'stores.address as store_address',
-                'funds.id as id',
-                'funds.user_id as user_id',
-                'funds.ref_id as ref_id',
-                'funds.customer_id as customer_id',
-                'funds.tran_type as tran_type',
-                'funds.approved_by as approved_by',
-                'funds.status as status',
-                'funds.mop as mop',
-                'funds.status as status',
-                'funds.amount as amount',
-                'funds.created_at as created_at'
-            )
-            ->first();
+        $fund = Fund::where('funds.deleted_at', NULL)->where('funds.ref_id', $ref_id)->first();
         return $fund;
     }
 
@@ -706,8 +640,8 @@ class UserController extends Controller
             $fund->status = 2;
             $fund->update();
         
-            $user = User::findOrFail($fund->getOriginal('customer_id'));
-           
+            $member = Member::findOrFail($fund->getOriginal('customer_id'));
+            $user = User::where('unique_id', $member->membership_id)->first();
             $user->update([
                 'wallet_balance' => $fund->amount + $user->wallet_balance,
             ]);

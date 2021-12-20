@@ -19,12 +19,12 @@
                                         <table class="table table-bordered">
                                            <tr>
                                                 <th>Name</th>
-                                                <td>{{ fund.customer_id.name }}</td>
+                                                <td>{{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }} {{ fund.customer_id.middle_name }} ({{ fund.customer_id.membership_id }})</td>
                                             </tr>
 
                                             <tr>
                                                 <th>Phone Number</th>
-                                                <td>{{ fund.customer_id.phone }}</td>
+                                                <td>{{ fund.customer_id.phone_1 }}</td>
                                             </tr> 
 
                                             <tr>
