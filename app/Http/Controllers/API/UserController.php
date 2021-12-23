@@ -257,20 +257,6 @@ class UserController extends Controller
     {
         $user = User::where('users.deleted_at', NULL)
             ->where('users.unique_id', $id)
-            ->join('stores', 'users.store', '=', 'stores.id')
-            ->where('stores.deleted_at', NULL)
-            ->select(
-                'stores.name as store_name',
-                'users.name as name',
-                'users.phone as phone',
-                'users.email as email',
-                'users.role as role',
-                'users.address as address',
-                'users.next_of_kin as next_of_kin',
-                'users.next_of_kin_address as next_of_kin_address',
-                'users.next_of_kin_phone as next_of_kin_phone',
-                'users.invoice as invoice'
-            )
             ->first();
         if ($user) {
             return  $user;
@@ -333,29 +319,13 @@ class UserController extends Controller
             \Image::make($request->image)->save(public_path('img/photos/').$name);
         }
 
-        if ($request['role']==2) {
-            $sale_percent = $setting->cashier_percent;
-        }
-        elseif ($request['role']==4) {
-            $sale_percent = $setting->manager_percent;
-        }
-
-        elseif ($request['role']==3) {
-            $sale_percent = $setting->admin_percent;
-        }
-        else{
-            $sale_percent = 0;
-        }
-
         return User::create([
-            'salary' => $request['salary'],
+            'store' => $request['store'],
             'name' => $request['name'],
             'email' => $request['email'],
             'phone' => $request['phone'],
             'address' => $request['address'],
-            'sale_percent' => $sale_percent,
             'role' => $request['role'],
-            'store' => $request['store'],
             'password' => Hash::make($request['password']),
             'next_of_kin' => $request['next_of_kin'],
             'next_of_kin_address' => $request['next_of_kin_address'],
@@ -459,15 +429,10 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         $this->validate($request, [
-
             'name' => 'required|string|max:191',
-            'email' => 'required|string|max:191|unique:users,email,'.$user->id,
-            'phone' => 'required|string|max:19',
-            'address' => 'required|string|max:191',
+            //'email' => 'required|string|max:191|unique:users,email,'.$user->id,
+            //'phone' => 'required|string|max:19',
             'store' => 'required',
-            'next_of_kin' => 'required|string|max:191',
-            'next_of_kin_address' => 'required|string|max:191',
-            'next_of_kin_phone' => 'required|string|max:19'
         ]);
    
         if ($request->password) {
@@ -493,29 +458,13 @@ class UserController extends Controller
             $name = $user->image;
         }
 
-         if ($request['role']==2) {
-            $sale_percent = $setting->cashier_percent;
-        }
-        elseif ($request['role']==4) {
-            $sale_percent = $setting->manager_percent;
-        }
-
-        elseif ($request['role']==3) {
-            $sale_percent = $setting->admin_percent;
-        }
-        else{
-            $sale_percent = 0;
-        }
-
         $user->update([
             'name' => $request['name'],
-            'salary' => $request['salary'],
+            'store' => $request['store'],
             'email' => $request['email'],
             'phone' => $request['phone'],
             'address' => $request['address'],
             'role' => $request['role'],
-            'store' => $request['store'],
-            'sale_percent' => $sale_percent,
             'password' => $password,
             'next_of_kin' => $request['next_of_kin'],
             'next_of_kin_address' => $request['next_of_kin_address'],
@@ -564,10 +513,11 @@ class UserController extends Controller
 
     public function walletuser(Request $request)
     {
-        
-        if ((!$request->payer_id) || (!$request->amount) || (!$request->mop )) {
-            return ['error' => 'Please fill all the fields!!!'];
-        }
+        $this->validate($request, [
+            'payer_id' => 'required',
+            'amount' => 'required',
+            'wallet' => 'required'
+        ]);
 
         $fund = Fund::create([
             'user_id' => auth('api')->user()->id,
@@ -576,6 +526,7 @@ class UserController extends Controller
             'amount' => $request['amount'],
             'mop' => $request['mop'],
             'account' => 4,
+            'wallet' => $request['wallet'],
             'ref_id' => rand(2,99999).'FT',
             'tran_type'=> $request['tran_type'],
         ]);
@@ -642,9 +593,15 @@ class UserController extends Controller
         
             $member = Member::findOrFail($fund->getOriginal('customer_id'));
             $user = User::where('unique_id', $member->membership_id)->first();
-            $user->update([
-                'wallet_balance' => $fund->amount + $user->wallet_balance,
-            ]);
+            
+            if($fund->wallet==0) {
+                $user->bar_wallet = $fund->amount + $user->bar_wallet;
+            }
+            else{
+                $user->wallet_balance = $fund->amount + $user->wallet_balance;
+            }
+                
+            $user->update();
 
             $last_ledger = Ledger::where('deleted_at', null)->latest()->first();
             if (!$last_ledger) {

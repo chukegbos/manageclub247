@@ -64,6 +64,7 @@
           <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
               <h5>{{ Auth::user()->name }}</h5>
+              {{ Auth::user()->get_role->title }}<br>
               @if($my_store)<h6>{{ $my_store->name }}</h6>@endif
             </div>
           </div>
@@ -107,11 +108,11 @@
                       </router-link>
                     </li>
 
-                    <!--<li class="nav-item">
+                    <li class="nav-item">
                       <router-link to="/payment" class="nav-link ml-3">
                         Payment History
                       </router-link>
-                    </li>-->
+                    </li>
 
                     <li class="nav-item">
                       <router-link to="/payment/products" class="nav-link ml-3">
@@ -249,11 +250,11 @@
                       </router-link>
                     </li>
                     
-                    <li class="nav-item">
+                    <!--<li class="nav-item">
                       <router-link to="/suppliers/debt" class="nav-link ml-3">
                        Supplier's Debt
                       </router-link>
-                    </li>
+                    </li>-->
                   </ul>
                 </li>
                 
@@ -390,6 +391,208 @@
                       </li>-->
                     </ul>
                 </li> 
+              @elseif(Auth::user()->role==2)
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-user"></i>
+                    <p>
+                      Members
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/admin/customers" class="nav-link ml-3">
+                        List of Members
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment" class="nav-link ml-3">
+                        Payment History
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment/products" class="nav-link ml-3">
+                        Payment Products
+                      </router-link>
+                    </li>
+                    
+                    <li class="nav-item">
+                      <router-link to="/payment/debits" class="nav-link ml-3">
+                        Payment Debits
+                      </router-link>
+                    </li>
+                    
+                    <li class="nav-item">
+                      <router-link to="/payment/channels" class="nav-link ml-3">
+                        Payment Channels
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment/banks" class="nav-link ml-3">
+                        Payment Banks
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment/pos" class="nav-link ml-3">
+                        Payment POS
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/admin/customers/fund-history" class="nav-link ml-3">
+                        Funding History
+                      </router-link>
+                    </li>
+                  </ul>
+                </li>
+                
+                <li class="nav-item">
+                  <router-link to="/outlets" class="nav-link">
+                    <i class="nav-icon fa fa-home"></i>
+                    <p>Bars</p>
+                  </router-link>
+                </li>
+
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-product-hunt"></i>
+                    <p>
+                      Store House
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/admin/inventory/category" class="nav-link ml-3">
+                        Item Category
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/admin/inventory" class="nav-link ml-3">
+                        Inventory List
+                      </router-link>
+                    </li>
+                    
+
+                    <li class="nav-item">
+                      <router-link to="/admin/purchases" class="nav-link ml-3">
+                        Purchases Orders
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                        <router-link to="/movements/myoutlet" class="nav-link ml-3">
+                         My Item Movements
+                        </router-link>
+                    </li> 
+                  </ul>
+                </li>   
+
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-truck"></i>
+                    <p>
+                      Suppliers
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    
+
+                     <li class="nav-item">
+                      <router-link to="/suppliers" class="nav-link ml-3">
+                       All Suppliers
+                      </router-link>
+                    </li>
+                    
+                    <!--<li class="nav-item">
+                      <router-link to="/suppliers/debt" class="nav-link ml-3">
+                       Supplier's Debt
+                      </router-link>
+                    </li>-->
+
+                  </ul>
+                </li>
+                
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-shopping-cart"></i>
+                    <p>
+                      Transactions
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/sale/orders" class="nav-link ml-3">
+                        All Sales
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/debtors" class="nav-link ml-3">
+                        Customer Balance Details
+                      </router-link>
+                    </li>
+                  </ul>
+                </li>
+               
+                <!--<li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-book"></i>
+                    <p>
+                      Accounts Management
+                      <i class="right fas fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/account/type" class="nav-link">
+                        <p class="ml-2">Accounts Type</p>
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/account/chart-of-account" class="nav-link">
+                        <p class="ml-2">Chart of Accounts</p>
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/account/reports" class="nav-link">
+                       
+                        <p class="ml-2">Account Reports</p>
+                      </router-link>
+                    </li>
+                   
+                      
+                  
+                  </ul>
+                </li> -->
+            
+                <li class="nav-item has-treeview">
+                    <a href="#" class="nav-link">
+                      <i class="nav-icon fa fa-cogs"></i>
+                      <p>
+                        Administration
+                        <i class="right fa fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      <li class="nav-item">
+                        <router-link to="/password" class="nav-link ml-3">
+                         Change Password
+                        </router-link>
+                      </li>
+
+                    </ul>
+                </li> 
               @elseif(Auth::user()->role==3)
                 <li class="nav-item has-treeview">
                   <a href="#" class="nav-link">
@@ -418,11 +621,11 @@
                       </router-link>
                     </li>
 
-                    <!--<li class="nav-item">
+                    <li class="nav-item">
                       <router-link to="/payment" class="nav-link ml-3">
                         Payment History
                       </router-link>
-                    </li>-->
+                    </li>
 
                     <li class="nav-item">
                       <router-link to="/payment/products" class="nav-link ml-3">
@@ -515,19 +718,6 @@
                         Inventory List
                       </router-link>
                     </li>
-                    
-                    <li class="nav-item">
-                      <router-link to="/admin/purchase/create" class="nav-link ml-3">
-                      Create Purchase Order
-                      </router-link>
-                    </li>
-
-                      
-                    <!--<li class="nav-item">
-                      <router-link to="/admin/purchases" class="nav-link ml-3">
-                      Purchase Orders
-                      </router-link>
-                    </li>-->
 
                       <li class="nav-item">
                         <router-link to="/admin/purchases" class="nav-link ml-3">
@@ -560,11 +750,11 @@
                       </router-link>
                     </li>
                     
-                    <li class="nav-item">
+                    <!--<li class="nav-item">
                       <router-link to="/suppliers/debt" class="nav-link ml-3">
                        Supplier's Debt
                       </router-link>
-                    </li>
+                    </li>-->
                   </ul>
                 </li>
                 
@@ -577,19 +767,6 @@
                     </p>
                   </a>
                   <ul class="nav nav-treeview">
-                
-
-                    <li class="nav-item">
-                      <router-link to="/sale/quote" class="nav-link ml-3">
-                        All Invoices
-                      </router-link>
-                    </li>
-
-                    <!--<li class="nav-item">
-                      <router-link to="/sale/invoice" class="nav-link ml-3">
-                        All Invoices
-                      </router-link>
-                    </li>-->
 
                     <li class="nav-item">
                       <router-link to="/sale/orders" class="nav-link ml-3">
@@ -725,11 +902,11 @@
                       </router-link>
                     </li>
 
-                    <!--<li class="nav-item">
+                    <li class="nav-item">
                       <router-link to="/payment" class="nav-link ml-3">
                         Payment History
                       </router-link>
-                    </li>-->
+                    </li>
 
                     <li class="nav-item">
                       <router-link to="/payment/products" class="nav-link ml-3">
@@ -867,11 +1044,11 @@
                       </router-link>
                     </li>
                     
-                    <li class="nav-item">
+                    <!--<li class="nav-item">
                       <router-link to="/suppliers/debt" class="nav-link ml-3">
                        Supplier's Debt
                       </router-link>
-                    </li>
+                    </li>-->
                   </ul>
                 </li>
                
@@ -994,11 +1171,11 @@
                       </router-link>
                     </li>
 
-                    <!--<li class="nav-item">
+                    <li class="nav-item">
                       <router-link to="/payment" class="nav-link ml-3">
                         Payment History
                       </router-link>
-                    </li>-->
+                    </li>
 
                     <li class="nav-item">
                       <router-link to="/payment/products" class="nav-link ml-3">
@@ -1051,17 +1228,6 @@
                     </p>
                   </a>
                   <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                      <router-link to="/sale/quote" class="nav-link ml-3">
-                        All Invoices
-                      </router-link>
-                    </li>
-
-                    <!--<li class="nav-item">
-                      <router-link to="/sale/invoice" class="nav-link ml-3">
-                        All Invoices
-                      </router-link>
-                    </li>-->
 
                     <li class="nav-item">
                       <router-link to="/sale/orders" class="nav-link ml-3">
@@ -1076,69 +1242,6 @@
                     </li>
                   </ul>
                 </li>
-               
-                <li class="nav-item has-treeview">
-                  <a href="#" class="nav-link">
-                    <i class="nav-icon fa fa-book"></i>
-                    <p>
-                      Accounts Management
-                      <i class="right fas fa-angle-left"></i>
-                    </p>
-                  </a>
-                  <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                      <router-link to="/account/type" class="nav-link">
-                        <p class="ml-2">Accounts Type</p>
-                      </router-link>
-                    </li>
-
-                    <!--<li class="nav-item">
-                      <router-link to="/account/tax" class="nav-link">
-                        <p class="ml-2">Tax Line</p>
-                      </router-link>
-                    </li>-->
-
-                    <li class="nav-item">
-                      <router-link to="/account/chart-of-account" class="nav-link">
-                        <p class="ml-2">Chart of Accounts</p>
-                      </router-link>
-                    </li>
-
-                    <!--<li class="nav-item">
-                      <router-link to="/account/journal" class="nav-link">
-                        <p class="ml-2">Journal</p>
-                      </router-link>
-                    </li>
-
-                    <li class="nav-item">
-                      <router-link to="/account/ledger" class="nav-link">
-                        <p class="ml-2">Ledger</p>
-                      </router-link>
-                    </li>
-
-                     <li class="nav-item">
-                      <router-link to="/account/company-fund" class="nav-link">
-                        <p class="ml-2">Inject Capital</p>
-                      </router-link>
-                    </li>
-                   
-                    <li class="nav-item">
-                      <router-link to="/account/trial-balance" class="nav-link">
-                        <p class="ml-2">Trial Balance</p>
-                      </router-link>
-                    </li>-->
-
-                    <li class="nav-item">
-                      <router-link to="/account/reports" class="nav-link">
-                       
-                        <p class="ml-2">Account Reports</p>
-                      </router-link>
-                    </li>
-                   
-                      
-                  
-                  </ul>
-                </li> 
             
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
@@ -1149,13 +1252,6 @@
                       </p>
                     </a>
                     <ul class="nav nav-treeview">
-                      @if(Auth::user()->role=='Admin')
-                      <li class="nav-item">
-                        <router-link to="/admin/setting" class="nav-link ml-3">
-                          Site Settings
-                        </router-link>
-                      </li>
-                      @endif
                       <li class="nav-item">
                         <router-link to="/password" class="nav-link ml-3">
                          Change Password
@@ -1170,28 +1266,6 @@
                     </ul>
                 </li> 
               @elseif(Auth::user()->role==6)
-                <li class="nav-item has-treeview">
-                  <a href="#" class="nav-link">
-                    <i class="nav-icon fa fa-users"></i>
-                    <p>
-                      Users
-                      <i class="right fa fa-angle-left"></i>
-                    </p>
-                  </a>
-                  <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                      <router-link to="/admin/staff" class="nav-link ml-3">
-                        List of User
-                      </router-link>
-                    </li>
-
-                    <li class="nav-item">
-                      <router-link to="/admin/logins" class="nav-link ml-3">
-                        Login Histories
-                      </router-link>
-                    </li>
-                  </ul>
-                </li>
                 <li class="nav-item">
                   <router-link to="/outlets" class="nav-link">
                     <i class="nav-icon fa fa-home"></i>
@@ -1264,11 +1338,11 @@
                       </router-link>
                     </li>
                     
-                    <li class="nav-item">
+                    <!--<li class="nav-item">
                       <router-link to="/suppliers/debt" class="nav-link ml-3">
                        Supplier's Debt
                       </router-link>
-                    </li>
+                    </li>-->
                   </ul>
                 </li>
                 
@@ -1614,11 +1688,11 @@
                       </router-link>
                     </li>
 
-                    <!--<li class="nav-item">
+                    <li class="nav-item">
                       <router-link to="/payment" class="nav-link ml-3">
                         Payment History
                       </router-link>
-                    </li>-->
+                    </li>
 
                     <li class="nav-item">
                       <router-link to="/payment/products" class="nav-link ml-3">
@@ -1757,11 +1831,11 @@
                       </router-link>
                     </li>
                     
-                    <li class="nav-item">
+                    <!--<li class="nav-item">
                       <router-link to="/suppliers/debt" class="nav-link ml-3">
                        Supplier's Debt
                       </router-link>
-                    </li>
+                    </li>-->
                   </ul>
                 </li>
                 
@@ -1899,8 +1973,6 @@
                     </ul>
                 </li> 
               @endif
-
-
               <li class="nav-item">
                 <a class="nav-link" href="{{ route('logout') }}"
                   onclick="event.preventDefault();

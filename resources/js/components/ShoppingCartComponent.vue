@@ -528,10 +528,7 @@
                 .catch();
             },
 
-            setProduct(product, index){
-
-              
-           
+            setProduct(product, index){      
                 if((product.number <= 0) || (product.number == null)){
                     Swal.fire(
                         'Failed!',

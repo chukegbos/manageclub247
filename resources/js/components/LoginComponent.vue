@@ -30,7 +30,7 @@
                                 <th>Logout</th>
                                 <th>Status</th>
                                 <th>Verified</th>
-                                <th>Action</th>
+                                <th v-if="admin.role==1 && admin.role==7">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,10 +45,8 @@
                                     <span v-else class="btn btn-danger btn-sm">Not Verified</span>
                                 </td>
                                 <td>{{ login.verified_by }}</td>
-                                <td v-if="unprintable==false">
+                                <td v-if="admin.role==1 && admin.role==7">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
-                                        <!--<b-dropdown-item href="javascript:void(0)" @click="editModal(login)">View PRogress</b-dropdown-item>-->
-
                                         <b-dropdown-item href="javascript:void(0)" @click="onApprove(login.id)">Sign-off</b-dropdown-item>
                                     </b-dropdown>
                                 </td>
@@ -86,11 +84,13 @@
 <script>
     export default {
         created() {
+            this.getUser();
             this.loadLogin();
         },
 
         data() {
             return {
+                admin: '',
                 is_busy: false,
                 logins: {},
                 filterForm: {
@@ -111,9 +111,15 @@
         methods: {
             onChange(event) {
                 this.filterForm.selected = event.target.value;
+                this.getUser();
                 this.loadLogin();
             },
 
+            getUser() {
+                axios.get("/api/user").then(({ data }) => {
+                    this.admin = data.user;
+                });
+            },
             loadLogin() {
                 if (this.is_busy) return;
                 this.is_busy = true;
@@ -156,6 +162,7 @@
 
             onFilterSubmit()
             {
+                this.getUser();
                 this.loadLogin();
             },
 
@@ -185,6 +192,7 @@
                                 "success"
                             );
                             this.is_busy = false;
+                            this.getUser();
                             this.loadLogin();
                         })
 
@@ -222,6 +230,7 @@
                                 "success"
                             );
                             this.is_busy = false;
+                            this.getUser();
                             this.loadLogin();
                         })
 

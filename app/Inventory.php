@@ -21,9 +21,13 @@ class Inventory extends Model
     public function getQuantityAttribute()
     {
         $id = $this->attributes['id'];
-        $inventory = InventoryStore::where('deleted_at', NULL)
-            ->where('inventory_id', $id)->sum('number');
-        return $inventory ;
+        $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $id)->where('store_id', 1)->first();
+        if($inventory){
+            return $inventory->number;
+        }
+        else{
+            return NULL;
+        }
     }
 
 }

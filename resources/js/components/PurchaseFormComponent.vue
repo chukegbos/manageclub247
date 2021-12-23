@@ -145,7 +145,26 @@
                                     <input v-model="formItem.product_name" type="text" name="product_name" class="form-control" :class="{'is-invalid': formItem.errors.has('product_name')}"/>
                                     <has-error :form="formItem" field="product_name"></has-error>
                                 </div>
-                                
+                                <div class="form-group col-md-6">
+                                    <label>Unit of Measurement</label>
+                                    <input v-model="formItem.unit" type="text" name="unit" class="form-control" :class="{'is-invalid': form.errors.has('unit')}"/>
+                                    <has-error :form="formItem" field="unit"></has-error>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Number Per Pack</label>
+                                    <input v-model="formItem.number_per_crate" type="number" name="number_per_crate" class="form-control":class="{'is-invalid': form.errors.has('number_per_crate')}" required/>
+
+                                    <has-error :form="formItem" field="number_per_crate"></has-error>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Cost Price</label>
+                                    <input v-model="formItem.cost_price" type="number" name="cost_price" class="form-control":class="{'is-invalid': form.errors.has('cost_price')}" required/>
+
+                                    <has-error :form="formItem" field="cost_price"></has-error>
+                                </div>
+
                                 <div class="form-group">
                                     <label>Selling Price</label>
                                     <input v-model="formItem.price" type="number" name="price" class="form-control":class="{'is-invalid': formItem.errors.has('price')}"/>
@@ -411,7 +430,10 @@
                     id: "",
                     product_name: "",
                     price: "0",
+                    cost_price: "",
                     category: 1,
+                    unit: '',
+                    number_per_crate: '',
                 }),
                 formSup: new Form({
                     id: "",

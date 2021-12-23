@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5 || admin.role==11">
                         Add POS
                     </b-button>
                
@@ -29,18 +29,18 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11"><input type="checkbox" v-model="selectAll"></th>
                                 <th>Code</th>
                                 <th>Name</th>
-                                <th>Action</th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="channel in pos.data" :key="channel.id">
-                                <td> <input type="checkbox" v-model="action.selected" :value="channel.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11"> <input type="checkbox" v-model="action.selected" :value="channel.id" number></td>
                                 <td>{{ channel.code }}</td>
                                 <td>{{ channel.name }}</td>
-                                <td v-if="unprintable==false">
+                                <td  v-if="admin.role==1 || admin.role==5 || admin.role==11">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(channel)">Edit</b-dropdown-item>
 
@@ -155,6 +155,7 @@
 <script>
     export default {
         created() {
+            this.getUser();
             this.loadPos();
         },
 
@@ -170,7 +171,7 @@
                     name: "",
                     code: "",
                 }),
-
+                admin: '',
                 filterForm: {
                     name: '',
                     selected: '10',
@@ -189,7 +190,14 @@
         methods: {
             onChange(event) {
                 this.filterForm.selected = event.target.value;
+                this.getUser();
                 this.loadPos();
+            },
+
+            getUser() {
+                axios.get("/api/user").then(({ data }) => {
+                    this.admin = data.user;
+                });
             },
 
             loadPos() {
@@ -239,6 +247,7 @@
 
             onFilterSubmit()
             {
+                this.getUser();
                 this.loadPos();
             },
 
@@ -248,7 +257,6 @@
                 $("#addNewChannel").modal("hide");
                 this.form.post("/api/payment/pos")
                 .then((data) => {
-                    console.log(data.data.Error)
                     if(data.data.Error){
                         Swal.fire(
                             "Failed!",
@@ -263,6 +271,7 @@
                             "success"
                         );
                     }
+                    this.getUser();
                     this.loadPos(); 
                 })
                 .catch(() => {
@@ -275,6 +284,7 @@
                 .finally(() => {
                     
                     this.is_busy = false;
+                    this.getUser();
                     this.loadPos(); 
                 });
             },
@@ -286,6 +296,7 @@
                 this.form.put("/api/payment/pos/" + this.form.id)
                 .then(() => {
                     Swal.fire("Updated!", "Payment POS Updated Successfully.", "success");
+                    this.getUser();
                     this.loadPos(); 
                 })
 
@@ -298,6 +309,7 @@
                 })
                 .finally(() => {
                     this.is_busy = false;
+                    this.getUser();
                     this.loadPos(); 
                 });
             },
@@ -328,6 +340,7 @@
                                 "success"
                             );
                             this.is_busy = false;
+                            this.getUser();
                             this.loadPos();
                         })
 

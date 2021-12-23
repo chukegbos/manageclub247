@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 && admin.role==5">
                         Add Supplier
                     </b-button>
 
@@ -32,27 +32,28 @@
                 <div class="card-body table-responsive p-0" v-if="users.data.length>0">
                     <table class="table table-hover">
                         <tr>
-                            <th v-if="unprintable==false">
-                                <input type="checkbox" v-model="selectAll">
+                            <th v-if="admin.role==1 && admin.role==5">
+                                <span v-if="unprintable==false">
+                                    <input type="checkbox" v-model="selectAll">
+                                </span>
                             </th>
                             <th>Supplier</th>
                             <th>Contact Person</th>
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Address</th>
-                           
-                            <th>Modify</th>
+                            <th v-if="admin.role==1 && admin.role==5">Modify</th>
                         </tr>
 
                         <tr v-for="user in users.data" :key="user.id">
-                            <td> <input type="checkbox" v-model="action.selected" :value="user.id" number></td>
+                            <td v-if="admin.role==1 && admin.role==5"> <input type="checkbox" v-model="action.selected" :value="user.id" number></td>
                             <td>{{ user.supplier_name }}</td>
                             <td>{{ user.contact_person }}</td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.phone }}</td>
                             <td>{{ user.address }}</td>
                            
-                            <td>
+                            <td v-if="admin.role==1 && admin.role==5">
                                 <a href="javascript:void(0)" @click="editModal(user)">
                                     <i class="fa fa-edit"></i>
                                 </a>
@@ -309,8 +310,9 @@
 <script>
     export default {
         created() {
-            this.loadUsers();
             this.getBank();
+            this.getUser();
+            this.loadUsers();
         },
 
         data() {
@@ -320,6 +322,7 @@
                 model: {},
                 users: {},
                 user: "",
+                admin: '',
                 usersss: '',
                 form: new Form({
                     id: "",
@@ -358,6 +361,8 @@
         methods: {
             onChange(event) {
                 this.filterForm.selected = event.target.value;
+                this.getUser();
+                this.getBank();
                 this.loadUsers();
             },
         
@@ -368,11 +373,19 @@
             },
 
             onFilterSubmit() {
-                this.loadUsers();
+                this.getUser();
                 this.getBank();
+                this.loadUsers();
+                
                 this.$refs.filter.hide();
             },
 
+            getUser() {
+                axios.get("/api/user").then(({ data }) => {
+                    this.admin = data.user;
+                });
+            },
+        
             loadUsers() {
                 if (this.is_busy) return;
                 this.is_busy = true;
@@ -467,8 +480,9 @@
                             "Supplier Created Successfully.",
                             "success"
                         );
-                        this.loadUsers();
+                        this.getUser();
                         this.getBank();
+                        this.loadUsers();
                     })
 
                     .catch(() => {
@@ -490,8 +504,9 @@
                             "success"
                         );
                         this.$Progress.finish();
-                        this.loadUsers();
+                        this.getUser();
                         this.getBank();
+                        this.loadUsers();
                     })
 
                     .catch(() => {
@@ -525,6 +540,8 @@
                                 "success"
                             );
                             this.is_busy = false;
+                            this.getUser();
+                            this.getBank();
                             this.loadUsers();                          
                         })
 

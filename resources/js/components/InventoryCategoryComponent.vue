@@ -4,17 +4,19 @@
             
             <div class="row mb-2 p-2">
                 <div class="col-md-4">
-                    <h2><strong>List of Item Groups</strong></h2>
+                    <h2><strong>List of Item Category</strong></h2>
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
-                        Add Group
-                    </b-button>
+                    <span v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11">
+                        <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                            Add Group
+                        </b-button>
 
-                    <b-button variant="outline-danger" size="sm" v-if="action.selected.length" class="pull-right m-2" @click="onDeleteAll"><i class="fa fa-trash"></i> Delete Selected</b-button>
+                        <b-button variant="outline-danger" size="sm" v-if="action.selected.length" class="pull-right m-2" @click="onDeleteAll"><i class="fa fa-trash"></i> Delete Selected</b-button>
 
-                    <b-button disabled size="sm" variant="outline-danger" v-else class="pull-right m-2"> <i class="fa fa-trash"></i> Delete Selected</b-button>
+                        <b-button disabled size="sm" variant="outline-danger" v-else class="pull-right m-2"> <i class="fa fa-trash"></i> Delete Selected</b-button>
+                    </span>
 
                     <b-form @submit.stop.prevent="onFilterSubmit" class="pull-right m-2" size="sm">
                         <b-input-group>
@@ -33,19 +35,17 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" v-model="selectAll"></th>
-                                <th width="200px">Name</th>
-                                <th>Action</th>
+                                <th v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11"><input type="checkbox" v-model="selectAll"></th>
+                                <th>Name</th>
+                                <th v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr  v-for="(cat, index) in categories.data">
-                                <td> <input type="checkbox" v-model="action.selected" :value="cat.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11"> <input type="checkbox" v-model="action.selected" :value="cat.id" number></td>
                                 <td>{{ cat.name }}</td>
-                                <td>
+                                <td v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
-                                        <b-dropdown-item href="javascript:void(0)" @click="percent(cat)">General Increase</b-dropdown-item>
-
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(cat)">Edit</b-dropdown-item>
 
                                         <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(cat.id)"> Delete</b-dropdown-item>
@@ -56,7 +56,7 @@
                     </table>
                 </div>
                 <div class="card-body" v-else>
-                    <div class="alert alert-info text-center"><h3><strong>No Group Found.</strong></h3></div>
+                    <div class="alert alert-info text-center"><h3><strong>No Category Found.</strong></h3></div>
                 </div>
                 <div class="card-footer">
                     <div class="row">
@@ -183,7 +183,7 @@
                 editMode: false,
                 model: {},
                 categories: {},
-                user: "",
+                admin: "",
                 form: new Form({
                     id: "",
                     name: "",
@@ -209,15 +209,15 @@
         },
 
         created() {
-            this.loadcategory();
             this.getUser();
+            this.loadcategory();
         },
 
         methods: {
             getUser() {
                 axios.get("/api/user")
                 .then(({ data }) => {
-                    this.user = data.user;
+                    this.admin = data.user;
                 });
             },
 

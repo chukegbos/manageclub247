@@ -32,14 +32,8 @@ class PurchaseController extends Controller
     {
         $params = [];
 
-        $query = Purchase::where('deleted_at', NULL)->where('store_id',auth('api')->user()->store)->latest();
+        $query = Purchase::where('deleted_at', NULL)->latest();
 
-        if ($request->start_date) {
-                $query->where('purchase_date', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $query->where('purchase_date', '<=', $request->end_date . ' 23:59');
-        }
 
         if ($request->name) {
             $query->where('purchase_id', 'like', '%' . $request->name . '%');
@@ -51,22 +45,7 @@ class PurchaseController extends Controller
         else{
             $params['purchases'] =  $query->paginate($request->selected);
         }
-
-
-        $query1 = Purchase::where('deleted_at', NULL);
-
-        if ($request->start_date) {
-                $query1->where('purchase_date', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $query1->where('purchase_date', '<=', $request->end_date . ' 23:59');
-        }
-
-        if ($request->name) {
-             $query1->where('purchase_id', 'like', '%' . $request->name . '%');
-        }
-
-        $params['all'] = $query1->count();
+        $params['all'] = $query->count();
         return $params;
     }
 
@@ -271,8 +250,15 @@ class PurchaseController extends Controller
 
             if ($inventory) {
                 $inventory->price = $item['price'];
-                $inventory->price = $item['quantity'];
                 $inventory->update();
+            }
+
+
+            $InventoryStore = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item['id'])->where('store_id', 1)->first();
+
+            if ($InventoryStore) {
+                $InventoryStore->number = $inventory->number + ($item['quantity'] * $item['number_per_crate']);
+                $InventoryStore->update();
             }
         }
 

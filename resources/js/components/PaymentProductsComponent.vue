@@ -11,7 +11,7 @@
                         <i class="fa fa-filter"></i> Filter
                     </b-button>
 
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5">
                         Add Payment Products
                     </b-button>
 
@@ -71,12 +71,11 @@
                                 <th>Category</th>
                                 <th>Door Access</th>
                                 <th>Creator </th>
-                                <th>Action</th>
+                                <th v-if="admin.role==1 || admin.role==5">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="method in payments.data" :key="method.id">
-                               
                                 <td>{{ method.payment_name }}</td>
                                 <td>{{ method.product_id }}</td>
                                 <td>
@@ -93,7 +92,7 @@
                                     <span v-else class="badge badge-primary">Enabled</span>
                                 </td>
                                 <td><span v-if="method.created_by">{{ method.created_by.name }}<br>{{ method.created_at | myDate }}</span></td>
-                                <td>
+                                <td v-if="admin.role==1 || admin.role==5">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info"> 
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(method)">Edit</b-dropdown-item>
 
@@ -414,8 +413,8 @@
 
     export default {
         created() {
-            this.loadPayment();
             this.getUser();
+            this.loadPayment();
         },
 
         data() {
@@ -476,7 +475,7 @@
                 },
                 count_all: '',
                 unprintable: false,
-                user: '',
+                admin: '',
             };
         },
 
@@ -522,7 +521,7 @@
 
             getUser() {
                 axios.get("/api/user").then(({ data }) => {
-                    this.user = data.user;
+                    this.admin = data.user;
                 });
             },
 

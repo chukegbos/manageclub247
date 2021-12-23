@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button variant="outline-primary" size="sm" @click="newModal()" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal()" class="pull-right m-2" v-if="admin.role==1 || admin.role==5">
                         Add Debit
                     </b-button>
                
@@ -28,19 +28,19 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==3"><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==5"><input type="checkbox" v-model="selectAll"></th>
                                 <th>Member</th>
                                 <th>Payment</th>
                                 <th>Description</th>
                                 <th>Amount</th>
                                 <th>Date Created</th>
                                 <th>Grace Period</th>
-                                <th>Action</th>
+                                <th v-if="admin.role==1 || admin.role==5">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="debt in debits.data" :key="debt.id">
-                                <td v-if="admin.role==1 || admin.role==3"> <input type="checkbox" v-model="action.selected" :value="debt.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==5"> <input type="checkbox" v-model="action.selected" :value="debt.id" number></td>
                                 <td>{{ debt.last_name }} {{ debt.first_name }} {{ debt.middle_name }}</td>
                                 <td><span v-if="debt.product">{{ debt.product.payment_name }}</span></td>
                                 <td>{{ debt.description }}</td>
@@ -54,15 +54,15 @@
                                     <span class="badge badge-danger" v-if="debt.period==0">Expired</span><br>
                                     {{ startDateMoment(debt.start_date, debt.grace_period) }}
                                 </td> 
-                                <td v-if="unprintable==false">
+                                <td v-if="admin.role==1 || admin.role==5">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
-                                        <span v-if="admin.role==1 || admin.role==3">
+                                      
                                             <b-dropdown-item href="javascript:void(0)" @click="extendPeriod(debt)">Extend Period</b-dropdown-item>
 
                                             <b-dropdown-item href="javascript:void(0)" @click="onPay(debt)">Pay</b-dropdown-item>
 
                                             <b-dropdown-item href="javascript:void(0)" @click="editDebit(debt)">Edit Debit</b-dropdown-item>
-                                        </span>
+                                     
                                     </b-dropdown>
                                 </td>
                             </tr>
@@ -222,6 +222,83 @@
                     </div>
                 </div>
             </div>
+
+            <div class="modal fade" id="addPay" tabindex="-1" role="dialog" aria-labelledby="addPayLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Make Payment</h5>
+                          
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <form @submit.prevent="makePay()">
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label>Member</label>
+                                    <input v-model="formPay.name" type="text" readonly="true" class="form-control"/>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Amount</label>
+                                    <input v-model="formPay.amount" type="number" name="amount" class="form-control"/>
+                                </div>
+
+                                <b-form-group label="Method of Payment:" label-for="payment_method">
+                                        <select v-model="formPay.mop" class="form-control">
+                                            <option v-for="option in payment_types" v-bind:value="option.id">
+                                                {{ option.title }}
+                                            </option>
+                                        </select>
+                                    </b-form-group>
+
+                                    <b-form-group label="Select Bank:" v-if="formPay.mop==3">
+                                        <select v-model="formPay.link" class="form-control">
+                                            <option v-for="option in banks" v-bind:value="option.id">
+                                                {{ option.get_bank_name }} ({{ option.account_number }})
+                                            </option>
+                                        </select>
+                                    </b-form-group>
+
+                                    <b-form-group label="Select POS:" v-if="formPay.mop==2">
+                                        <select v-model="formPay.link" class="form-control">
+                                            <option v-for="option in pos" v-bind:value="option.id">
+                                                {{ option.name }} ({{ option.code }})
+                                            </option>
+                                        </select>
+                                    </b-form-group>
+
+                                    <div class="form-group" v-if="formPay.mop==4 || formPay.mop==5">
+                                        <label>Put ID</label>
+                                        <input v-model="formPay.draft_id" type="text" class="form-control" />
+                                    </div>
+
+                                    <div class="form-group" v-if="formPay.mop==6">
+                                        <label>Customer Account Balance</label>
+                                        <input v-model="customer.wallet_balance" type="text" readonly="true" class="form-control"/>
+                                        <small><i class="text-red">Amount will be deducted from wallet</i></small>
+                                    </div>
+
+                                    <div class="form-group" v-if="formPay.mop==7">
+                                        <label>Customer Account Balance</label>
+                                        <input v-model="customer.bar_wallet" type="text" readonly="true" class="form-control"/>
+                                        <small><i class="text-red">Amount will be deducted from wallet</i></small>
+                                    </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">
+                                    Close
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    Pay
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </b-overlay>
 </template>
@@ -232,6 +309,7 @@
     export default {
         created() {
             this.getUser();
+            this.loadChannels();
             this.loadDebits();
         },
 
@@ -250,6 +328,27 @@
                     member: "",
                     description: '',
                     name: '',
+                }),
+                customer: '',
+                formPay: new Form({
+                    id: "",
+                    amount: "",
+                    product: "",
+                    name: '',
+                    mop: '1',
+                    link: '',
+                    draft_id: '',
+
+
+                    amount: "",
+                    debit_id: "",
+                    receipt_number: "",
+                    member_id: "",
+                    payment_channel: 0,
+                    description: '',
+                    receipt_number: '',
+                    bank: '',
+                    pos: '',
                 }),
                 nairaSign: "&#x20A6;",
                 filterForm: {
@@ -272,6 +371,9 @@
                 products: [],
                 count_all: '',
                 unprintable: false,
+                payment_types: [],
+                banks: [],
+                pos: [],
             };
         },
 
@@ -279,12 +381,22 @@
             onChange(event) {
                 this.filterForm.selected = event.target.value;
                 this.getUser();
+                this.loadChannels();
                 this.loadDebits();
             },
 
             getUser() {
                 axios.get("/api/user").then(({ data }) => {
                     this.admin = data.user;
+                });
+            },
+
+            loadChannels() {
+                axios.get("/api/payment/channels", { params: this.filterForm })
+                .then(({ data }) => {
+                    this.payment_types = data.channels.data;
+                    this.banks = data.banks;
+                    this.pos = data.pos;
                 });
             },
 
@@ -358,8 +470,7 @@
                 (this.editMode = true);
                 this.form.fill(debit);
                 this.form.name = debit.first_name +' '+debit.last_name
-                $("#addNewdebit").modal("show");
-                
+                $("#addNewdebit").modal("show");            
             },
 
             startDateMoment(value, grace_period) {
@@ -398,6 +509,7 @@
                 .finally(() => {
                     this.is_busy = false;
                     this.getUser();
+                    this.loadChannels();
                     this.loadDebits(); 
                 });
             },
@@ -422,6 +534,7 @@
                 .finally(() => {
                     this.is_busy = false;
                     this.getUser();
+                    this.loadChannels();
                     this.loadDebits(); 
                 });
             },
@@ -464,6 +577,56 @@
                             this.is_busy = false;
                         });
                     }
+                });
+            },
+
+            onPay(debt) {
+                this.formPay.fill(debt);
+                axios.get("/api/payment/debits/member/" + debt.member_id)
+                .then(({ data }) => {
+                    this.customer = data;
+                    console.log(this.customer);
+                })
+                .catch()
+
+                this.formPay.name = debt.first_name +' '+debt.last_name
+                $("#addPay").modal("show");   
+            },
+
+
+            makePay() {
+                if (this.is_busy) return;
+                this.is_busy = true;
+                $("#addPay").modal("hide");
+                this.formPay.post("/api/payment/debits/pay")
+                .then((data) => {
+                    if(data.error){
+                        Swal.fire(
+                            "Failed!",
+                            data.error,
+                            "warning"
+                        );
+                    }
+                    else {
+                        Swal.fire(
+                            "Created!",
+                            "Payment Created Successfully.",
+                            "success"
+                        );
+                    }
+                })
+                .catch(() => {
+                    Swal.fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.getUser();
+                    this.loadChannels();
+                    this.loadDebits(); 
                 });
             },
         },

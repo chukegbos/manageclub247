@@ -34,7 +34,7 @@
                                 </div>
 
                                 <div class="col-md-4 form-group">
-                                    <label>Entrance Date</label>
+                                    <label>Admission Date</label>
                                     <input v-model="form.entrance_date" type="date" required class="form-control"/>
                                 </div>
 
@@ -228,7 +228,7 @@
                                     <input v-model="form.sponsor_2" type="text" class="form-control">
                                 </div>
 
-                                <div class="col-md-6 form-group">
+                                <!--<div class="col-md-6 form-group">
                                     <label>Beneficiary Name</label>
                                     <input v-model="form.beneficiary_name" type="text" required class="form-control">
                                 </div>
@@ -251,7 +251,7 @@
                                 <div class="col-md-12 form-group">
                                     <label>Beneficiary Address</label>
                                     <textarea v-model="form.beneficiary_address" required class="form-control"></textarea>
-                                </div>
+                                </div>-->
                             </div>
                         </b-card-body>
                     </b-card>
@@ -354,8 +354,8 @@
         created(){
             this.loadPage();
             this.loadOther();
-            this.onAddNewService();
-            this.onAddNewCard();
+           // this.onAddNewService();
+            //this.onAddNewCard();
         },
 
         data(){
@@ -608,11 +608,11 @@
 
                 .then((response) => {
                     this.is_busy = false;
-                    if(response.data.error)
+                    if(response.data.errors)
                     {
                         Swal.fire(
                             "Failed!",
-                            response.data.error,
+                            "please fill all the form",
                             "warning"
                         );
                     }
@@ -629,9 +629,9 @@
                 })
                 .catch(() => {
                     this.is_busy = false;
-                    Swal(
+                    Swal.fire(
                         "Failed!",
-                        "Ops, Something went wrong, try again.",
+                        "Ops, Something went wrong, try again. Likely that you need to fill all the inputs",
                         "warning"
                     );
                 });

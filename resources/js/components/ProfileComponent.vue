@@ -17,13 +17,20 @@
                                 </tr>
 
                                 <tr>
-                                    <th>Store</th>
-                                    <td>{{ user.store_name }}</td>
+                                    <th>Bar</th>
+                                    <td>{{ user.store }}</td>
                                 </tr>
 
                                 <tr>
                                     <th>Role</th>
-                                    <td>{{ user.role }}</td>
+                                    <td>
+                                        <span v-if="user.role==8">
+                                            <span v-if="user.invoice==1">Bar Front desk officer</span>
+                                            <span v-else>{{ user.get_role.title }}</span>
+
+                                        </span>
+                                        <span v-else>{{ user.get_role.title }}</span>
+                                    </td>
                                 </tr>
 
                                 <tr>
@@ -53,13 +60,6 @@
                                     <th>Next of Kin Address</th>
                                     <td>{{ user.next_of_kin_address }}</td>
                                 </tr>
-                                <tr>
-                                    <th width="200px">Can Approve Invoice?</th>
-                                    <td>
-                                        <span v-if="user.invoice==1">Yes</span>
-                                        <span v-else>No</span>
-                                    </td>
-                                </tr>
                             </table>
                         </b-col>
                     </b-row>
@@ -78,6 +78,9 @@
                 user: '',
                 users: [],
                 userQuery: '',
+                user: {
+                    get_role: '',
+                }
             }
         },
 

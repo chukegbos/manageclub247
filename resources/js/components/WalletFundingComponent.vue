@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <router-link to="/admin/customers/fund" class="pull-right m-2 btn btn-primary btn-sm">
+                    <router-link to="/admin/customers/fund" class="pull-right m-2 btn btn-primary btn-sm" v-if="admin.role==1 || admin.role==3 ||admin.role==4 || admin.role==1 || admin.role==4 || admin.role==5 || admin.role==11">
                         Fund Member
                     </router-link>
 
@@ -60,7 +60,8 @@
                             <th>Member</th>
                             <th>Date</th>
                             <th>Amount (<span v-html="nairaSign"></span>)</th>
-                            <th>Payment Type</th>
+                            <th>Wallet Funded</th>
+                            <!--<th>Payment Type</th>-->
                             <th>Initiator</th>
                             <th>Approved By</th>
                             <th>Status</th>
@@ -70,7 +71,12 @@
                             <td>{{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }}</td>
                             <td>{{ fund.created_at | myDate }}</td> 
                             <td>{{ formatPrice(fund.amount) }}</td>
-                            <td>{{ fund.mop }} <br><span v-if="fund.tran_type">({{ fund.tran_type }})</span></td>  
+                            <td>
+                                <span v-if="fund.wallet==1">Membership Wallet</span>
+                                <span v-else>Bar/Kitchen Wallet</span>
+                            </td>  
+
+                            <!--<td>{{ fund.mop }} <br><span v-if="fund.tran_type">({{ fund.tran_type }})</span></td> -->
                             <td>{{ fund.user_id }}</td> 
                             <td>{{ fund.approved_by }}</td>
                                   
@@ -84,7 +90,7 @@
                                 </span>
                                 <span v-else>
                                     {{ fund.status }}
-                                    <span v-if="admin.role==1 || admin.role==3"> <br>
+                                    <span v-if="admin.role==1 || admin.role==10 || admin.role==11"> <br>
                                     <a href="javascript:void(0)" @click="approve(fund)" class="text-green">Approve</a> | <a href="javascript:void(0)" @click="reject(fund)" class="text-red">Reject</a></span>
                                 </span>
                             </td>

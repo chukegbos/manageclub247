@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==3 || admin.role==7">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==6 || admin.role==7">
                         Add Bar
                     </b-button>
 
@@ -34,7 +34,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role!=7">
+                                <th v-if="admin.role==1 || admin.role==6 || admin.role==7">
                                     <input type="checkbox" v-model="selectAll">
                                 </th>
                                 
@@ -81,7 +81,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="store in stores.data" :key="store.id">
-                                <td v-if="admin.role!=7"> 
+                                <td v-if="admin.role==1 || admin.role==6 || admin.role==7"> 
                                     <input type="checkbox" v-model="action.selected" :value="store.id" number>
                                 </td>
                                
@@ -94,17 +94,13 @@
                                 <td>{{ store.phone }}</td>
                                 <td>{{ store.target }}</td>
                                 <td>{{ store.stock_limit }}</td>-->
-                                <td v-if="unprintable==false">
+                                <td>
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
-                                        <b-dropdown-item href="javascript:void(0)" @click="view(store)" v-if="admin.role==1 || admin.role==3 || admin.role==7">View</b-dropdown-item>
+                                        <b-dropdown-item href="javascript:void(0)" @click="view(store)">View</b-dropdown-item>
 
-                                        <!--<b-dropdown-item href="javascript:void(0)" @click="viewroom(store)">View Show Room</b-dropdown-item>-->
+                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(store)" v-if="admin.role==1 || admin.role==6 || admin.role==7">Edit</b-dropdown-item>
 
-                                        <span>
-                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(store)" v-if="admin.role==1 || admin.role==3">Edit</b-dropdown-item>
-
-                                        <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(store.id)" v-if="admin.role==1 || admin.role==3">Delete</b-dropdown-item>
-                                        </span>
+                                        <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(store.id)" v-if="admin.role==1 || admin.role==6 || admin.role==7">Delete</b-dropdown-item>
                                     </b-dropdown>
                                 </td>
                             </tr>

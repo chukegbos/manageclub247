@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use DB;
 use App\User;
 use App\PaymentDebit;
+use App\PaymentChannel;
 
 class Payment extends Model
 {
@@ -39,6 +40,41 @@ class Payment extends Model
             $user = Member::where('deleted_at', NULL)->find($id);
             if ($user) {
                 return $user;
+            }
+            else {
+                return NULL;
+            }
+        } 
+        else {
+            return NULL;
+        }
+    }
+
+
+    public function getCreatedByAttribute()
+    {
+        $id = $this->attributes['created_by'];
+        if ($id) {
+            $user = User::where('deleted_at', NULL)->find($id);
+            if ($user) {
+                return $user->name;
+            }
+            else {
+                return NULL;
+            }
+        } 
+        else {
+            return NULL;
+        }
+    }
+
+    public function getPaymentChannelAttribute()
+    {
+        $id = $this->attributes['payment_channel'];
+        if ($id) {
+            $channel = PaymentChannel::find($id);
+            if ($channel) {
+                return $channel->title;
             }
             else {
                 return NULL;

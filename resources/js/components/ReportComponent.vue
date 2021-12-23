@@ -23,10 +23,10 @@
                                         <td>This lists Member details. </td> 
                                     </tr>
 
-                                    <tr>
+                                    <!--<tr>
                                         <td><router-link to="/customer/statement">Members' Statement</router-link></td>
                                         <td>This lists Member details. </td> 
-                                    </tr>
+                                    </tr>-->
 
                                     <tr>
                                         <td><router-link to="/customer/sales">Item Sales</router-link></td>

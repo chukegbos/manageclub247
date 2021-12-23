@@ -7,11 +7,9 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5">
                         Add User
                     </b-button>
-
-                    <!--<b-button size="sm" variant="outline-info"class="pull-right m-2"> <i class="fa fa-print"></i> Print</b-button>-->
 
                
                     <b-form @submit.stop.prevent="onFilterSubmit" class="pull-right m-2" size="sm">
@@ -36,7 +34,6 @@
                             <th>Phone</th>
                             <th>Bar/Store</th>
                             <th>Role</th>
-                            <!--<th>Salary (<span v-html="nairaSign"></span>)</th>-->
                             <th width="400px">Address</th>
                             <th>Action</th>
                         </tr>
@@ -55,19 +52,19 @@
                                 </span>
                                 <span v-else>{{ user.get_role.title }}</span>
                             </td>
-                            <!--<td>{{ formatPrice(user.salary) }}</td>-->
+                            
                             <td>{{ user.address }}</td>
                             <td>
                                 <b-dropdown id="dropdown-dropup" text="Action" variant="info">
-                                    <!--<b-dropdown-item href="javascript:void(0)" @click="updateStore(user)" v-if="user.role!='Admin'">Update User Bar</b-dropdown-item>-->
-
-                                    <b-dropdown-item href="javascript:void(0)" @click="updateRole(user)" v-if="user.role!='Admin'">Update User Role</b-dropdown-item>
+                                    <b-dropdown-item href="javascript:void(0)" @click="updateRole(user)" v-if="admin.role==1 || admin.role==5">Update User Role</b-dropdown-item>
 
                                     <b-dropdown-item href="javascript:void(0)" @click="view(user)">View User</b-dropdown-item>
 
-                                    <b-dropdown-item href="javascript:void(0)" @click="editModal(user)">Edit User</b-dropdown-item>
+                                    <b-dropdown-item href="javascript:void(0)" @click="editModal(user)" v-if="admin.role==1 || admin.role==5">Edit User</b-dropdown-item>
 
-                                    <b-dropdown-item href="javascript:void(0)" @click="deleteUser(user.id)" v-if="user.id!=userss.id && user.id!=1">Delete User</b-dropdown-item>
+                                    <span v-if="admin.role==1 || admin.role==5">
+                                        <b-dropdown-item href="javascript:void(0)" @click="deleteUser(user.id)" v-if="user.id!=admin.id && user.id!=1">Delete User</b-dropdown-item>
+                                    </span>
                                 </b-dropdown>
                             </td>
                         </tr>
@@ -89,7 +86,7 @@
                                     <!--<option value="0">All</option>-->
                                 </select>
                             Entries</b>
-                            <br> Total: <b>{{ count_all }} Users</b>
+                            <br> Total: <b>{{ count_all-1 }} Users</b>
                         </div>
 
                         <div class="col-md-8" v-if="this.filterForm.selected!=0">
@@ -106,7 +103,7 @@
             </div>
 
             <div class="modal fade" id="addNewUser" tabindex="-1" role="dialog" aria-labelledby="addNewUserLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="addNewUserLabel" v-show="!editMode">
@@ -123,7 +120,7 @@
 
                         <form @submit.prevent="editMode ? updateUser() : createUser()">
                             <div class="modal-body row">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Full Name</label>
                                         <input v-model="form.name" type="text"
@@ -132,7 +129,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Email Address</label>
                                         <input v-model="form.email" type="email" name="email" class="form-control" placeholder="Email Address"
@@ -141,7 +138,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Phone Number</label>
                                         <input
@@ -159,7 +156,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Select Role</label>
                                         <b-form-select
@@ -187,38 +184,14 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>Address</label>
-                                        <input v-model="form.address" type="text"
-                                            class="form-control"
-                                            placeholder="Home Address"
-                                            :class="{'is-invalid': form.errors.has('address')}"
-                                        />
-                                        <has-error :form="form" field="address"></has-error>
-                                    </div>
-                                </div>
-
-                                <!--<div class="col-md-4">
-                                    <b-form-group label="Outlet:">
-                                        <v-select label="name" :options="stores" @input="setSelected" ></v-select>
+                                <div class="col-md-4">
+                                    <label>Select Bar</label>
+                                    <b-form-group>
+                                        <v-select label="name" :options="stores" @input="setStore" ></v-select>
                                     </b-form-group>
                                 </div>
 
                                 <div class="col-md-4">
-                                    <div class="form-group">
-                                        <label>Salary</label>
-                                        <input v-model="form.salary" type="number"
-                                            class="form-control"
-                                            :class="{'is-invalid': form.errors.has('salary')}"
-                                        />
-                                        <has-error :form="form" field="salary"></has-error>
-                                    </div>
-                                </div>-->
-
-                                
-
-                                <div class="col-md-3">
                                     <div class="form-group" v-if="show_password==1">
                                         <label>Password</label>
                                         <input
@@ -236,7 +209,32 @@
                                     <a href="#" class="pull-right" @click="unsetPassword" v-else>Change Password</a>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Address</label>
+                                        <input v-model="form.address" type="text"
+                                            class="form-control"
+                                            placeholder="Home Address"
+                                            :class="{'is-invalid': form.errors.has('address')}"
+                                        />
+                                        <has-error :form="form" field="address"></has-error>
+                                    </div>
+                                </div>
+
+                                <!--
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Salary</label>
+                                            <input v-model="form.salary" type="number"
+                                                class="form-control"
+                                                :class="{'is-invalid': form.errors.has('salary')}"
+                                            />
+                                            <has-error :form="form" field="salary"></has-error>
+                                        </div>
+                                    </div>
+                                -->
+
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Next of Kin Name</label>
                                         <input v-model="form.next_of_kin" type="text"
@@ -245,7 +243,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Next of Kin Address</label>
                                         <input v-model="form.next_of_kin_address" type="text" name="next_of_kin_address" class="form-control" placeholder="Next of Kin Address"
@@ -254,7 +252,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="form-group">
                                         <label>Next of Kin Phone</label>
                                         <input
@@ -273,18 +271,20 @@
                                 </div>
 
 
-                                <!--<div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>Upload Photo Image</label>
-                                        <input type="file" @change="uploadImage" accept="image/*" name="image" class="form-control">
+                                <!--
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Upload Photo Image</label>
+                                            <input type="file" @change="uploadImage" accept="image/*" name="image" class="form-control">
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="col-md-6" v-if="form.image">
-                                    <div class="my-2">
-                                        <img :src="form.image" class="img-fluid" style="height:100px; width:150px">
+                                    <div class="col-md-6" v-if="form.image">
+                                        <div class="my-2">
+                                            <img :src="form.image" class="img-fluid" style="height:100px; width:150px">
+                                        </div>
                                     </div>
-                                </div>-->
+                                -->
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">
@@ -402,7 +402,7 @@
                 users: {},
                 stores: [],
                 show_password: 1,
-                userss: "",
+                admin: "",
                 form: new Form({
                     id: "",
                     name: "",
@@ -462,7 +462,7 @@
             getUser() {
                 axios.get("/api/user")
                 .then(({ data }) => {
-                    this.userss = data.user;
+                    this.admin = data.user;
                     this.stores = data.stores;
                     this.roles = data.roles;
                 });
@@ -470,6 +470,10 @@
 
             setSelected(value) {
                 this.formStore.store_id = value.id;
+            },
+
+            setStore(value) {
+                this.form.store = value.id;
             },
 
             setBarSelected(value) {
@@ -482,7 +486,7 @@
                 if(file['size'] < 8388608){
                   reader.onloadend = (file) => {
                     this.form.image = reader.result;
-                    console.log(this.form.image);
+                    
                   }
                   reader.readAsDataURL(file);
                 }else{
@@ -555,7 +559,6 @@
 
             
             view(user) {
-                console.log(user)
                 this.$router.push({ path: "/admin/user/" + user.unique_id });
             },
 
@@ -567,6 +570,7 @@
 
             createUser() {
                 this.$Progress.start();
+                console.log(this.form);
                 this.form.post("/api/admin")
                 .then(() => {
                     $("#addNewUser").modal("hide");

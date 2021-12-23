@@ -7,13 +7,13 @@
                     <div class="card">
                         <div class="card-body" id="printMe">
                             <div class="row">
-                                <div class="col-md-12 text-center">
+                                <div class="col-12 col-md-12 text-center">
                                     <h4><strong>PAYMENT RECEIPT</strong></h4>
                                     <h6><strong>{{ site.sitename }}</strong></h6>
                                 </div>
                               
 
-                                <div class="col-md-6">
+                                <div class="col-6 col-md-6">
                                     <p><strong>Paid by</strong></p>
                                     <div class="table-responsive advance-table">
                                         <table class="table table-bordered">
@@ -40,7 +40,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-6">
+                                <div class="col-6 col-md-6">
                                     <p><strong>Received by </strong></p>
                                     <div class="table-responsive advance-table">
                                         <table class="table table-bordered">
@@ -67,8 +67,8 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3"></div>
-                                <div class="col-md-6">
+                                <div class="col-3 col-md-3"></div>
+                                <div class="col-6 col-md-6">
                                     <p><b>Date Received:</b> {{ fund.created_at | myDate }}<br>
                                     <b>Payment Method:</b> {{ fund.mop }} <span v-if="fund.tran_type">({{ fund.tran_type }})</span>
                                     <br>
@@ -83,7 +83,7 @@
                         </div>
 
                         <div class="card-footer">
-                            <button @click=onPrint class="btn btn-success btn-lg btn-block mb-2">Print</button>
+                            <button @click="print" class="btn btn-success btn-lg btn-block mb-2">Print</button>
                         </div>
                     </div>
                 </div>
@@ -157,6 +157,10 @@
                 this.$htmlToPaper('printMe');
             },
 
+            async print () {
+              // Pass the element id here
+              await this.$htmlToPaper('printMe');
+            },
             formatPrice(value) {
                 let val = (value/1).toFixed(2).replace(',', '.')
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")

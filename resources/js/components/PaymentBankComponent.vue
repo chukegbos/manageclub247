@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5 || admin.role==11">
                         Add Bank
                     </b-button>                       
                 </div>
@@ -19,20 +19,20 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11"><input type="checkbox" v-model="selectAll"></th>
                                 <th>Name of Bank</th>
                                 <th>Account Name</th>
                                 <th>Account Number</th>
-                                <th>Action</th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="bank in banks.data" :key="bank.id">
-                                <td> <input type="checkbox" v-model="action.selected" :value="bank.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11"> <input type="checkbox" v-model="action.selected" :value="bank.id" number></td>
                                 <td>{{ bank.get_bank_name }}</td>
                                 <td>{{ bank.account_name }}</td>
                                 <td>{{ bank.account_number }}</td>
-                                <td v-if="unprintable==false">
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(bank)">Edit</b-dropdown-item>
 
@@ -176,14 +176,16 @@
 <script>
     export default {
         created() {
-            this.loadBanks();
             this.getBank();
+            this.getUser();
+            this.loadBanks();
         },
 
         data() {
             return {
                 is_busy: false,
                 editMode: false,
+                admin: '',
                 model: {},
                 banks: {},
                 allbanks: {},
@@ -219,6 +221,8 @@
         methods: {
             onChange(event) {
                 this.filterForm.selected = event.target.value;
+                this.getBank();
+                this.getUser();
                 this.loadBanks();
             },
 
@@ -252,13 +256,18 @@
             getBank() {
                 axios.get("/api/user/bank")
                 .then(({ data }) => {
-                    console.log(this.banks);
                     this.allbanks = data;
                 });
             },
 
             onType() {
                 this.bank_detail.account_number = this.form.account_number;
+            },
+
+            getUser() {
+                axios.get("/api/user").then(({ data }) => {
+                    this.admin = data.user;
+                });
             },
 
             onSet(event) {
@@ -311,6 +320,8 @@
 
             onFilterSubmit()
             {
+                this.getBank();
+                this.getUser();
                 this.loadBanks();
             },
 
@@ -320,7 +331,6 @@
                 $("#addNewbank").modal("hide");
                 this.form.post("/api/payment/banks")
                 .then((data) => {
-                    console.log(data.data.Error)
                     if(data.data.Error){
                         Swal.fire(
                             "Failed!",
@@ -335,6 +345,8 @@
                             "success"
                         );
                     }
+                    this.getBank();
+                    this.getUser();
                     this.loadBanks(); 
                 })
                 .catch((err) => {
@@ -347,6 +359,8 @@
                 .finally(() => {
                     
                     this.is_busy = false;
+                    this.getBank();
+                    this.getUser();
                     this.loadBanks(); 
                 });
             },
@@ -370,6 +384,8 @@
                 })
                 .finally(() => {
                     this.is_busy = false;
+                    this.getBank();
+                    this.getUser();
                     this.loadBanks(); 
                 });
             },
@@ -400,6 +416,8 @@
                                 "success"
                             );
                             this.is_busy = false;
+                            this.getBank();
+                            this.getUser();
                             this.loadBanks();
                         })
 

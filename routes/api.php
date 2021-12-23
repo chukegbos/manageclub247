@@ -292,7 +292,9 @@ use Illuminate\Http\Request;
 
 		Route::group(['prefix' => 'debits'], function(){	
 	    	Route::get('/', 'API\PaymentController@debit');
+	    	Route::get('member/{member_id}', 'API\PaymentController@getmember');
 	    	Route::post('/', 'API\PaymentController@storedebit');
+	    	Route::post('pay', 'API\PaymentController@storedebitpay');
 	    	Route::put('{id}', 'API\PaymentController@updatedebit');
 	    	Route::get('delete', 'API\PaymentController@destroydebit');
 		});

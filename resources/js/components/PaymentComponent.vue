@@ -28,15 +28,17 @@
                                 <th>Payment</th>
                                 <th>Amount</th>
                                 <th>Date Created</th>
+                                <th>Created By</th>
                                 <th>Payment Method</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="debt in debits.data" :key="debt.id">
-                                <td>{{ debt.get_member.name}}</td>
-                                <td>{{ debt.get_product.product.description }}</td>
+                                <td>{{ debt.get_member.get_member }}</td>
+                                <td>{{ debt.get_product.description }}</td>
                                 <td><span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }}</td>
                                 <td>{{ debt.created_at | myDate }}</td> 
+                                <td>{{ debt.created_by }}</td>
                                 <td>{{ debt.payment_channel }}</td> 
                             </tr>
                         </tbody>

@@ -65,7 +65,7 @@
 
                             <div class="form-group col-md-4">
                                 <label>Cost Price</label>
-                                <input v-model="form.cost_price" type="number" name="cost_price" class="form-control":class="{'is-invalid': form.errors.has('cost_price')}" @change="calculate()" required/>
+                                <input v-model="form.cost_price" type="number" name="cost_price" class="form-control":class="{'is-invalid': form.errors.has('cost_price')}" required/>
 
                                 <has-error :form="form" field="cost_price"></has-error>
                             </div>
@@ -101,18 +101,19 @@
                 </div>
 
                 <div class="col-md-9">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
-                        Add An Item
-                    </b-button>
+                    <span v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11">
+                        <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                            Add An Item
+                        </b-button>
 
-                    <b-button size="sm" variant="outline-info"class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
+                        <b-button size="sm" variant="outline-info"class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
 
-                    <!--<b-button size="sm" variant="outline-danger"class="pull-right m-2" @click="onReset"> <i class="fa fa-refresh"></i> Reset All Store</b-button>-->
+                        <!--<b-button size="sm" variant="outline-danger"class="pull-right m-2" @click="onReset"> <i class="fa fa-refresh"></i> Reset All Store</b-button>-->
 
-                    <b-button variant="outline-danger" size="sm" v-if="action.selected.length" class="pull-right m-2" @click="deleteProduct"><i class="fa fa-trash"></i> Delete Selected</b-button>
+                        <b-button variant="outline-danger" size="sm" v-if="action.selected.length" class="pull-right m-2" @click="deleteProduct"><i class="fa fa-trash"></i> Delete Selected</b-button>
 
-                    <b-button disabled size="sm" variant="outline-danger" v-else class="pull-right m-2"> <i class="fa fa-trash"></i> Delete Selected</b-button> 
-
+                        <b-button disabled size="sm" variant="outline-danger" v-else class="pull-right m-2"> <i class="fa fa-trash"></i> Delete Selected</b-button> 
+                    </span>
                     <b-form @submit.stop.prevent="onFilterSubmit" class="pull-right m-2" size="sm">
                         <b-input-group>
                             <b-form-input id="name" v-model="filterForm.name" type="text" placeholder="Search Item"></b-form-input>
@@ -133,7 +134,11 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="unprintable==false"><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11">
+                                    <span  v-if="unprintable==false">
+                                        <input type="checkbox" v-model="selectAll">
+                                    </span>
+                                </th>
 
                                 <th v-if="unprintable==true">S/N</th>
 
@@ -197,12 +202,17 @@
                                     </div>
                                 </th>
 
-                                <th v-if="unprintable==false">Action</th>
+                                <th v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11"><span v-if="unprintable==false">Action</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr  v-for="(inventory, index) in inventories.data">
-                                <td v-if="unprintable==false"> <input type="checkbox" v-model="action.selected" :value="inventory.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11">
+                                    <span  v-if="unprintable==false">
+                                        <input type="checkbox" v-model="action.selected" :value="inventory.id" number>
+                                    </span>
+                                </td>
+
                                 <td v-if="unprintable==true">{{ index + 1 }}</td>
                                
                                 <td>{{ inventory.product_name }}</td>
@@ -214,16 +224,14 @@
                                 
                                 <td>{{ inventory.quantity }}</td>
                                 
-                                <td v-if="unprintable==false">
-                                    <b-dropdown id="dropdown-right" text="Action" variant="info">
-                                        <!--<b-dropdown-item href="javascript:void(0)" @click="view(user)">Sales Report</b-dropdown-item>
+                                <td v-if="admin.role==1 || admin.role==6 || admin.role==7 || admin.role==11">
+                                    <span v-if="unprintable==false">
+                                        <b-dropdown id="dropdown-right" text="Action" variant="info">
+                                            <b-dropdown-item href="javascript:void(0)" @click="editModal(inventory)">Edit</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="breakdown(inventory)">Quantity Breakdown</b-dropdown-item>-->
-
-                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(inventory)">Edit</b-dropdown-item>
-
-                                        <b-dropdown-item href="javascript:void(0)" @click="deleteProduct(inventory.id)">Delete</b-dropdown-item>
-                                    </b-dropdown>
+                                            <b-dropdown-item href="javascript:void(0)" @click="deleteProduct(inventory.id)">Delete</b-dropdown-item>
+                                        </b-dropdown>
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -275,7 +283,7 @@
                 today_date: moment().format("YYYY-MM-DD"),
                 inventories: {},
                 categories: [],
-                user: "",
+                admin: "",
 
                 form: new Form({
                     id: "",
@@ -310,9 +318,9 @@
         },
 
         created() {
-            this.loadInventory();
             this.getUser();
             this.loadSite();
+            this.loadInventory();
         },
 
         components: {
@@ -347,7 +355,7 @@
             getUser() {
                 axios.get("/api/user")
                 .then(({ data }) => {
-                    this.user = data.user;
+                    this.admin = data.user;
                 });
             },
 
@@ -523,11 +531,6 @@
                         });
                     }
                 });
-            },
-            
-            calculate(){
-                let a = Number(this.form.cost_price)
-                this.form.price = (a * this.site.percent_gain) + a;
             },
 
             orderByName() {

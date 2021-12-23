@@ -15,7 +15,7 @@ class Fund extends Model
      * @var array
      */
     protected $fillable = [
-        'amount', 'mop', 'user_id', 'customer_id', 'account', 'ref_id', 'tran_type', 'approved_by', 'store_id', 'status'
+        'amount', 'mop', 'user_id', 'customer_id', 'account', 'ref_id', 'tran_type', 'approved_by', 'store_id', 'status', 'wallet'
     ];
 
     /**

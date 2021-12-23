@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2"  v-if="admin.role!=3">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5  || admin.role==11">
                         Add Member
                     </b-button>
 
@@ -57,7 +57,11 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="unprintable==false"><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11"> 
+                                    <span v-if="unprintable==false">
+                                        <input type="checkbox" v-model="selectAll">
+                                    </span>
+                                </th>
                                 <th width="200px">Name</th>
                                 <th>Member ID</th>
                                 <th>Member Type</th>
@@ -65,14 +69,18 @@
                                 <th>Phone</th>
                                 <th>Approval</th>
                                 <th>Door Access</th>
-                                <th>Entrance Date</th>
+                                <th>Admission Date</th>
                                 <th>Date Added</th>
-                                <th v-if="unprintable==false">Action</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="user in users.data" :key="user.id">
-                                <td v-if="unprintable==false"> <input type="checkbox" v-model="action.selected" :value="user.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11"> 
+                                    <span v-if="unprintable==false">
+                                        <input type="checkbox" v-model="action.selected" :value="user.id" number>
+                                    </span>
+                                </td>
                                 
                                 <td>{{ user.name }} <span v-if="user.state"><br>{{ user.state }} State</span></td>
                                 <td>
@@ -92,11 +100,10 @@
                                 <td>{{ user.email }}</td>
                                 <td>{{ user.phone }}</td>
                                 <td>
-                                    <span v-if="admin.role==1 || admin.role==3">
-                                        <span v-if="user.approved==1" class="badge badge-info">Yes</span>
-                                        <span v-else class="badge badge-danger">No</span>
-                                        <br>
-                                    </span>
+                                    <span v-if="user.approved==1" class="badge badge-info">Yes</span>
+                                    <span v-else class="badge badge-danger">No</span>
+                                    <br>
+                                  
                                     {{ user.approved_by }}
                                 </td>
                                 <td>
@@ -106,28 +113,25 @@
                                 </td>
                                 <td>{{ user.entrance_date | myDate}}</td>
                                 <td>{{ user.created_at | myDate}}</td>
-                                <td v-if="unprintable==false">
+                                <td>
                                     <b-dropdown id="dropdown-right" text="Action" variant="info" v-if="user.c_person.member_type!=14">
                                         <b-dropdown-item href="javascript:void(0)" @click="view(user)">View</b-dropdown-item>
 
                                         <span v-if="admin.role==1 || admin.role==3">
                                         <b-dropdown-item href="javascript:void(0)" @click="approveUser(user)" v-if="!user.approved">Approve</b-dropdown-item></span>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(user)" v-if="admin.role!=3">Edit</b-dropdown-item>
+                                        <span v-if="admin.role==1 || admin.role==5 || admin.role==11">
+                                            <b-dropdown-item href="javascript:void(0)" @click="editModal(user)">Edit</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="deleteUser(user.id)" v-if="admin.role==1 || admin.role==3">Delete</b-dropdown-item>
+                                            <b-dropdown-item href="javascript:void(0)" @click="deleteUser(user.id)">Delete</b-dropdown-item>
 
-                                        <span v-if="admin.role!=3">
-                                        <b-dropdown-item href="javascript:void(0)" @click="suspendUser(user)" v-if="user.c_person.member_type!=15">Suspend</b-dropdown-item>
+                                        
+                                            <b-dropdown-item href="javascript:void(0)" @click="suspendUser(user)" v-if="user.c_person.member_type!=15">Suspend</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="unsuspendUser(user)" v-else>Unsuspend</b-dropdown-item>
+                                            <b-dropdown-item href="javascript:void(0)" @click="unsuspendUser(user)" v-else>Unsuspend</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="lateUser(user)">Mark As Deceased</b-dropdown-item>
+                                            <b-dropdown-item href="javascript:void(0)" @click="lateUser(user)">Mark As Deceased</b-dropdown-item>
                                         </span>
-                                        <!--<hr>
-                                        <b-dropdown-item href="javascript:void(0)" @click="createInvoice(user)">Create Invoice</b-dropdown-item>-->
-
-                                        <b-dropdown-item href="javascript:void(0)" @click="debitMember(user)">Debit Member</b-dropdown-item>
                                     </b-dropdown>
                                 </td>
                             </tr>

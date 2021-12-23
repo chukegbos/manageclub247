@@ -332,7 +332,7 @@ class StoreController extends Controller
 
         $query = RoomMovement::where('rooom_movement.deleted_at', NULL)
             ->where('rooom_movement.moved', 1)
-            ->where('rooom_movement.status', '!=', 'unpproved')
+            ->where('rooom_movement.status', '!=', 'unapproved')
             ->join('stores', 'rooom_movement.store_id', '=', 'stores.id')
             ->where('stores.deleted_at', NULL)
             ->orderBy('rooom_movement.created_at', 'desc')               

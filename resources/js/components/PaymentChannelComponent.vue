@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5 || admin.role==11">
                         Add Channel
                     </b-button>
                
@@ -29,16 +29,16 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11"><input type="checkbox" v-model="selectAll"></th>
                                 <th>Name</th>
-                                <th>Action</th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="channel in channels.data" :key="channel.id">
-                                <td> <input type="checkbox" v-model="action.selected" :value="channel.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11"> <input type="checkbox" v-model="action.selected" :value="channel.id" number></td>
                                 <td>{{ channel.title }}</td>
-                                <td v-if="unprintable==false">
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info" v-if="channel.generated==0">
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(channel)">Edit</b-dropdown-item>
 
@@ -148,6 +148,7 @@
 <script>
     export default {
         created() {
+            this.getUser();
             this.loadChannels();
         },
 
@@ -162,7 +163,7 @@
                     id: "",
                     title: "",
                 }),
-
+                admin:'',
                 filterForm: {
                     name: '',
                     selected: '10',
@@ -181,6 +182,7 @@
         methods: {
             onChange(event) {
                 this.filterForm.selected = event.target.value;
+                this.getUser();
                 this.loadChannels();
             },
 
@@ -211,6 +213,12 @@
                 });
             },
 
+            getUser() {
+                axios.get("/api/user").then(({ data }) => {
+                    this.admin = data.user;
+                });
+            },
+
             newModal() {
                 (this.editMode = false), this.form.reset();
                 $("#addNewChannel").modal("show");
@@ -231,6 +239,7 @@
 
             onFilterSubmit()
             {
+                this.getUser();
                 this.loadChannels();
             },
 
@@ -245,6 +254,7 @@
                         "Payment Channel Created Successfully.",
                         "success"
                     );
+                    this.getUser();
                     this.loadChannels(); 
                 })
                 .catch(() => {
@@ -257,6 +267,7 @@
                 .finally(() => {
                     
                     this.is_busy = false;
+                    this.getUser();
                     this.loadChannels(); 
                 });
             },
@@ -268,6 +279,7 @@
                 this.form.put("/api/payment/channels/" + this.form.id)
                 .then(() => {
                     Swal.fire("Updated!", "Payment Channel Updated Successfully.", "success");
+                    this.getUser();
                     this.loadChannels(); 
                 })
 
@@ -280,6 +292,7 @@
                 })
                 .finally(() => {
                     this.is_busy = false;
+                    this.getUser();
                     this.loadChannels(); 
                 });
             },
@@ -310,6 +323,7 @@
                                 "success"
                             );
                             this.is_busy = false;
+                            this.getUser();
                             this.loadChannels();
                         })
 

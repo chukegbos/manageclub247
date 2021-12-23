@@ -11,7 +11,7 @@
 
                     <b-button disabled size="sm" variant="outline-primary" v-else class="pull-right m-1">Item Movement</b-button>-->
 
-                    <span v-if="(admin.role==1 || admin.role==3 || admin.role==7) && admin.store!=1">
+                    <span v-if="(admin.role==1 || admin.role==7) && admin.store!=1">
                     <b-button variant="outline-success" size="sm" v-if="action.selected.length" class="pull-right m-1" @click="onRequestAll">Item Request</b-button>
 
                     <b-button disabled size="sm" variant="outline-success" v-else class="pull-right m-1">Item Request</b-button>
@@ -36,7 +36,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="(admin.role==1 || admin.role==3 || admin.role==7) && admin.store!=1">
+                                <th v-if="(admin.role==1 || admin.role==7) && admin.store!=1">
                                     <input type="checkbox" v-model="selectAll">
                                 </th>
 
@@ -101,7 +101,7 @@
                         </thead>
                         <tbody>
                             <tr  v-for="(inventory, index) in inventories.data">
-                                <td v-if="(admin.role==1 || admin.role==3 || admin.role==7) && admin.store!=1"> 
+                                <td v-if="(admin.role==1 || admin.role==7) && admin.store!=1"> 
                                     <input type="checkbox" v-model="action.selected" :value="inventory.room_id"  number>
                                 </td>
                                 <td>{{ inventory.product_name }}</td>

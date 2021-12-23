@@ -13,7 +13,7 @@
                         :data="users"
                         :serializer="data => data.name"
                         @hit="getUserID($event)"
-                        placeholder="Search for customer"
+                        placeholder="Search for Member"
                         @input="lookUser"
                     />
                 </div>
@@ -30,7 +30,8 @@
                                             <div class="table-responsive">
                                                 <table class="table table-hover">
                                                     <tr>
-                                                        <th>Account Balance</th>
+                                                        <th>Membership Wallet</th>
+                                                        <th>Bar/Kitchen Wallet</th>
                                                         <th>Debts</th>
                                                         <th>Total Sales</th>
                                                         <th>Value of total sales</th>
@@ -42,8 +43,13 @@
                                                     <tr>
                                                         <td>
                                                             <span v-html="nairaSign"></span>{{ formatPrice(user.wallet_balance) }}
-                                                            <p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">View Account</a></p>
+                                                            <!--<p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">View Account</a></p>-->
                                                         </td>
+
+                                                        <td>
+                                                            <span v-html="nairaSign"></span>{{ formatPrice(user.bar_wallet) }}
+                                                        </td>
+
                                                         <td>
                                                             <span v-html="nairaSign"></span>{{ formatPrice(payment_debts_sum) }}
                                                         </td>
@@ -82,7 +88,7 @@
                                                         <td>{{ member.get_member_type }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <th>Entrance Date</th>
+                                                        <th>Admission Date</th>
                                                         <td>{{ user.entrance_date | myDate }}</td>
                                                     </tr>
                                                    
@@ -224,7 +230,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="mb-2">
+                                    <!--<div class="mb-2">
                                         <h6 class="text-center">Quick Links</h6>
                                         <ul>
                                             <li>
@@ -234,7 +240,7 @@
                                                 <p><a href="javascript:void(0)" @click="sales(user)" style="color:blue;">Member's Sales</a></p>
                                             </li>
                                         </ul>
-                                    </div>
+                                    </div>-->
                                 </b-col>
                             </b-row>
                         </b-card-text>
@@ -252,14 +258,19 @@
                                         <th>Date Created</th>
                                         <th>Grace Period</th>
                                         <th>Status</th>
-                                        <th>Action</th>
+                                        <th v-if="admin.role==1 || admin.role==5">Action</th>
                                     </tr>
 
                                     <tr  v-for="(debt, index) in payment_debts">
                                         <td>{{ index + 1 }}</td>
                                         <td><span v-if="debt.product">{{ debt.product.payment_name }}</span></td>
                                         <td>{{ debt.description }}</td>
-                                        <td><span v-if="debt.product"><span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }} </span><br> <span class="badge badge-danger btn-sm">Unpaid</span></td>
+
+                                        <td>
+                                            <span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }} 
+                                            <br> 
+                                            <span class="badge badge-danger btn-sm">Unpaid</span>
+                                        </td>
                                         <td>{{ debt.start_date | myDate }}</td> 
                                         <td>
                                             {{ debt.grace_period }} Days 
@@ -268,7 +279,7 @@
                                         </td> 
                                         
                                         <td><span class="badge badge-danger btn-sm">Unpaid</span></td>
-                                        <td>
+                                        <td v-if="admin.role==1 || admin.role==5">
                                             <a href="javascript:void(0)" @click="extendPeriod(debt)" class="btn btn-info btn-sm">Extend Period</a> 
 
                                             <a href="javascript:void(0)" @click="onPay(debt)" class="btn btn-success btn-sm">Pay</a>
@@ -443,13 +454,13 @@
                         <form @submit.prevent="updateCredit()">
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label>Customer Name</label>
+                                    <label>Member Name</label>
                                     <input v-model="credit.name" type="text" readonly="true" class="form-control"/>
                                 </div>
 
                                
                                 <div class="form-group">
-                                    <label>Customer Credit Unit</label>
+                                    <label>Member Credit Unit</label>
                                     <input v-model="credit.credit_unit" type="number" class="form-control"/>
                                 </div>
 
@@ -489,7 +500,7 @@
 
                                 <div class="form-group">
                                     <label>Amount</label>
-                                    <input v-model="formPay.amount" type="number" readonly="true" class="form-control"/>
+                                    <input v-model="formPay.amount" type="number" required class="form-control"/>
                                 </div>
                               
                                 <div class="form-group">
@@ -529,7 +540,7 @@
                                 </div>
 
                                 <div class="form-group" v-else-if="formPay.payment_channel==6">
-                                    <label>Customer Balance</label>
+                                    <label>Member Balance</label>
                                     <input v-model="user.wallet_balance" type="text" readonly="true" class="form-control"/>
                                 </div>
 
@@ -613,7 +624,7 @@
                     { text: 'Cash', value: 'Cash' },
                     { text: 'Transfer', value: 'Transfer' },
                 ],
-
+                admin: "",
                 formPay: {
                     amount: "",
                     debit_id: "",
@@ -629,6 +640,7 @@
         },
 
         created(){
+            this.getUser();
             this.loadPage();
         },
 
@@ -654,6 +666,12 @@
                 this.formPay.member_id = debt.member_id;
                 this.formPay.description = debt.description;
                 $('#addpay').modal('show');
+            },
+
+            getUser() {
+                axios.get("/api/user").then(({ data }) => {
+                    this.admin = data.user;
+                });
             },
 
             getUserID(data){
@@ -824,6 +842,7 @@
                 .then((data) => {
                     $("#addNewCredit").modal("hide");
                     Swal.fire("Updated!", "Payment Registered Successfully.", "success");
+                    this.getUser();
                     this.loadPage();
                 })
 
@@ -835,7 +854,18 @@
 
                 .then((data) => {
                     $("#addpay").modal("hide");
-                    Swal.fire("Updated!", "Payment Registered Successfully.", "success");
+
+                    if(data.data.error) {
+                        Swal.fire(
+                            "Failed!",
+                            data.data.error,
+                            "warning"
+                        );
+                    }
+                    else {
+                        Swal.fire("Updated!", "Payment Registered Successfully.", "success");
+                    }
+                    this.getUser();
                     this.loadPage();
                 })
 
@@ -848,6 +878,7 @@
                 .then((data) => {
                     $("#extend").modal("hide");
                     Swal.fire("Updated!", "Grace Period Extended Successfully.", "success");
+                    this.getUser();
                     this.loadPage();
                 })
 
@@ -860,6 +891,7 @@
                 .then((data) => {
                     $("#addNewWallet").modal("hide");
                     Swal.fire("Updated!", "Customer Credited Successfully.", "success");
+                    this.getUser();
                     this.loadPage();
                 })
 

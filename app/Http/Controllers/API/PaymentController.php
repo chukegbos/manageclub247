@@ -42,6 +42,13 @@ class PaymentController extends Controller
         return $params;
     }
 
+
+    public function getmember($id)
+    {
+        $member = Member::find($id);
+        return $user = User::where('deleted_at', NULL)->where('unique_id', $member->membership_id)->first();
+    }
+
     public function debit(Request $request)
     {
         
@@ -62,6 +69,7 @@ class PaymentController extends Controller
             'default_esc_members.last_name as last_name',
             'default_esc_payment_debits.period as period',
             'default_esc_payment_debits.amount as amount',
+            'default_esc_payment_debits.member_id as member_id',
             'default_esc_payment_debits.product as product',
             'default_esc_payment_debits.description as description',
             'default_esc_payment_debits.start_date as start_date',
@@ -79,6 +87,7 @@ class PaymentController extends Controller
         $params['all'] = $query->count();
         $params['products'] = PaymentProduct::where('deleted_at', NULL)->get();
         $params['members'] = Member::where('deleted_at', NULL)->get();
+        $params['mop'] = PaymentChannel::get();
 
         return $params;
     }
@@ -423,6 +432,7 @@ class PaymentController extends Controller
 
     public function pay(Request $request)
     {
+        $paymentDebit = PaymentDebit::find($request->debit_id); 
         $setting = Setting::find(1);
         $user = auth('api')->user();
         
@@ -433,25 +443,73 @@ class PaymentController extends Controller
             return ['error' => "Please go to chart of account and set the corresponding accounts"];
         }
 
-        $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
-        $bank = ($request->bank) ? $request->bank : NULL;
-        $pos = ($request->pos) ? $request->pos : NULL;
+        if ($request->payment_channel==6) {
+            $member = Member::find($request->member_id);
+            $userMember = User::where('unique_id', $member->membership_id)->first();
+            if ($userMember) {
+                if ($userMember->balancing_account < $request->amount) {
+                    return ['error' => "Member do not have upto that amount on his wallet"];
+                }
+                else{
+                    $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
+                    $bank = ($request->bank) ? $request->bank : NULL;
+                    $pos = ($request->pos) ? $request->pos : NULL;
 
-        $paymentDebit = PaymentDebit::find($request->debit_id); 
+                    
 
-        Payment::create([
-            'debit_id' => $request->debit_id,
-            'member_id' => $paymentDebit->member_id,
-            'amount' => $request->amount,
-            'payment_channel' => $request->payment_channel,
-            'created_by' => $user->id,
-            'receipt_number' => $receipt_number,
-            'pos' => $pos,
-            'bank' => $bank,
-        ]);
-           
+                    Payment::create([
+                        'debit_id' => $request->debit_id,
+                        'member_id' => $paymentDebit->member_id,
+                        'amount' => $request->amount,
+                        'payment_channel' => $request->payment_channel,
+                        'created_by' => $user->id,
+                        'receipt_number' => $receipt_number,
+                        'pos' => $pos,
+                        'bank' => $bank,
+                    ]);
+
+                    $userMember->wallet_balance = $userMember->wallet_balance - $request->amount;
+                    $userMember->update();
+                }
+            }
+            else {
+                return ['error' => "Please re-edit member information"];
+            }
+        }
+
+        else 
+        {
+            $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
+            $bank = ($request->bank) ? $request->bank : NULL;
+            $pos = ($request->pos) ? $request->pos : NULL;
+
+            Payment::create([
+                'debit_id' => $request->debit_id,
+                'member_id' => $paymentDebit->member_id,
+                'amount' => $request->amount,
+                'payment_channel' => $request->payment_channel,
+                'created_by' => $user->id,
+                'receipt_number' => $receipt_number,
+                'pos' => $pos,
+                'bank' => $bank,
+            ]);
+        }
         $paymentDebit->status = 1;
         $paymentDebit->update();
+        
+
+        if ($request->amount < $paymentDebit->amount) {
+            PaymentDebit::create([
+                'description' => 'Debt unpaid from Debt ID '. $paymentDebit->id,
+                'member_id' => $paymentDebit->member_id,
+                'amount' => $paymentDebit->amount-$request['amount'],
+                'grace_period' => 5,
+                'debit_type' => 0,
+                'start_date' => Carbon::today(),
+                'date_entered' => Carbon::today(),
+                'created_by' => auth('api')->user()->id,
+            ]);
+        }
 
         Ledger::create([
             'ledger_id' => $ledger_id,
