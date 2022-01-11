@@ -484,6 +484,9 @@ let routes = [
     { path: '/members/types', component: require('./components/MemberTypeComponent.vue').default },
     { path: '/members/sections', component: require('./components/MemberSectionComponent.vue').default },
     { path: '/admin/logins', component: require('./components/LoginComponent.vue').default },
+
+    { path: '/messages', component: require('./components/MessageComponent.vue').default },
+    { path: '/messages/compose', component: require('./components/MessageComposeComponent.vue').default },
 ];
 
 const router = new VueRouter({

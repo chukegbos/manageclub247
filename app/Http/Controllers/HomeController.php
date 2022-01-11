@@ -16,8 +16,9 @@ use App\Death;
 use App\PaymentDebit;
 use App\Payment;
 use App\PaymentProduct;
-use DB;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use DB;
 use App\Ledger;
 use App\AccountType;
 use App\Account;
@@ -112,6 +113,40 @@ class HomeController extends Controller
                 'created_by' => auth()->user()->id,
             ]);
         }*/
+
+        $members = Member::where('deleted_at', NULL)->get();
+        foreach ($members as $user) {
+            $the_user = User::where('deleted_at', NULL)->where('unique_id', $user->membership_id)->first();
+
+            if (!$the_user) {
+                if ($user->email) {
+                    $email = $user->email;
+                }
+                else{
+                    $email = $user->membership_id.'@enugusportsclub.org';
+                }
+
+                $mail_user = User::where('deleted_at', NULL)->where('unique_id', NULL)->where('email', $email)->first();
+                if ($mail_user) {
+                    $mail_user->unique_id = $user->membership_id;
+                    $mail_user->update();
+                }
+                else {
+                    User::create([
+                        'unique_id' => $user->membership_id,
+                        'name' => $user->last_name.' '.$user->first_name.' '.$user->middle_name,
+                        'c_person' => $user->last_name.' '.$user->first_name.' '.$user->middle_name,
+                        'email' => $email,
+                        'credit_unit' => 0,
+                        'wallet_balance' => 0,
+                        'bar_wallet' => 0,
+                        'door_access' => 1,
+                        'role' => 0,
+                        'password' => Hash::make('Father@1989'),
+                    ]);
+                }
+            }
+        }
         return view('dashboard');
     }
 

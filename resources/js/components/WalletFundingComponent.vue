@@ -81,17 +81,11 @@
                             <td>{{ fund.approved_by }}</td>
                                   
                             <td>
-                                <span class="text-red" v-if="fund.status=='Rejected'">
-                                    {{ fund.status }}
-                                </span>
-                                <span class="text-green" v-else-if="fund.status=='Approved'">
-                                    {{ fund.status }}<br>
-                                    <a href="javascript:void(0)" @click="viewReceipt(fund)">Receipt</a>
-                                </span>
-                                <span v-else>
-                                    {{ fund.status }}
-                                    <span v-if="admin.role==1 || admin.role==10 || admin.role==11"> <br>
-                                    <a href="javascript:void(0)" @click="approve(fund)" class="text-green">Approve</a> | <a href="javascript:void(0)" @click="reject(fund)" class="text-red">Reject</a></span>
+                                {{ fund.status }} <a href="javascript:void(0)" @click="viewReceipt(fund)">Receipt</a>
+                                
+                                <span v-if="(admin.role==1 || admin.role==10 || admin.role==11) && fund.status=='Pending'"> <br>
+                                    <a href="javascript:void(0)" @click="approve(fund)" class="text-green">Approve</a> | 
+                                    <a href="javascript:void(0)" @click="reject(fund)" class="text-red">Reject</a>
                                 </span>
                             </td>
                         </tr>
@@ -115,7 +109,7 @@
                         </div>
 
                         <div class="col-md-10" v-if="this.filterForm.selected!=0">
-                            <pagination :data="fundings" @pagination-change-page="getResults"></pagination>
+                            <pagination :data="fundings" @pagination-change-page="getResults" :limit="-1"></pagination>
                         </div>
                     </div>
                 </div>

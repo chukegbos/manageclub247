@@ -474,11 +474,11 @@ class CustomerController extends Controller
             'last_name' => 'required|string|max:191',
             'first_name' => 'required|string|max:191',
             //'email' => 'required|string|max:191|email|unique:users',
-            'phone_1' => 'required|string|max:19',
-            'state' => 'required',
-            'address' => 'required|string|max:191',
+            //'phone_1' => 'required|string|max:19',
+            //'state' => 'required',
+            //'address' => 'required|string|max:191',
             'member_type' => 'required',
-            'dob' => 'required',
+            //'dob' => 'required',
             'membership_id' => 'required'
         ]);
         set_time_limit(0);
@@ -726,13 +726,13 @@ class CustomerController extends Controller
         $this->validate($request, [
             'last_name' => 'required|string|max:191',
             'first_name' => 'required|string|max:191',
-            'email' => 'required',
-            'phone_1' => 'required|string|max:19',
-            /*'state' => 'required',
-            'address' => 'required|string|max:191',
-            'member_type' => 'required',
-            'dob' => 'required',
-            'membership_id' => 'required'*/
+            //'email' => 'required|string|max:191|email|unique:users',
+            //'phone_1' => 'required|string|max:19',
+            //'state' => 'required',
+            //'address' => 'required|string|max:191',
+            //'member_type' => 'required',
+            //'dob' => 'required',
+            'membership_id' => 'required'
         ]);
 
         set_time_limit(0);
@@ -786,21 +786,41 @@ class CustomerController extends Controller
         ]);
 
         $memberAdditional = MemberAdditional::where('member_id', $member->id)->first();
-        $memberAdditional->update([
-            'member_id' => $member->id,
-            'kin_name' => $request['kin_name'],
-            'kin_address' => $request['kin_address'],
-            'kin_phone_1' => $request['kin_phone_1'],
-            'kin_phone_2' => $request['kin_phone_2'],
-            'kin_relationship' => $request['kin_relationship'],
-            'beneficiary_name' => $request['beneficiary_name'],
-            'beneficiary_address' => $request['beneficiary_address'],
-            'beneficiary_phone_1' => $request['beneficiary_phone_1'],
-            'beneficiary_phone_2' => $request['beneficiary_phone_2'],
-            'beneficiary_relationship' => $request['beneficiary_relationship'],
-            'sponsor_1' => $request['sponsor_1'],
-            'sponsor_2' => $request['sponsor_2'],
-        ]);
+        if ($memberAdditional) {
+            $memberAdditional->update([
+                'member_id' => $member->id,
+                'kin_name' => $request['kin_name'],
+                'kin_address' => $request['kin_address'],
+                'kin_phone_1' => $request['kin_phone_1'],
+                'kin_phone_2' => $request['kin_phone_2'],
+                'kin_relationship' => $request['kin_relationship'],
+                'beneficiary_name' => $request['beneficiary_name'],
+                'beneficiary_address' => $request['beneficiary_address'],
+                'beneficiary_phone_1' => $request['beneficiary_phone_1'],
+                'beneficiary_phone_2' => $request['beneficiary_phone_2'],
+                'beneficiary_relationship' => $request['beneficiary_relationship'],
+                'sponsor_1' => $request['sponsor_1'],
+                'sponsor_2' => $request['sponsor_2'],
+            ]);
+        }
+
+        else{
+            $memberAdditional = MemberAdditional::create([
+                'member_id' => $member->id,
+                'kin_name' => $request['kin_name'],
+                'kin_address' => $request['kin_address'],
+                'kin_phone_1' => $request['kin_phone_1'],
+                'kin_phone_2' => $request['kin_phone_2'],
+                'kin_relationship' => $request['kin_relationship'],
+                'beneficiary_name' => $request['beneficiary_name'],
+                'beneficiary_address' => $request['beneficiary_address'],
+                'beneficiary_phone_1' => $request['beneficiary_phone_1'],
+                'beneficiary_phone_2' => $request['beneficiary_phone_2'],
+                'beneficiary_relationship' => $request['beneficiary_relationship'],
+                'sponsor_1' => $request['sponsor_1'],
+                'sponsor_2' => $request['sponsor_2'],
+            ]);
+        }
 
         $memberCards = MemberCard::where('member_id', $member->id)->get();
         foreach ($memberCards as $card) {

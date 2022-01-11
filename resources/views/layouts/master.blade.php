@@ -178,6 +178,7 @@
                     </li>
                   </ul>
                 </li>
+
                 <li class="nav-item">
                   <router-link to="/outlets" class="nav-link">
                     <i class="nav-icon fa fa-home"></i>
@@ -391,6 +392,13 @@
                       </li>-->
                     </ul>
                 </li> 
+
+                <li class="nav-item">
+                  <router-link to="/messages" class="nav-link">
+                    <i class="nav-icon fa fa-envelope-o"></i>
+                    <p>Messages</p>
+                  </router-link>
+                </li>
               @elseif(Auth::user()->role==2)
                 <li class="nav-item has-treeview">
                   <a href="#" class="nav-link">
@@ -1265,6 +1273,13 @@
                       </li>-->
                     </ul>
                 </li> 
+
+                <li class="nav-item">
+                  <router-link to="/messages" class="nav-link">
+                    <i class="nav-icon fa fa-envelope-o"></i>
+                    <p>Messages</p>
+                  </router-link>
+                </li>
               @elseif(Auth::user()->role==6)
                 <li class="nav-item">
                   <router-link to="/outlets" class="nav-link">

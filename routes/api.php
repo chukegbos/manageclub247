@@ -75,6 +75,11 @@ use Illuminate\Http\Request;
     	Route::delete('{id}', 'API\PurchaseController@destroy');
 	});
 	
+	Route::group(['prefix' => 'messages'], function(){
+    	Route::get('/', 'API\MessageController@index');
+    	Route::post('/', 'API\MessageController@store');
+	});
+
     Route::group(['prefix' => 'store'], function(){	
     	Route::post('gettotal', 'API\StoreController@gettotal');
     	Route::get('makerequest', 'API\StoreRequestController@makerequest');
