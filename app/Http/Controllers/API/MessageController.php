@@ -249,10 +249,12 @@ class MessageController extends Controller
 
                     $the_member = Member::where('deleted_at', NULL)->where('membership_id', $member->unique_id)->first();
 
-                    $debt  = PaymentDebit::where('member_id', $the_member->id)->where('status', 0)->sum('amount');
+                    $debt  = PaymentDebit::where('member_id', $the_member->id)->where('status', 0)->where('date_entered', '<=', $request->end_date)->sum('amount');
+                    
+                    $myDate = Carbon::createFromTimeStamp(strtotime($request->end_date))->toFormattedDateString()
 
                     $message = 'Enugu Sports Club Membership ID: '.$member->unique_id. ';  
-                    Debt Bal: N'.$debt.'; Wallet Bal: N'.$member->wallet_balance. ' as at 31-Dec-2021. For clarifications contact Front Desk.';
+                    Debt Bal: N'.$debt.'; Wallet Bal: N'.$member->wallet_balance. ' as at '. $request->end_date.' For clarifications contact Front Desk.';
 
                     $data1 = [
                         'from' => 'ESPORTSCLUB',

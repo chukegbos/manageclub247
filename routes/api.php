@@ -270,6 +270,7 @@ use Illuminate\Http\Request;
     Route::group(['prefix' => 'payment'], function(){	
     	Route::group(['prefix' => 'method'], function(){
 	    	Route::get('/', 'API\PaymentController@method');
+	    	Route::get('delete', 'API\PaymentController@destroymethod');
 	    	Route::post('/', 'API\PaymentController@storemethod');
 	    	Route::put('{id}', 'API\PaymentController@updatemethod');
 		});

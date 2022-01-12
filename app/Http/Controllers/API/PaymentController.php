@@ -5,10 +5,14 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Member;
-use App\PaymentProduct;
+use App\Type;
+use App\Product;
+use App\ProductType;
 use App\PaymentDebit;
 use App\PaymentBank;
 use App\PaymentPos;
+use App\Message;
+use App\MessageLog;
 use App\Payment;
 use App\Ledger;
 use App\PaymentChannel;
@@ -50,8 +54,7 @@ class PaymentController extends Controller
     }
 
     public function debit(Request $request)
-    {
-        
+    {    
         $query = PaymentDebit::where('default_esc_payment_debits.status', 0)
             ->join('default_esc_members', 'default_esc_payment_debits.member_id', '=', 'default_esc_members.id')
             ->orderBy('default_esc_payment_debits.created_at', 'desc');
@@ -85,7 +88,7 @@ class PaymentController extends Controller
         }
 
         $params['all'] = $query->count();
-        $params['products'] = PaymentProduct::where('deleted_at', NULL)->get();
+        $params['products'] = Product::where('deleted_at', NULL)->get();
         $params['members'] = Member::where('deleted_at', NULL)->get();
         $params['mop'] = PaymentChannel::get();
 
@@ -99,7 +102,7 @@ class PaymentController extends Controller
             'product' => 'required',
             'amount' => 'required',
         ]);
-        $product = PaymentProduct::find($request['product']);
+        $product = Product::find($request['product']);
 
         PaymentDebit::create([
             'product' => $request['product'],
@@ -327,10 +330,18 @@ class PaymentController extends Controller
         return 'ok';  
     }
 
+    public function destroymethod(Request $request)
+    {
+        foreach ($request->selected as $id) {
+            Product::Destroy($id);
+        }
+        return 'ok';  
+    }
+
     public function method(Request $request)
     {
         $params = [];
-        $query = PaymentProduct::where('deleted_at', NULL)->latest();
+        $query = Product::with('types')->where('deleted_at', NULL)->latest();
         if ($request->category) {
             $query->where('category', $request->category);
         }
@@ -351,6 +362,7 @@ class PaymentController extends Controller
         }
         
         $params['all'] = $query->count();
+        $params['member_types'] = Type::where('id', '!=', 14)->get();
 
         return $params;
     }
@@ -361,21 +373,21 @@ class PaymentController extends Controller
             'payment_name' => 'required|string|max:255',
             'amount' => 'required',
         ]);
-
         $code = rand(3,99688);
 
-        $payment_product = PaymentProduct::create([
+        $payment_product = Product::create([
             'payment_name' => ucwords($request->payment_name),
             'amount' => $request->amount,
             'category' => $request->category,
             'door_access' => $request->door_access,
             'grace_period' => $request->grace_period,
             'reoccuring_day' => ($request->type==1) ? $request->reoccuring_day : NULL,
-
             'type' => $request->type,
             'product_id' => $code,
             'created_by' => auth('api')->user()->id,
         ]);
+
+        $payment_product->types()->attach($request->member_type);
 
         return ['message' => "Success"];
     }
@@ -389,6 +401,22 @@ class PaymentController extends Controller
         return ['message' => "Success"];
     }
 
+    private function prep_number($phone)
+    {
+        if(substr($phone, 0, 3) == '234') return $phone;
+
+        $first_char = substr(trim($phone), 0, 1);
+
+        if($first_char == '0' || $first_char == '+')
+        {
+            return '234' . substr($phone, 1);
+        }
+        else
+        {
+            return $phone;
+        }
+    }
+
     public function debitmembers(Request $request)
     {
         $this->validate($request, [
@@ -398,21 +426,83 @@ class PaymentController extends Controller
         ]);
 
         set_time_limit(0);
-        $members = User::where('users.deleted_at', NULL)->where('users.role', 0)->get();
+        $members = Member::where('deleted_at', NULL)->get();
+
+        $msg = Message::create([
+            'user_id' => auth('api')->user()->id,
+            'sender_name' => 'ESPORTSCLUB',
+            'message' => 'Group Debit Message',
+            'page_count' => 1,
+        ]);
 
         foreach ($members as $member) {
-            $mb = Member::where('membership_id', $member->unique_id)->first();
-            $payment_debit = PaymentDebit::create([
-                'member_id' => $mb->id,
-                'product' => $request->product,
-                'amount' => $request->amount,
-                'description' => ucwords($request->description),
-                'debit_type' => $request->debit_type,
-                'grace_period' => $request->grace_period,
-                'start_date' => Carbon::today(),
-                'date_entered' => Carbon::today(),
-                'created_by' => auth('api')->user()->id,
-            ]);
+            foreach ($request->people_id as $id) {
+                if ($id==$member->member_type) {
+                    $payment_debit = PaymentDebit::create([
+                        'member_id' => $member->id,
+                        'product' => $request->product,
+                        'amount' => $request->amount,
+                        'description' => ucwords($request->description),
+                        'debit_type' => $request->debit_type,
+                        'grace_period' => $request->grace_period,
+                        'start_date' => Carbon::today(),
+                        'date_entered' => Carbon::today(),
+                        'created_by' => auth('api')->user()->id,
+                    ]);
+
+                    $the_member = User::where('unique_id', $member->membership_id)->first();
+
+                    if($member->phone_1 || $member->phone_2 || $the_member->phone){
+                        if ($the_member->phone) {
+                            $phone = $the_member->phone;
+                        }
+                        elseif ($member->phone_1) {
+                            $phone = $member->phone_1;
+                        }
+                        else {
+                            $phone = $member->phone_2;
+                        }
+
+                        $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount;
+
+                        $data1 = [
+                            'from' => 'ESPORTSCLUB',
+                            'to' => $this->prep_number($phone),
+                            'text' => $message,
+                        ];
+
+                        $curl = curl_init();
+
+                        curl_setopt_array($curl, array(
+                            CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_ENCODING => "",
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 30000,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => "POST",
+                            CURLOPT_POSTFIELDS => json_encode($data1),
+                            CURLOPT_HTTPHEADER => array(
+                                // Set here requred headers
+                                "accept: */*",
+                                "accept-language: en-US,en;q=0.8",
+                                "content-type: application/json",
+                                "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
+                            ),
+                        ));
+
+                        $response = curl_exec($curl);
+                        $err = curl_error($curl);
+                        curl_close($curl);
+
+                        MessageLog::create([
+                            'message_id' => $msg->id,
+                            'member_id' => $the_member->unique_id,
+                            'phone' => $phone,
+                        ]);
+                    }
+                }
+            }
         }
         return ['message' => "Success"];
     }
@@ -1217,13 +1307,13 @@ class PaymentController extends Controller
 
     public function updatemethod(Request $request, $id)
     {
-        $pp = PaymentProduct::where('deleted_at')->find($id);
+        $payment_product = Product::where('deleted_at')->find($id);
         $this->validate($request, [
             'payment_name' => 'required|string|max:255',
             'amount' => 'required',
         ]);
 
-        $pp->update([
+        $payment_product->update([
             'payment_name' => ucwords($request->payment_name),
             'amount' => $request->amount,
             'category' => $request->category,
@@ -1233,6 +1323,9 @@ class PaymentController extends Controller
             'type' => $request->type,
             'created_by' => auth('api')->user()->id,
         ]);
+
+        $payment_product->types()->sync($request->member_type);
+        //$payment_product->types()->attach($request->member_type);
         return ['message' => "Success"];
     }
 

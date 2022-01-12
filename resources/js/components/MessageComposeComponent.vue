@@ -42,7 +42,10 @@
                             </div>
                         </b-form-group>
                         
-                        
+                        <b-form-group label="Select Date:" class="col-md-6">
+                            <b-form-datepicker v-model="formData.end_date" placeholder="Select date" :date-format-options="{ year: 'numeric', month: 'short', day: '2-digit', weekday: 'short' }">
+                            </b-form-datepicker>
+                        </b-form-group>
 
                         <b-form-group label="Message:" class="col-md-12" v-if="formData.message_type==0">
                             <textarea  class="form-control" v-model="formData.message" @input="update()"></textarea>
@@ -65,6 +68,7 @@
 <script>
     import VueBootstrap4Table from 'vue-bootstrap4-table';
     import moment from 'moment';
+    import axios from 'axios';
 
     export default {
         data() {
@@ -76,7 +80,7 @@
                 formData: new Form({
                     message: '',
                     phone: '',
-                  
+                    end_date: moment().format("YYYY-MM-DD"),
                     group_count: '',
                     characters: '',
                     pages: 1,

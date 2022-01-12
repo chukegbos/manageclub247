@@ -96,7 +96,7 @@
                                     <b-dropdown id="dropdown-right" text="Action" variant="info"> 
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(method)">Edit</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="debitModal(method)" v-if="method.type==0">Group Debit Members</b-dropdown-item>
+                                        <b-dropdown-item href="javascript:void(0)" @click="debitModal(method)">Group Debit Members</b-dropdown-item>
 
                                         <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(method.id)">Delete</b-dropdown-item>
                                     </b-dropdown>
@@ -268,6 +268,19 @@
                                         field="reoccuring_day"
                                     ></has-error>
                                 </div>
+
+                                <div class="form-group col-md-12">
+                                    <fieldset>
+                                        <label>Select Member Types</label>
+                                        <div style="border: 1px solid grey; height: 15em; overflow-y: auto; white-space: nowrap; padding:5px">
+                                            <div class="c-inputs-stacked" v-for="member_type in member_types" :key="member_type.id">
+                                                <div class="m-1">
+                                                    <input type="checkbox" v-model="form.member_type" :value="member_type.id" number> {{ member_type.title }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button
@@ -375,6 +388,14 @@
                                         field="grace_period"
                                     ></has-error>
                                 </div>
+
+                                <div class="form-group col-md-12">
+                                    <label>Members to debit</label>
+                                    
+                                    <div v-for="pp in formDebit.people" :key="pp.id">
+                                        - {{ pp }}
+                                    </div>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button
@@ -396,7 +417,7 @@
                                     type="submit"
                                     class="btn btn-primary"
                                 >
-                                    Create
+                                    Debit
                                 </button>
                             </div>
                         </form>
@@ -447,6 +468,8 @@
                     { value: '1', title: 'Yes' },
                 ],
 
+                member_types: [],
+
                 form: new Form({
                     id: "",
                     payment_name: "",
@@ -455,7 +478,8 @@
                     category: 0,
                     door_access: 0,
                     reoccuring_day: 27,
-                    grace_period: 10
+                    grace_period: 10,
+                    member_type: [],
                 }),
 
                 formDebit: new Form({
@@ -464,6 +488,8 @@
                     debit_type: 1,
                     amount: 0,
                     grace_period: 0,
+                    people: [],
+                    people_id: [],
                 }),
 
                 
@@ -500,6 +526,7 @@
                         this.payments = data.payments;
                     }
                     this.count_all = data.all;
+                    this.member_types = data.member_types;
                     this.total_page = Number(this.count_all/this.filterForm.selected).toFixed(0);
                 })
                 .catch(() => {
@@ -567,12 +594,31 @@
                 this.formDebit.debit_type = 1;
                 this.formDebit.amount = store.amount;
                 this.formDebit.grace_period = store.grace_period;
+
+                var selectedType = [];
+                var selectedId = [];
+
+                store.types.forEach(function (ty) {
+                    selectedType.push(ty.title);
+                    selectedId.push(ty.pivot.type_id);
+                });
+
+                this.formDebit.people = selectedType;
+                this.formDebit.people_id = selectedId;
             },
 
             editModal(store) {
+                
                 (this.editMode = true), this.form.reset();
                 $("#addNewstore").modal("show");
                 this.form.fill(store);
+                var selectedType = [];
+
+                store.types.forEach(function (ty) {
+                    selectedType.push(ty.pivot.type_id);
+                });
+                console.log(selectedType)
+                this.form.member_type = selectedType;
             },
 
             onFilterSubmit()
@@ -583,29 +629,45 @@
             },
 
             createStore() {
-                if (this.is_busy) return;
-                this.is_busy = true;
-                $("#addNewstore").modal("hide");
-                this.form.post("/api/payment/method")
-                .then(() => {
+            
+                if(this.form.category==0 && this.form.member_type.length==0)
+                {
                     Swal.fire(
-                        "Created!",
-                        "Payment Product Created Successfully.",
-                        "success"
-                    );
-                    this.loadPayment(); 
-                    this.getUser();      
-                })
-                .catch(() => {
-                    Swal,fire(
                         "Failed!",
-                        "Ops, Something went wrong, try again.",
+                        "Please select member type.",
                         "warning"
                     );
-                })
-                .finally(() => {
-                    this.is_busy = false;
-                });
+                    //$("#addNewstore").modal("hide");
+                }
+                else
+                {
+                    if (this.is_busy) return;
+                    this.is_busy = true;
+                    $("#addNewstore").modal("hide");
+                    this.form.post("/api/payment/method")
+                    .then(() => {
+                        Swal.fire(
+                            "Created!",
+                            "Payment Product Created Successfully.",
+                            "success"
+                        );
+                        this.loadPayment(); 
+                        this.getUser();      
+                    })
+                    .catch((err) => {
+
+                        Swal.fire(
+                            "Failed!",
+                            "Ops, Something went wrong, try again.",
+                            "warning"
+                        );
+                    })
+                    .finally(() => {
+                        this.is_busy = false;
+                        this.getUser();
+                        this.loadPayment();
+                    });
+                }
             },
 
             updateStore() {
@@ -680,7 +742,7 @@
                     if (result.value) {
                         if (this.is_busy) return;
                         this.is_busy = true;
-                        axios.get('/api/store/delete', { params: this.action})
+                        axios.get('/api/payment/method/delete', { params: this.action})
                         .then(() => {
                             Swal.fire(
                                 "Deleted!",

@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use DB;
-use App\MemberType;
+use App\Type;
 
 class Member extends Model
 {
@@ -26,7 +26,7 @@ class Member extends Model
     public function getGetMemberTypeAttribute()
     {
         $member_type = $this->attributes['member_type'];
-        $type = MemberType::find($member_type);
+        $type = Type::find($member_type);
         if ($type) {
             return $type->title;   
         }

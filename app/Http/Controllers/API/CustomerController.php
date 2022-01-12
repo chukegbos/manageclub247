@@ -11,10 +11,10 @@ use App\Sale;
 use App\Death;
 use App\Fund;
 use App\Item;
-use App\MemberType;
+use App\Type;
 use App\Member;
 use App\PaymentDebit;
-use App\PaymentProduct;
+use App\Product;
 use App\PaymentBank;
 use App\PaymentPos;
 use App\PaymentChannel;
@@ -40,7 +40,7 @@ class CustomerController extends Controller
     {
         $setting = Setting::findOrFail(1);
    
-        $query = MemberType::where('id', '!=', NULL);
+        $query = Type::where('id', '!=', NULL);
 
         if ($request->name) {
             $query->where('title', 'like', '%' . $request->name . '%');
@@ -64,7 +64,7 @@ class CustomerController extends Controller
             'title' => 'required|string|max:191',
         ]);
        
-        $memberType = MemberType::create([
+        $memberType = Type::create([
             'title' => $request['title'],
         ]);
 
@@ -74,7 +74,7 @@ class CustomerController extends Controller
 
     public function updatemembertype(Request $request, $id)
     {
-        $memberType = MemberType::findOrFail($id);
+        $memberType = Type::findOrFail($id);
         $this->validate($request, [
             'title' => 'required|string|max:191',
         ]);
@@ -89,7 +89,7 @@ class CustomerController extends Controller
     public function destroymembertype(Request $request)
     {
         foreach ($request->selected as $id) {
-            MemberType::Destroy($id);
+            Type::Destroy($id);
         }
         return 'ok';  
     }
@@ -239,7 +239,7 @@ class CustomerController extends Controller
     public function details(Request $request)
     {
         $params = [];
-        $params['member_types'] = MemberType::get();
+        $params['member_types'] = Type::get();
         $params['sections'] = Section::get();
         $params['states'] = DB::table('states')->get();
         return $params;

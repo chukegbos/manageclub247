@@ -112,7 +112,7 @@ class HomeController extends Controller
                 'start_date' => Carbon::today(),
                 'created_by' => auth()->user()->id,
             ]);
-        }*/
+        }
 
         $members = Member::where('deleted_at', NULL)->get();
         foreach ($members as $user) {
@@ -146,7 +146,7 @@ class HomeController extends Controller
                     ]);
                 }
             }
-        }
+        }*/
         return view('dashboard');
     }
 
