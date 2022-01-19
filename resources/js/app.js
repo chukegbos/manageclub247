@@ -67,8 +67,6 @@ Vue.component('v-select', vSelect)
 import 'vue-select/dist/vue-select.css';
 
 Vue.component('vue-typeahead-bootstrap', VueTypeaheadBootstrap)
-
-
 import VueHtmlToPaper from 'vue-html-to-paper';
 
 const options = {
@@ -80,11 +78,13 @@ const options = {
   ],
   styles: [
     'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css',
-    'https://unpkg.com/kidlat-css/css/kidlat.css'
+    'https://unpkg.com/kidlat-css/css/kidlat.css',
+    '/css/print.css'
   ]
 }
 
 Vue.use(VueHtmlToPaper, options);
+
 
 import DashboardComponent from './components/DashboardComponent.vue';
 import PinComponent from './components/PinComponent.vue';
@@ -476,11 +476,12 @@ let routes = [
     { path: '/storerequest/:ref_id', component: require('./components/CompleteRequestComponent.vue').default },
     { path: '/inventory/breakdown/:code', component: require('./components/BreakdownComponent.vue').default },
     { path: '/payment', component: require('./components/PaymentComponent.vue').default },
-     { path: '/payment/products', component: require('./components/PaymentProductsComponent.vue').default },
+    { path: '/payment/products', component: require('./components/PaymentProductsComponent.vue').default },
     { path: '/payment/channels', component: require('./components/PaymentChannelComponent.vue').default },
     { path: '/payment/banks', component: require('./components/PaymentBankComponent.vue').default },
     { path: '/payment/pos', component: require('./components/PaymentPosComponent.vue').default },
     { path: '/payment/debits', component: require('./components/PaymentDebitComponent.vue').default },
+    { path: '/payment/reciept/:id', component: require('./components/PaymentReceiptComponent.vue').default },
     { path: '/members/types', component: require('./components/MemberTypeComponent.vue').default },
     { path: '/members/sections', component: require('./components/MemberSectionComponent.vue').default },
     { path: '/admin/logins', component: require('./components/LoginComponent.vue').default },

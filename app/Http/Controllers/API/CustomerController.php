@@ -12,6 +12,7 @@ use App\Death;
 use App\Fund;
 use App\Item;
 use App\Type;
+use App\Payment;
 use App\Member;
 use App\PaymentDebit;
 use App\Product;
@@ -216,7 +217,7 @@ class CustomerController extends Controller
 
             'users.entrance_date as entrance_date',
             'users.created_at as created_at',
-
+            'users.image as image',
             'users.access as access',
             'users.phone as phone',
             'users.c_person as c_person',
@@ -224,6 +225,8 @@ class CustomerController extends Controller
             'users.approved_by as approved_by',
             'users.door_access as door_access'
         );
+        
+        $params['totalusers'] =  $query->where('default_esc_members.member_type', '!=', 14)->get();
         if ($request->selected==0) {
             $params['customers'] =  $query->get();
         }
@@ -267,7 +270,8 @@ class CustomerController extends Controller
             if (!$params['member']) {
                 return ['error' => 'Member not found'];
             }
-           
+            
+            $params['payments'] = Payment::where('member_id', $params['member']->id)->get();
             $params['channels'] = PaymentChannel::get();
             $params['orders'] = Sale::where('sales.deleted_at', NULL)
                 ->where('sales.status', 'concluded')

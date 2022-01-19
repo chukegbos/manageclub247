@@ -1,89 +1,171 @@
 <template>
     <b-overlay :show="is_busy" rounded="sm">
         <div class="container-fluid pt-2">
-            <div class="row">
+            <!--<div class="row">
                 <div class="col-md-2"></div>
                 <div class="col-md-8">
                     <div class="card">
                         <div class="card-body" id="printMe">
-                            <div class="row">
-                                <div class="col-12 col-md-12 text-center">
-                                    <h4><strong>PAYMENT RECEIPT</strong></h4>
-                                    <h6><strong>{{ site.sitename }}</strong></h6>
-                                </div>
-                              
+                            <div class="border p-2">
+                                <div class="row">
+                                    <div class="col-12 col-md-12 text-center">
+                                        <h4><strong>PAYMENT RECEIPT</strong></h4>
+                                        <h6><strong>{{ site.sitename }}</strong></h6>
+                                    </div>
+                                  
 
-                                <div class="col-6 col-md-6">
-                                    <p><strong>Paid by</strong></p>
-                                    <div class="table-responsive advance-table">
-                                        <table class="table table-bordered">
-                                           <tr>
-                                                <th>Name</th>
-                                                <td>{{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }} {{ fund.customer_id.middle_name }} ({{ fund.customer_id.membership_id }})</td>
-                                            </tr>
+                                    <div class="col-6 col-md-6">
+                                        <p><strong>Paid by</strong></p>
+                                        <div class="table-responsive advance-table">
+                                            <table class="table table-bordered">
+                                               <tr>
+                                                    <th><h4>Name</h4></th>
+                                                    <td><h4>{{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }} {{ fund.customer_id.middle_name }} ({{ fund.customer_id.membership_id }})</h4></td>
+                                                </tr>
 
-                                            <tr>
-                                                <th>Phone Number</th>
-                                                <td>{{ fund.customer_id.phone_1 }}</td>
-                                            </tr> 
+                                                <tr>
+                                                    <th><h4>Phone Number</h4></th>
+                                                    <td><h4>{{ fund.customer_id.phone_1 }}</h4></td>
+                                                </tr> 
 
-                                            <tr>
-                                                <th>Email</th>
-                                                <td>{{ fund.customer_id.email }}</td>
-                                            </tr>
-                                            
-                                            <tr>
-                                                <th>Address</th>
-                                                <td>{{ fund.customer_id.address }}</td>
-                                            </tr>
-                                        </table> 
+                                                <tr>
+                                                    <th><h4>Email</h4></th>
+                                                    <td><h4>{{ fund.customer_id.email }}</h4></td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <th><h4>Address</h4></th>
+                                                    <td><h4>{{ fund.customer_id.address }}</h4></td>
+                                                </tr>
+                                            </table> 
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 col-md-6">
+                                        <p><strong>Received by </strong></p>
+                                        <div class="table-responsive advance-table">
+                                            <table class="table table-bordered">
+                                                <tr>
+                                                    <th><h4>Outlet</h4></th>
+                                                    <td><h4>{{ site.sitename }}</h4></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th><h4>From</h4></th>
+                                                    <td><h4>{{ fund.user_id }}</h4></td>
+                                                </tr>
+
+                                                <tr>
+                                                    <th><h4>Phone</h4></th>
+                                                    <td><h4>{{ site.phone }}</h4></td>
+                                                </tr>
+                                                
+                                                <tr>
+                                                    <th><h4>Address</h4></th>
+                                                    <td><h4>{{ site.address}}</h4></td>
+                                                </tr>
+                                            </table> 
+                                        </div>
+                                    </div>
+
+                                    <div class="col-3 col-md-3"></div>
+                                    <div class="col-6 col-md-6">
+                                        <p><b>Date Received:</b> {{ fund.created_at | myDate }}<br>
+                                        <b>Payment Method:</b> {{ fund.mop }} <span v-if="fund.tran_type">({{ fund.tran_type }})</span>
+                                        <br>
+                                        <b>Amount:</b> <span v-html="nairaSign"></span>{{ formatPrice(fund.amount) }}
+                                        </p>
                                     </div>
                                 </div>
 
-                                <div class="col-6 col-md-6">
-                                    <p><strong>Received by </strong></p>
-                                    <div class="table-responsive advance-table">
-                                        <table class="table table-bordered">
-                                            <tr>
-                                                <th>Outlet</th>
-                                                <td>{{ site.sitename }}</td>
-                                            </tr>
-
-                                            <tr>
-                                                <th>From</th>
-                                                <td>{{ fund.user_id }}</td>
-                                            </tr>
-
-                                            <tr>
-                                                <th>Phone</th>
-                                                <td>{{ site.phone }}</td>
-                                            </tr>
-                                            
-                                            <tr>
-                                                <th>Address</th>
-                                                <td>{{ site.address}}</td>
-                                            </tr>
-                                        </table> 
-                                    </div>
-                                </div>
-
-                                <div class="col-3 col-md-3"></div>
-                                <div class="col-6 col-md-6">
-                                    <p><b>Date Received:</b> {{ fund.created_at | myDate }}<br>
-                                    <b>Payment Method:</b> {{ fund.mop }} <span v-if="fund.tran_type">({{ fund.tran_type }})</span>
-                                    <br>
-                                    <b>Amount:</b> <span v-html="nairaSign"></span>{{ formatPrice(fund.amount) }}
-                                    </p>
-                                </div>
+                                <p class="text-center mt-1">
+                                    <small><b>NB</b>: Always present this receipt as it serves as evidence of payment</small>
+                                </p>
                             </div>
-
-                            <p class="text-center mt-1">
-                                <small><b>NB</b>: Always present this receipt as it serves as evidence of payment</small>
-                            </p>
                         </div>
 
                         <div class="card-footer">
                             <button @click="print" class="btn btn-success btn-lg btn-block mb-2">Print</button>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+
+            <div class="card">
+                <div class="card-body" id="printMe">
+                    <div class="border p-2">
+                        <div class="row">
+                            <div class="col-12 col-md-12 text-center">
+                                <h1><strong>PAYMENT RECEIPT</strong></h1>
+                                <h2><strong>{{ site.sitename }}</strong></h2>
+                            </div>
+                          
+
+                            <div class="col-6 col-md-6">
+                                <p><strong>Paid by</strong></p>
+                                <div class="table-responsive advance-table">
+                                    <table class="table table-bordered">
+                                       <tr>
+                                            <th><h4>Name</h4></th>
+                                            <td><h4>{{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }} {{ fund.customer_id.middle_name }} ({{ fund.customer_id.membership_id }})</h4></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th><h4>Phone Number</h4></th>
+                                            <td><h4>{{ fund.customer_id.phone_1 }}</h4></td>
+                                        </tr> 
+
+                                        <tr>
+                                            <th><h4>Email</h4></th>
+                                            <td><h4>{{ fund.customer_id.email }}</h4></td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <th><h4>Address</h4></th>
+                                            <td><h4>{{ fund.customer_id.address }}</h4></td>
+                                        </tr>
+                                    </table> 
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-md-6">
+                                <p><strong>Received by </strong></p>
+                                <div class="table-responsive advance-table">
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th><h4>Outlet</h4></th>
+                                            <td><h4>{{ site.sitename }}</h4></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th><h4>From</h4></th>
+                                            <td><h4>{{ fund.user_id }}</h4></td>
+                                        </tr>
+
+                                        <tr>
+                                            <th><h4>Phone</h4></th>
+                                            <td><h4>{{ site.phone }}</h4></td>
+                                        </tr>
+                                        
+                                        <tr>
+                                            <th><h4>Address</h4></th>
+                                            <td><h4>{{ site.address}}</h4></td>
+                                        </tr>
+                                    </table> 
+                                </div>
+                            </div>
+
+                            <div class="col-3 col-md-3"></div>
+                            <div class="col-6 col-md-6">
+                                <h4>
+                                    <b>Date Received:</b> {{ fund.created_at | myDate }}<br><br>
+                                    <b>Payment Method:</b> {{ fund.mop }} 
+                                    <span v-if="fund.tran_type">({{ fund.tran_type }})</span>
+                                    <br><br>
+                                    
+                                    <b>Amount:</b> <span v-html="nairaSign"></span>{{ formatPrice(fund.amount) }}
+                                </h4>
+                            </div>
                         </div>
                     </div>
                 </div>

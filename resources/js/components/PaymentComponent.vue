@@ -39,7 +39,10 @@
                                 <td><span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }}</td>
                                 <td>{{ debt.created_at | myDate }}</td> 
                                 <td>{{ debt.created_by }}</td>
-                                <td>{{ debt.payment_channel }}</td> 
+                                <td>
+                                    {{ debt.payment_channel }}<br>
+                                    <a href="javascript:void(0)" @click="viewReceipt(debt)">Receipt</a>
+                                </td> 
                             </tr>
                         </tbody>
                     </table>
@@ -244,6 +247,10 @@
                     this.is_busy = false;
                     this.loadDebits(); 
                 });
+            },
+
+            viewReceipt(debt) {
+                this.$router.push({ path: '/payment/reciept/' + debt.id})
             },
 
             onDeleteAll(id) {

@@ -294,6 +294,39 @@
                         </b-card-text>
                     </b-tab>
 
+                    <b-tab title="Payments" id="payments">
+                        <b-card-text>
+                            <div class="table-responsive" v-if="payments.length>0">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Payment</th>
+                                            <th>Amount</th>
+                                            <th>Date Created</th>
+                                            <th>Created By</th>
+                                            <th>Payment Method</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="payment in payments" :key="payment.id">
+                                            <td>{{ payment.get_product.description }}</td>
+                                            <td><span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}</td>
+                                            <td>{{ payment.created_at | myDate }}</td> 
+                                            <td>{{ payment.created_by }}</td>
+                                            <td>
+                                                {{ payment.payment_channel }}<br>
+                                                <a href="javascript:void(0)" @click="viewReceipt(payment)">Receipt</a>
+                                            </td> 
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-else class="alert alert-danger text-center">
+                                No payment found
+                            </div>
+                        </b-card-text>
+                    </b-tab>
+
                     <b-tab title="Quotes">
                         <b-card-text>
                             <div style="border; height: 20em; overflow-y: auto; white-space: nowrap; padding:5px">
@@ -477,9 +510,7 @@
                         </form>
                     </div>
                 </div>
-            </div>
-
-      
+            </div>   
 
             <div class="modal fade" id="addpay" tabindex="-1" role="dialog" aria-labelledby="addNewstoreLabel" aria-hidden="true">
 
@@ -583,6 +614,7 @@
                 order_count: '',
                 payment_debts_sum: '',
                 payment_debts: [],
+                payments: [],
                 value_order_count: '',
                 funds: {},
                 users: [],
@@ -705,6 +737,7 @@
                         this.value_order_count = response.data.value_order_count;
                         this.sections = response.data.sections;
                         this.payment_debts = response.data.payment_debts;
+                        this.payments = response.data.payments;
                         this.payment_debts_sum = response.data.payment_debts_sum;
                         this.channels = response.data.channels;
                         this.banks = response.data.banks;
@@ -760,7 +793,7 @@
                         this.$router.push({ path: "/admin/customers"});
                     }
                     else{
-                        console.log(response.data)
+                       
                         this.user = response.data.user;
                         this.orders = response.data.orders;
                         this.invoices = response.data.invoices;
@@ -774,6 +807,7 @@
                         this.member = response.data.member;
                         this.sections = response.data.sections;
                         this.payment_debts = response.data.payment_debts;
+                        this.payments = response.data.payments;
                         this.payment_debts_sum = response.data.payment_debts_sum;
                         this.channels = response.data.channels;
                         this.banks = response.data.banks;
@@ -801,6 +835,10 @@
 
             viewItems(order) {
                 this.$router.push({ path: "/orderview/" + order.sale_id });
+            },
+
+            viewReceipt(debt) {
+                this.$router.push({ path: '/payment/reciept/' + debt.id})
             },
 
             statement(user) {

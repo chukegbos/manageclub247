@@ -7,7 +7,7 @@ use DB;
 use App\User;
 use App\Member;
 use Carbon\Carbon;
-use App\PaymentProduct;
+use App\Product;
 
 class PaymentDebit extends Model
 {
@@ -32,7 +32,7 @@ class PaymentDebit extends Model
     {
         $id = $this->attributes['product'];
         if ($id) {
-            return PaymentProduct::find($id);
+            return Product::find($id);
         } 
         else {
             return NULL;

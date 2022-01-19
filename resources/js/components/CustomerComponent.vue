@@ -11,7 +11,7 @@
                         Add Member
                     </b-button>
 
-                    <!--<b-button size="sm" variant="outline-info"class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>-->
+                    <b-button size="sm" variant="outline-info"class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
 
                     <b-button variant="outline-primary" size="sm" class="pull-right m-2" v-b-modal.filter-modal><i class="fa fa-filter"></i> Filter</b-button>
 
@@ -413,13 +413,64 @@
                 </div>
             </div>
         </div>
+
+        <div class="container-fluid" id="printMe">
+            <div v-if="unprintable==true">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center"><strong>List of Members</strong></h2>
+                    </div>
+
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="200px">Name</th>
+                                    <th>Member ID</th>
+                                    <th>Member Type</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Photo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="user in totalusers" :key="user.id">
+                                    <td>{{ user.name }} <span v-if="user.state"><br>{{ user.state }} State</span></td>
+                                    <td>{{ user.unique_id }}</td>
+                                    <td>
+                                        <span v-if="user.c_person.member_type==15" class="text-warning">
+                                            {{ user.c_person.get_member_type }}
+                                        </span>
+                                        <span v-else-if="user.c_person.member_type==14" class="text-danger">
+                                            {{ user.c_person.get_member_type }}
+                                        </span>
+                                        <span v-else class="text-info">
+                                            {{ user.c_person.get_member_type }}
+                                        </span>
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>{{ user.phone }}</td>
+                                    <td>
+                                        <span v-if="user.image">
+                                            <img class="img-fluid img-responsive" :src="'/img/members/'+ user.image" style="height:40px; display: block; margin-left: auto; margin-right: auto; width: 40px; border-radius:10px">
+                                        </span>
+                                        <span v-else>
+                                            No Photo
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </b-overlay>
 </template>
 
 <script>
 export default {
     created() {
-        
         this.getUser();
         this.loadOther();
         this.loadUsers();
@@ -485,6 +536,7 @@ export default {
             },
             count_all: '',
             unprintable: false,
+            totalusers: [],
         };
     },
 
@@ -510,8 +562,9 @@ export default {
             if (this.is_busy) return;
             this.is_busy = true;
             this.unprintable = true;
+            console.log(this.unprintable)
             this.$htmlToPaper('printMe');
-           
+            this.unprintable = false;
             this.is_busy = false;
             this.loadUsers();
             this.getUser();
@@ -542,7 +595,7 @@ export default {
         loadUsers() {
             if (this.is_busy) return;
             this.is_busy = true;
-
+            console.log(this.unprintable)
             axios.get("/api/customer", { params: this.filterForm })
             .then(({ data }) => {
                 if(this.filterForm.selected==0)
@@ -553,6 +606,7 @@ export default {
                     this.users = data.customers;
                 }
                 this.count_all = data.all;
+                this.totalusers = data.totalusers;
             })
             .finally(() => {
                 this.is_busy = false;

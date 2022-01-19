@@ -296,7 +296,7 @@ use Illuminate\Http\Request;
 	    	Route::get('delete', 'API\PaymentController@destroypos');
 		});
 
-		Route::group(['prefix' => 'debits'], function(){	
+		Route::group(['prefix' => 'debits'], function(){
 	    	Route::get('/', 'API\PaymentController@debit');
 	    	Route::get('member/{member_id}', 'API\PaymentController@getmember');
 	    	Route::post('/', 'API\PaymentController@storedebit');
@@ -306,6 +306,7 @@ use Illuminate\Http\Request;
 		});
 
 		Route::get('', 'API\PaymentController@index');
+		Route::get('{id}', 'API\PaymentController@view');
 		Route::post('debit', 'API\PaymentController@debitmembers');
 		Route::post('graceperiod', 'API\PaymentController@graceperiod');
 		Route::post('pay', 'API\PaymentController@pay');
