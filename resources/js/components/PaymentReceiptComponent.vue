@@ -13,6 +13,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <p>
+                                        <b>Receipt No: </b> {{ payment.rec_id }}<br><br>
                                         <b>Name: </b> {{ payment.get_member.get_member }}<br><br>
                                         <b>Description: </b> {{ payment.get_product.description }}<br><br>
                                         <b>Amount: </b> <span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}<br><br>
@@ -40,6 +41,7 @@
                         </div>
                         <div class="mb-3">
                             <h4>
+                                <b>Receipt No: </b> {{ payment.rec_id }}<br><br
                                 <b>Name: </b> {{ payment.get_member.get_member }}<br><br>
                                 <b>Description: </b> {{ payment.get_product.description }}<br><br>
                                 <b>Amount: </b> <span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}<br><br>
@@ -71,6 +73,14 @@
               
                 customer: '',
                 payment: '',
+                payment: {
+                    get_member: '',
+                },
+
+                payment: {
+                    get_product: '',
+                },
+
                 customer: {
                     id: '',
                 },

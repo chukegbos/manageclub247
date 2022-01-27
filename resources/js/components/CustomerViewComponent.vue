@@ -6,7 +6,7 @@
                     <h2><strong>{{ user.name }} </strong></h2>
                 </div>
 
-                <div class="col-md-6">
+                <!--<div class="col-md-6">
                     <vue-typeahead-bootstrap
                         v-model="userQuery"
                         :ieCloseFix="false"
@@ -16,233 +16,246 @@
                         placeholder="Search for Member"
                         @input="lookUser"
                     />
-                </div>
+                </div>-->
             </div>
          
             <b-card no-body>
                 <b-tabs card>
                     <b-tab title="Overview" active>
                         <b-card-text>
-                            <b-row>
-                                <b-col cols="12" md="9">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="table-responsive">
-                                                <table class="table table-hover">
-                                                    <tr>
-                                                        <th>Membership Wallet</th>
-                                                        <th>Bar/Kitchen Wallet</th>
-                                                        <th>Debts</th>
-                                                        <th>Total Sales</th>
-                                                        <th>Value of total sales</th>
-                                                        <th>Quotes</th>
-                                                        <th>Invoices</th>
-                                                        <th>Transactions</th>
-                                                    </tr>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <tr>
+                                                <th>Subscription Wallet</th>
+                                                <th>Bar/Kitchen Wallet</th>
+                                                <th>Other Wallet
+                                                <th>Debts</th>
+                                                <th>Total Payment</th>
+                                                <th>Total Sales</th>
+                                                <th>Value of total sales</th>
+                                                <th>Quotes</th>
+                                                <th>Invoices</th>
+                                                <th>Transactions</th>
+                                            </tr>
 
-                                                    <tr>
-                                                        <td>
-                                                            <span v-html="nairaSign"></span>{{ formatPrice(user.wallet_balance) }}
-                                                            <!--<p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">View Account</a></p>-->
-                                                        </td>
+                                            <tr>
+                                                <td>
+                                                    <span v-html="nairaSign"></span>{{ formatPrice(user.wallet_balance) }}
+                                                    <!--<p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">View Account</a></p>-->
+                                                </td>
 
-                                                        <td>
-                                                            <span v-html="nairaSign"></span>{{ formatPrice(user.bar_wallet) }}
-                                                        </td>
+                                                <td>
+                                                    <span v-html="nairaSign"></span>{{ formatPrice(user.bar_wallet) }}
+                                                </td>
 
-                                                        <td>
-                                                            <span v-html="nairaSign"></span>{{ formatPrice(payment_debts_sum) }}
-                                                        </td>
-                                                        
-                                                        <td>{{ order_count }}</td> 
-                                                        <td><span v-html="nairaSign"></span>{{ formatPrice( value_order_count) }}</td>
-                                                        <td>{{ quotes.length }}</td>
-                                                        <td>{{ invoices.length }}</td> 
-                                                        <td>{{ orders.length }}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <span v-if="user.image">
-                                                <img class="img-fluid img-responsive" :src="'/img/members/'+ user.image" alt="Profile picture" style="height:100px; display: block; margin-left: auto; margin-right: auto; width: 120px; border-radius:10px">
-                                            </span>
-                                            <span v-else-if="user.gender=='male'">
-                                                <img class="img-fluid img-responsive" :src="'/img/avatar/male.jpg'" alt="Profile picture" style="height:100px; display: block; margin-left: auto; margin-right: auto; width: 120px; border-radius:10px">
-                                            </span>
+                                                <td>
+                                                    <span v-html="nairaSign"></span>{{ formatPrice(user.credit_unit) }}
+                                                </td>
 
-                                            <span v-else>
-                                                <img class="img-fluid img-responsive" :src="'/img/avatar/female.jpg'" alt="Profile picture" style="height:100px; display: block; margin-left: auto; margin-right: auto; width: 120px; border-radius:10px">
-                                            </span>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="text-center">User Information</h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-hover">
-                                                    <tr>
-                                                        <th>Membership ID</th>
-                                                        <td>{{ user.unique_id }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Member Type</th>
-                                                        <td>{{ member.get_member_type }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Admission Date</th>
-                                                        <td>{{ user.entrance_date | myDate }}</td>
-                                                    </tr>
-                                                   
-                                                    <tr>
-                                                        <th>Gender</th>
-                                                        <td>{{ user.gender | capitalize }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Date of Birth</th>
-                                                        <td>{{ user.dob | myDate}}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Phone</th>
-                                                        <td>{{ member.phone_1 }}, {{ member.phone_2 }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Email</th>
-                                                        <td>{{ user.email }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Residential Address</th>
-                                                        <td>{{ user.address }}, {{ member.get_city }} LGA of {{ member.get_state }} State, Nigeria</td>
-                                                    </tr>
-
-                                                    <tr>
-                                                        <th>Home of Origin</th>
-                                                        <td>{{ member.home_town }}, {{ member.get_lga }} LGA of {{ member.get_state_of_origin }} State, Nigeria</td>
-                                                    </tr>
-
-                                                    <tr>
-                                                        <th>Office Address</th>
-                                                        <td>{{ member.office_address }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Marital Status</th>
-                                                        <td>{{ member.marital_status }}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <h6 class="text-center">Additional Information</h6>
-                                            <div class="table-responsive" v-if="additional">
-                                                <table class="table table-hover">
-                                                    <tr>
-                                                        <th>Next of Kin</th>
-                                                        <td>{{ additional.kin_name }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Next of Kin Relationship</th>
-                                                        <td>{{ additional.kin_relationship }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Next of Kin Address</th>
-                                                        <td>{{ additional.kin_address }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Next of Kin Phone</th>
-                                                        <td>{{ additional.kin_phone_1 }}, {{ additional.kin_phone_2 }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Beneficiary Name</th>
-                                                        <td>{{ additional.beneficiary_name }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Beneficiary Relationship</th>
-                                                        <td>{{ additional.beneficiary_relationship }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Beneficiary Address</th>
-                                                        <td>{{ additional.beneficiary_address }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Beneficiary Phone</th>
-                                                        <td>{{ additional.beneficiary_phone_1 }}, {{ additional.beneficiary_phone_2 }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Sponsors</th>
-                                                        <td>{{ additional.sponsor_1 }}, {{ additional.sponsor_2 }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Spouse Name</th>
-                                                        <td>{{ member.spouse_name }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Children</th>
-                                                        <td>{{ member.children }}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-3">
-                                            <h6 class="text-center">Cards</h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-hover">
-                                                    <tr>
-                                                        <th>Cards</th>
-                                                    </tr>
-
-                                                    <tr v-for="card in card_numbers" :key="card.id">
-                                                        <td>{{ card.card_number }}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-
-                                        <!--<div class="col-md-9">
-                                            <h6 class="text-center">Academic Information</h6>
-                                            <div class="table-responsive">
-                                                <table class="table table-hover">
-                                                    <tr>
-                                                        <th>Level</th>
-                                                        <th>Institution</th>
-                                                        <th>Degree</th>
-                                                    </tr>
-
-                                                    <tr v-for="edu in educations" :key="edu.id">
-                                                        <td>{{ edu.level }}</td>
-                                                        <td>{{ edu.institution }}</td> 
-                                                        <td>{{ edu.degree }}</td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>-->
+                                                <td>
+                                                    <span v-html="nairaSign"></span>{{ formatPrice(payment_debts_sum) }}
+                                                </td>
+                                                <td>
+                                                    <span v-html="nairaSign"></span>{{ formatPrice(payment_sum) }}
+                                                </td>
+                                                <td>{{ order_count }}</td> 
+                                                <td><span v-html="nairaSign"></span>{{ formatPrice( value_order_count) }}</td>
+                                                <td>{{ quotes.length }}</td>
+                                                <td>{{ invoices.length }}</td> 
+                                                <td>{{ orders.length }}</td>
+                                            </tr>
+                                        </table>
                                     </div>
-                                </b-col>
+                                </div>
 
-                                <b-col cols="12" md="3">
-                                    <div class="mb-2">
-                                        <h6 class="text-center">Register Sections</h6>
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <tr v-for="section in sections">
-                                                    <th>{{ section.title }}</th>
-                                                </tr>
-                                            </table>
-                                        </div>
+                                <div class="col-md-3">
+                                    <span v-if="user.image">
+                                        <img class="img-fluid img-responsive" :src="'/img/members/'+ user.image" alt="Profile picture" style="height:100px; display: block; margin-left: auto; margin-right: auto; width: 120px; border-radius:10px">
+                                    </span>
+                                    <span v-else-if="user.gender=='male'">
+                                        <img class="img-fluid img-responsive" :src="'/img/avatar/male.jpg'" alt="Profile picture" style="height:100px; display: block; margin-left: auto; margin-right: auto; width: 120px; border-radius:10px">
+                                    </span>
+
+                                    <span v-else>
+                                        <img class="img-fluid img-responsive" :src="'/img/avatar/female.jpg'" alt="Profile picture" style="height:100px; display: block; margin-left: auto; margin-right: auto; width: 120px; border-radius:10px">
+                                    </span>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h6 class="">Quick Links</h6>
+                                    <ul>
+                                        <!--<li>
+                                            <p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">Member Sale Statement</a></p>
+                                        </li>
+                                        <li>
+                                            <p><a href="javascript:void(0)" @click="sales(user)" style="color:blue;">Member's Sales</a></p>
+                                        </li>-->
+
+                                        <li>
+                                            <p><a href="javascript:void(0)" @click="demandNotice(user)" style="color:blue;">Get Demand Notice</a></p>
+                                        </li>
+                                        <li>
+                                            <p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">Account Statement</a></p>
+                                        </li>
+                                        <li>
+                                            <p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">Funding History</a></p>
+                                        </li>
+                                        <li>
+                                            <p><a href="javascript:void(0)" @click="sales(user)" style="color:blue;">Wallet Movement</a></p>
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <h6>Cards</h6>
+                                
+                                    <ol v-for="card in card_numbers" :key="card.id">
+                                        <li>{{ card.card_number }}</li>
+                                    </ol>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <h6 class="text-center">User Information</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <tr>
+                                                <th>Membership ID</th>
+                                                <td>{{ user.unique_id }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Member Type</th>
+                                                <td>{{ member.get_member_type }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Admission Date</th>
+                                                <td>{{ user.entrance_date | myDate }}</td>
+                                            </tr>
+                                           
+                                            <tr>
+                                                <th>Gender</th>
+                                                <td>{{ user.gender | capitalize }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Date of Birth</th>
+                                                <td>{{ user.dob | myDate}}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Phone</th>
+                                                <td>{{ member.phone_1 }}, {{ member.phone_2 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Email</th>
+                                                <td>{{ user.email }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Residential Address</th>
+                                                <td>{{ user.address }}, {{ member.get_city }} LGA of {{ member.get_state }} State, Nigeria</td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Home of Origin</th>
+                                                <td>{{ member.home_town }}, {{ member.get_lga }} LGA of {{ member.get_state_of_origin }} State, Nigeria</td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Office Address</th>
+                                                <td>{{ member.office_address }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Marital Status</th>
+                                                <td>{{ member.marital_status }}</td>
+                                            </tr>
+                                        </table>
                                     </div>
+                                </div>
 
-                                    <!--<div class="mb-2">
-                                        <h6 class="text-center">Quick Links</h6>
-                                        <ul>
-                                            <li>
-                                                <p><a href="javascript:void(0)" @click="statement(user)" style="color:blue;">Member Sale Statement</a></p>
-                                            </li>
-                                            <li>
-                                                <p><a href="javascript:void(0)" @click="sales(user)" style="color:blue;">Member's Sales</a></p>
-                                            </li>
-                                        </ul>
-                                    </div>-->
-                                </b-col>
-                            </b-row>
+                                <div class="col-md-6">
+                                    <h6 class="text-center">Additional Information</h6>
+                                    <div class="table-responsive" v-if="additional">
+                                        <table class="table table-hover">
+                                            <tr>
+                                                <th>Next of Kin</th>
+                                                <td>{{ additional.kin_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Next of Kin Relationship</th>
+                                                <td>{{ additional.kin_relationship }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Next of Kin Address</th>
+                                                <td>{{ additional.kin_address }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Next of Kin Phone</th>
+                                                <td>{{ additional.kin_phone_1 }}, {{ additional.kin_phone_2 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Beneficiary Name</th>
+                                                <td>{{ additional.beneficiary_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Beneficiary Relationship</th>
+                                                <td>{{ additional.beneficiary_relationship }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Beneficiary Address</th>
+                                                <td>{{ additional.beneficiary_address }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Beneficiary Phone</th>
+                                                <td>{{ additional.beneficiary_phone_1 }}, {{ additional.beneficiary_phone_2 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Sponsors</th>
+                                                <td>{{ additional.sponsor_1 }}, {{ additional.sponsor_2 }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Spouse Name</th>
+                                                <td>{{ member.spouse_name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Children</th>
+                                                <td>{{ member.children }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                
+
+                                <div class="col-md-6">
+                                    <h6 class="text-center">Register Sections</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <tr v-for="section in sections">
+                                                <th>{{ section.title }}</th>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!--<div class="col-md-9">
+                                    <h6 class="text-center">Academic Information</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <tr>
+                                                <th>Level</th>
+                                                <th>Institution</th>
+                                                <th>Degree</th>
+                                            </tr>
+
+                                            <tr v-for="edu in educations" :key="edu.id">
+                                                <td>{{ edu.level }}</td>
+                                                <td>{{ edu.institution }}</td> 
+                                                <td>{{ edu.degree }}</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>-->
+
+                                
+                            </div>
                         </b-card-text>
                     </b-tab>
 
@@ -326,6 +339,36 @@
                             </div>
                         </b-card-text>
                     </b-tab>
+
+                    <!--<b-tab title="Demand Notice">
+                        <b-card-text>
+
+                            <div class="my-2 text-center">
+                                <b-button size="sm" variant="outline-info" @click="PrintDemand"> <i class="fa fa-print"></i> Print</b-button>
+                            </div>
+
+                            <div id="printDe">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="border p-4">
+                                            <h4 class="text-center">Enugu Sports Club</h4>
+                                            <p><b>Name:</b> {{ user.name }}</p>
+                                            <p><b>Email:</b>{{ user.email }}</p>
+                                            <p><b>Phone:</b>{{ user.phone }}</p>
+                                            <p><b>Debts:</b> <span v-html="nairaSign"></span>{{ formatPrice(payment_debts_sum) }}</p>
+                                            <p><b>Total Payment:</b> <span v-html="nairaSign"></span>{{ formatPrice(payment_sum) }}</p>
+                                            <p><b>Subcription Wallet Balance:</b> <span v-html="nairaSign"></span>{{ formatPrice(user.wallet_balance) }}</p>
+                                            <p><b>Kitchen/Bar Wallet Balance:</b> <span v-html="nairaSign"></span>{{ formatPrice(user.bar_wallet) }}</p>
+                                            <p><b>Other Wallet Balance:</b> <span v-html="nairaSign"></span>{{ formatPrice(user.credit_unit) }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </b-card-text>
+                    </b-tab>-->
 
                     <b-tab title="Quotes">
                         <b-card-text>
@@ -537,7 +580,7 @@
                                 <div class="form-group">
                                     <label>Method of Payment</label>
                                     <b-form-select
-                                        v-model="formPay.payment_channel"
+                                        v-model="formPay.mop"
                                         :options="channels"
                                         value-field="id"
                                         text-field="title">
@@ -552,7 +595,7 @@
 
                                 
 
-                                <div class="form-group" v-if="formPay.payment_channel==2">
+                                <div class="form-group" v-if="formPay.mop==2">
                                     <label>Select POS</label>
                                     <select v-model="formPay.pos" class="form-control">
                                         <option v-for="po in pos" v-bind:value="po.id">
@@ -561,7 +604,7 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group" v-else-if="formPay.payment_channel==3">
+                                <div class="form-group" v-else-if="formPay.mop==3">
                                     <label>Select Bank</label>
                                     <select v-model="formPay.bank" class="form-control">
                                         <option v-for="bank in banks" v-bind:value="bank.id">
@@ -570,7 +613,7 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group" v-else-if="formPay.payment_channel==6">
+                                <div class="form-group" v-else-if="formPay.mop==6">
                                     <label>Member Balance</label>
                                     <input v-model="user.wallet_balance" type="text" readonly="true" class="form-control"/>
                                 </div>
@@ -617,6 +660,7 @@
                 payments: [],
                 value_order_count: '',
                 funds: {},
+                payment_sum: '',
                 users: [],
                 channels: [],
                 banks: [],
@@ -659,10 +703,10 @@
                 admin: "",
                 formPay: {
                     amount: "",
-                    debit_id: "",
+                    id: "",
                     receipt_number: "",
                     member_id: "",
-                    payment_channel: 0,
+                    mop: 0,
                     description: '',
                     receipt_number: '',
                     bank: '',
@@ -691,9 +735,13 @@
                 }, 500)();
             },
 
+            PrintDemand() {
+                this.$htmlToPaper('printDe');
+            },
+
             onPay(debt) {
                 console.log(debt)
-                this.formPay.debit_id = debt.id;
+                this.formPay.id = debt.id;
                 this.formPay.amount = debt.amount;
                 this.formPay.member_id = debt.member_id;
                 this.formPay.description = debt.description;
@@ -738,6 +786,7 @@
                         this.sections = response.data.sections;
                         this.payment_debts = response.data.payment_debts;
                         this.payments = response.data.payments;
+                        this.payment_sum = response.data.payment_sum;
                         this.payment_debts_sum = response.data.payment_debts_sum;
                         this.channels = response.data.channels;
                         this.banks = response.data.banks;
@@ -808,6 +857,7 @@
                         this.sections = response.data.sections;
                         this.payment_debts = response.data.payment_debts;
                         this.payments = response.data.payments;
+                        this.payment_sum = response.data.payment_sum;
                         this.payment_debts_sum = response.data.payment_debts_sum;
                         this.channels = response.data.channels;
                         this.banks = response.data.banks;
@@ -842,8 +892,11 @@
             },
 
             statement(user) {
-                this.$router.push({ name: 'statement', params: { unique_id: user.unique_id} });
-                //this.$router.push({ path: "/customer/statement", params: { unique_id: user.unique_id } });
+                this.$router.push({ path: "/customer/statement/" + user.unique_id });
+            },
+
+            demandNotice(user) {
+                this.$router.push({ path: "/member/demand-notice/" + user.unique_id });
             },
 
             sales(user) {

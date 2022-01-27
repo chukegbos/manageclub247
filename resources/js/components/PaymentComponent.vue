@@ -24,6 +24,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>Receipt No</th>
                                 <th>Member</th>
                                 <th>Payment</th>
                                 <th>Amount</th>
@@ -34,6 +35,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="debt in debits.data" :key="debt.id">
+                                <td>{{ debt.rec_id }}</td>
                                 <td>{{ debt.get_member.get_member }}</td>
                                 <td>{{ debt.get_product.description }}</td>
                                 <td><span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }}</td>

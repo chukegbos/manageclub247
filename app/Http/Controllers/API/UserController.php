@@ -597,6 +597,10 @@ class UserController extends Controller
             if($fund->wallet==0) {
                 $user->bar_wallet = $fund->amount + $user->bar_wallet;
             }
+
+            elseif($fund->wallet==2) {
+                $user->credit_unit = $fund->amount + $user->credit_unit;
+            }
             else{
                 $user->wallet_balance = $fund->amount + $user->wallet_balance;
             }

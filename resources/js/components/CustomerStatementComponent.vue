@@ -2,21 +2,11 @@
     <b-overlay :show="is_busy" rounded="sm">
         <div class="container-fluid">          
             <div class="row mb-2 p-2"> 
-                <div class="col-md-6">
-                    <h2><strong>Customer Statement</strong></h2>
+                <div class="col-md-4">
+                    <h2><strong>Statement of Account</strong></h2>
                 </div>
+                             
                 <div class="col-md-6">
-                    <vue-typeahead-bootstrap
-                        v-model="userQuery"
-                        :ieCloseFix="false"
-                        :data="users"
-                        :serializer="data => data.name"
-                        @hit="getUserID($event)"
-                        placeholder="Search for customer"
-                        @input="lookUser"
-                    />
-                </div>               
-                <div class="col-md-10">
                     <b-form @submit.stop.prevent="onFilterSubmit" size="sm">
                         <b-input-group>
                             <b-form-datepicker v-model="filterForm.start_date" placeholder="Start date"
@@ -33,16 +23,18 @@
                         </b-input-group>
                     </b-form>  
                 </div>
+
                 <div class="col-md-2">
                     <b-button size="sm" variant="outline-info" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
                 </div> 
             </div>
 
-            <div class="card" id="printMe" v-if="this.unique_id">
-                <div class="card-header text-center">
-                    <h6>{{ user.name }} Statement as at {{ filterForm.start_date | myDate }} to {{ filterForm.end_date | myDate }}</h6>
+            <div class="card" id="printMe">
+                <div class="card-header text-center" style="background-color:white">
+                    <h4>{{ site.sitename }}</h4>
+                    <h6>Account Statement as at {{ filterForm.start_date | myDate }} to {{ filterForm.end_date | myDate }}</h6>
                     <p>
-                        {{ user.address }} {{ user.city }} {{ user.state }}<br>
+                        {{ user.name }}<br>
                         {{ user.email }}<br>
                         {{ user.phone }}
                     </p>
@@ -51,71 +43,73 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h4>Credit</h4>
-                            
-                                <table class="table table-hover" style="height:10px">
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Reference</th>
-                                        <th>Method</th>
-                                        <th>Amount (<span v-html="nairaSign"></span>)</th>
-                                    </tr>
+                            <h4 class="text-center">Payments</h4>
+                            <table class="table table-hover" style="height:10px">
+                                <tr>
+                                    <th>Payment</th>
+                                    <th>Amount</th>
+                                    <th>Date Created</th>
+                                    <th>Created By</th>
+                                    <th>Payment Method</th>
+                                </tr>
 
-                                    <tr v-for="fund in funds" :key="fund.id">
-                                        <td>{{ fund.created_at | myDate }}</td> 
-                                        <td>{{ fund.ref_id }}</td> 
-                                        <td>{{ fund.mop  }}</td>
-                                        <td>{{ formatPrice(fund.amount)  }}</td>
-                                    </tr>
+                                <tr v-for="payment in payments" :key="payment.id">
+                                    <td>{{ payment.get_product.description }}</td>
+                                    <td><span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}</td>
+                                    <td>{{ payment.created_at | myDate }}</td> 
+                                    <td>{{ payment.created_by }}</td>
+                                    <td>
+                                        {{ payment.payment_channel }}<br>
+                                        <a href="javascript:void(0)" @click="viewReceipt(payment)">Receipt</a>
+                                    </td> 
+                                </tr>
+                            </table>
+                        </div>
 
-                                    <tr>
-                                        <td></td> 
-                                        <td></td>
-                                        <td>Total</td>
-                                        <td><b>{{ formatPrice(sum_fund)  }}</b></td>
-                                    </tr>
-                                </table>
-                           
+                        <div class="col-md-6">
+                            <h4 class="text-center">Debit</h4>
+                            <table class="table table-hover" style="height:10px">
+                                <tr>
+                                    <th>Description</th>
+                                    <th>Amount (<span v-html="nairaSign"></span>)</th>
+                                    <th>Date Created</th>
+                                </tr>
+
+                                <tr v-for="debt in debts" :key="debt.id">
+                                    <td>{{ debt.description }}</td>
+                                    
+                                    <td><span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }}</td>
+                                    <td>{{ debt.start_date | myDate }}</td>
+                                </tr>
+                            </table>
                         </div>
 
                         <!--<div class="col-md-6">
-                            <h4>Debit</h4>
-                            
-                                <table class="table table-hover" style="height:10px">
-                                    <tr>
-                                        <th>Payment</th>
-                                        <th>Description</th>
-                                        <th>Amount (<span v-html="nairaSign"></span>)</th>
-                                        <th>Date Created</th>
-                                        <th>Grace Period</th>
-                                    </tr>
+                            <h4>Fundings</h4>
+                            <table class="table table-hover" style="height:10px">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Reference</th>
+                                    <th>Method</th>
+                                    <th>Amount (<span v-html="nairaSign"></span>)</th>
+                                </tr>
 
-                                    <tr v-for="debt in all_orders" :key="debt.id">
-                                        <td><span v-if="debt.product">{{ debt.product.payment_name }}</span></td>
-                                        <td>{{ debt.description }}</td>
-                                        <td><span v-if="debt.product"><span v-html="nairaSign"></span>{{ formatPrice(debt.product.amount)  }} </span><br> <span class="badge badge-danger btn-sm">Unpaid</span></td>
-                                        <td>{{ debt.start_date | myDate }}</td> 
-                                        <td>
-                                            {{ debt.grace_period }} Days 
-                                            <span class="badge badge-danger" v-if="debt.period==0">Expired</span><br>
-                                            {{ startDateMoment(debt.start_date, debt.grace_period) }}
-                                        </td> 
+                                <tr v-for="fund in funds" :key="fund.id">
+                                    <td>{{ fund.created_at | myDate }}</td> 
+                                    <td>{{ fund.ref_id }}</td> 
+                                    <td>{{ fund.mop  }}</td>
+                                    <td>{{ formatPrice(fund.amount)  }}</td>
+                                </tr>
 
-                                    </tr>
-
-                                    <tr>
-                                        <td></td> 
-                                        <td></td>
-                                        <td>Total</td>
-                                        <td><b>{{ formatPrice(value_order_count)  }}</b></td>
-                                    </tr>
-                                </table>
+                                <tr>
+                                    <td></td> 
+                                    <td></td>
+                                    <td>Total</td>
+                                    <td><b>{{ formatPrice(sum_fund)  }}</b></td>
+                                </tr>
+                            </table>
                         </div>-->
                     </div>
-                </div>
-
-                <div class="card-footer text-center">
-                    Account balance: <b><span v-html="nairaSign"></span>{{ formatPrice(sum_fund - value_order_count) }}</b>
                 </div>
             </div> 
         </div>
@@ -136,68 +130,26 @@
             return {
                 is_busy: false,
                 filterForm: {
-                    start_date: moment().subtract(30, 'days').format("YYYY-MM-DD"),
+                    start_date: moment().subtract(5, 'years').format("YYYY-MM-DD"),
                     end_date: moment().add(1, 'days').format("YYYY-MM-DD"),
                 },
                 user: '',
                 unique_id: '',
                 value_order_count: '',
-                all_orders: [],
+                debts: [],
+                payments: [],
                 sum_fund: '',
                 funds: '',
                 nairaSign: "&#x20A6;",
                 users: [],
                 userQuery: '',
+                site: '',
             };
         },
 
         methods: {
-            lookUser(){
-                debounce(() => {
-
-                    fetch('/api/searchcustomer', {params: this.userQuery})
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then(data => {
-                        this.users = data;
-
-                    })
-                }, 500)();
-            },
-
             startDateMoment(value, grace_period) {
                 return moment(value).add(grace_period, 'days').format('MMMM Do YYYY');
-            },
-
-
-            getUserID(data){
-                if(this.is_busy) return;
-                this.is_busy = true;
-                this.unique_id = data.unique_id;
-                this.userQuery = data.name;
-                axios.get('/api/customer/' + this.unique_id, { params: this.filterForm })
-                .then((response) => {
-                    if(response.data.error)
-                    {
-                        Swal.fire(
-                            "Failed!",
-                            response.data.error,
-                            "warning"
-                        );
-                        this.$router.push({ path: "/admin/customers"});
-                    }
-                    else
-                    {
-                        this.funds = response.data.funds;
-                        this.sum_fund = response.data.sum_fund;
-                        this.user = response.data.user;
-
-                        this.all_orders = response.data.all_orders;
-                        this.value_order_count = response.data.value_order_count;
-                    }               
-                });
-                this.is_busy = false;
             },
 
             loadPage(){
@@ -216,22 +168,24 @@
                                 response.data.error,
                                 "warning"
                             );
-                            //this.$router.push({ path: "/admin/customers"});
+                            this.$router.push({ path: "/admin/customers"});
                         }
                         else
                         {
                             this.funds = response.data.funds;
-                            this.sum_fund = response.data.sum_fund;
+                            this.payments = response.data.payments;
                             this.user = response.data.user;
-
-                            this.all_orders = response.data.all_orders;
-                            this.value_order_count = response.data.value_order_count;
+                            this.debts = response.data.payment_debts;
                         }                    
                     })
 
                     .catch((err) => {
                         console.log(err);
                     });
+                }
+
+                else {
+                    this.$router.push({ path: "/admin/customers"});
                 }
                 this.is_busy = false;
             },

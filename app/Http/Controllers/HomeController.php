@@ -187,6 +187,12 @@ class HomeController extends Controller
             }
         }
 
+        $pays = Payment::get();
+        foreach ($pays as $pay) {
+            $the_pay = Payment::find($pay->id);
+            $the_pay->rec_id = 'ESC'.$the_pay->debit_id.$the_pay->member_id;
+            $the_pay->update();
+        }
         //sync payment with debit
         /*$allpayment = Payment::get();
         foreach ($allpayment as $pay) {
@@ -218,7 +224,7 @@ class HomeController extends Controller
             ]);
         }
 
-        $pproducts = PaymentProduct::where('type', 1)->where('deleted_at', NULL)->get();
+        /*$pproducts = PaymentProduct::where('type', 1)->where('deleted_at', NULL)->get();
         $dt = Carbon::today();
 
         switch ($dt->month) {
@@ -284,7 +290,7 @@ class HomeController extends Controller
         }
 
         //Phone Switch
-        /*$phoneusers = User::where('deleted_at', NULL)->where('role', 0)->where('phone', NULL)->get();
+        $phoneusers = User::where('deleted_at', NULL)->where('role', 0)->where('phone', NULL)->get();
         foreach ($phoneusers as $user) {
             $user = User::find($user->id);
             $user->door_access = 0;
@@ -324,7 +330,7 @@ class HomeController extends Controller
         }*/
 
         //Debt Switch
-        $members = Member::where('deleted_at', NULL)->get();
+        /*$members = Member::where('deleted_at', NULL)->get();
 
         foreach ($members as $user) {
             $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $user->id)->where('period', 0)->first();
@@ -359,7 +365,7 @@ class HomeController extends Controller
             }
         }
  
-        /*$alldebits = PaymentDebit::where('deleted_at', NULL)->where('status', 0)->get();
+        $alldebits = PaymentDebit::where('deleted_at', NULL)->where('status', 0)->get();
         foreach ($alldebits as $debt) {
             if (!$debt->date_entered && $debt->date_added) {
                 $db = PaymentDebit::find($debt->id);

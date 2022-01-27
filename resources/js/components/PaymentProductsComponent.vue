@@ -239,7 +239,17 @@
                                     ></has-error>
                                 </div>
 
-                                <b-form-group class="col-md-12">
+                                <div class="col-md-6 form-group">
+                                    <label>Deduction Wallet</label>
+
+                                    <select v-model="form.wallet" class="form-control">
+                                        <option v-for="wallet in wallets" v-bind:value="wallet.value">
+                                            {{ wallet.text }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <b-form-group class="col-md-6">
                                     <label>Type <span class="text-danger pulll-right">*</span></label>
                                     <b-form-select
                                         v-model="form.type"
@@ -463,6 +473,12 @@
                     { value: '1', title: 'Monthly' },
                 ],
 
+                wallets: [
+                    { text: 'Bar/Kitchen Wallet', value: 0 },
+                    { text: 'Monthly Subscription Wallet', value: 1 },
+                    { text: 'Levy Wallet', value: 2 },
+                ],
+
                 door_access: [
                     { value: '0', title: 'No' },
                     { value: '1', title: 'Yes' },
@@ -480,6 +496,7 @@
                     reoccuring_day: 27,
                     grace_period: 10,
                     member_type: [],
+                    wallet: 1,
                 }),
 
                 formDebit: new Form({
@@ -584,8 +601,6 @@
             },
 
             debitModal(store) {
-                
-                console.log(store)
                 this.formDebit.reset();
                 $("#debitmodal").modal("show");
 
@@ -608,7 +623,6 @@
             },
 
             editModal(store) {
-                
                 (this.editMode = true), this.form.reset();
                 $("#addNewstore").modal("show");
                 this.form.fill(store);
@@ -628,8 +642,7 @@
                 this.$refs.filter.hide();
             },
 
-            createStore() {
-            
+            createStore() {  
                 if(this.form.category==0 && this.form.member_type.length==0)
                 {
                     Swal.fire(
@@ -698,12 +711,22 @@
                 this.is_busy = true;
                 $("#debitmodal").modal("hide");
                 this.formDebit.post("/api/payment/debit")
-                .then(() => {
-                    Swal.fire(
-                        "Created!",
-                        "Members Debited Successfully.",
-                        "success"
-                    );
+                .then((data) => {
+                    if(data.data.error){
+                        Swal.fire(
+                            "Failed!",
+                            data.data.error,
+                            "warning"
+                        );
+                    }
+                    else {
+
+                        Swal.fire(
+                            "Created!",
+                            "Members Debited Successfully.",
+                            "success"
+                        );
+                    }
                     this.loadPayment(); 
                     this.getUser();      
                 })

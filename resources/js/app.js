@@ -79,7 +79,6 @@ const options = {
   styles: [
     'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css',
     'https://unpkg.com/kidlat-css/css/kidlat.css',
-    '/css/print.css'
   ]
 }
 
@@ -225,7 +224,7 @@ let routes = [
     },
 
     {
-        path: '/customer/statement/:id',
+        path: '/customer/statement/:unique_id',
         component: CustomerStatementComponent
     },
 
@@ -488,6 +487,8 @@ let routes = [
 
     { path: '/messages', component: require('./components/MessageComponent.vue').default },
     { path: '/messages/compose', component: require('./components/MessageComposeComponent.vue').default },
+
+     { path: '/member/demand-notice/:unique_id', component: require('./components/CustomerDemandComponent.vue').default },
 ];
 
 const router = new VueRouter({

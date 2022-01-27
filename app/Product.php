@@ -13,7 +13,7 @@ class Product extends Model
     protected $table = 'default_esc_payment_products';
 
     protected $fillable = [
-        'product_id', 'payment_name', 'amount', 'type', 'category', 'door_access', 'reoccuring_day', 'grace_period', 'created_by'
+        'product_id', 'payment_name', 'amount', 'type', 'category', 'door_access', 'reoccuring_day', 'grace_period', 'created_by', 'wallet'
     ];
 
     public function getCreatedByAttribute()

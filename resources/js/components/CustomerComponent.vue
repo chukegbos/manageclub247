@@ -117,8 +117,15 @@
                                     <b-dropdown id="dropdown-right" text="Action" variant="info" v-if="user.c_person.member_type!=14">
                                         <b-dropdown-item href="javascript:void(0)" @click="view(user)">View</b-dropdown-item>
 
-                                        <span v-if="admin.role==1 || admin.role==3">
-                                        <b-dropdown-item href="javascript:void(0)" @click="approveUser(user)" v-if="!user.approved">Approve</b-dropdown-item></span>
+                                        <span v-if="admin.role==1 || admin.role==4">
+                                            <b-dropdown-item href="javascript:void(0)" @click="approveUser(user)" v-if="!user.approved">Approve</b-dropdown-item>
+                                        </span>
+                                        
+                                        <span v-if="admin.role==1 || admin.role==4 || admin.role==5 || admin.role==11">
+                                            <b-dropdown-item href="javascript:void(0)" @click="doorUser(user)" v-if="user.door_access==0">Activate Door</b-dropdown-item>
+
+                                            <b-dropdown-item href="javascript:void(0)" @click="doorUser(user)" v-else>Deactivate Door</b-dropdown-item>
+                                        </span>
 
                                         <span v-if="admin.role==1 || admin.role==5 || admin.role==11">
                                             <b-dropdown-item href="javascript:void(0)" @click="editModal(user)">Edit</b-dropdown-item>
@@ -901,6 +908,45 @@ export default {
                         Swal.fire(
                             "Done!",
                             "Member approved.",
+                            "success"
+                        );
+                        this.is_busy = false;
+                        this.loadUsers();
+                        this.getUser();
+                        this.loadOther();
+                    })
+
+                    .catch(() => {
+                        Swal.fire(
+                            "Failed!",
+                            "Ops, Something went wrong, try again.",
+                            "warning"
+                        );
+                        this.is_busy = false;
+                    });
+                }
+            });
+        },
+
+
+        doorUser(user) { 
+            Swal.fire({
+                title: "Are you sure?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes!"
+            })
+            .then(result => {
+                if (result.value) {
+                    if (this.is_busy) return;
+                this.is_busy = true;
+                    axios.get("/api/customer/dooraccess/"+user.unique_id)
+                    .then(() => {
+                        Swal.fire(
+                            "Done!",
+                            "Done.",
                             "success"
                         );
                         this.is_busy = false;

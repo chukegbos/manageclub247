@@ -95,7 +95,8 @@
 
                 wallets: [
                     { text: 'Bar/Kitchen Wallet', value: 0 },
-                    { text: 'Membership Wallet', value: 1 },
+                    { text: 'Monthly Subscription Wallet', value: 1 },
+                    { text: 'Levy Wallet', value: 2 },
                 ],
             };
         },

@@ -275,14 +275,20 @@
                                     </div>
 
                                     <div class="form-group" v-if="formPay.mop==6">
-                                        <label>Customer Account Balance</label>
+                                        <label>Subscripption Account Balance</label>
                                         <input v-model="customer.wallet_balance" type="text" readonly="true" class="form-control"/>
                                         <small><i class="text-red">Amount will be deducted from wallet</i></small>
                                     </div>
 
                                     <div class="form-group" v-if="formPay.mop==7">
-                                        <label>Customer Account Balance</label>
+                                        <label>Bar Account Balance</label>
                                         <input v-model="customer.bar_wallet" type="text" readonly="true" class="form-control"/>
+                                        <small><i class="text-red">Amount will be deducted from wallet</i></small>
+                                    </div>
+
+                                    <div class="form-group" v-if="formPay.mop==8">
+                                        <label>Levy Account Balance</label>
+                                        <input v-model="customer.credit_unit" type="text" readonly="true" class="form-control"/>
                                         <small><i class="text-red">Amount will be deducted from wallet</i></small>
                                     </div>
 
@@ -492,12 +498,21 @@
                 this.is_busy = true;
                 $("#addNewdebit").modal("hide");
                 this.form.post("/api/payment/debits")
-                .then(() => {
-                    Swal.fire(
-                        "Created!",
-                        "Payment debit Created Successfully.",
-                        "success"
-                    );
+                .then((data) => {
+                    if(data.data.error){
+                        Swal.fire(
+                            "Failed!",
+                            data.data.error,
+                            "warning"
+                        );
+                    }
+                    else {
+                        Swal.fire(
+                            "Created!",
+                            "Payment debit Created Successfully.",
+                            "success"
+                        );
+                    }
                 })
                 .catch(() => {
                     Swal.fire(
@@ -600,10 +615,10 @@
                 $("#addPay").modal("hide");
                 this.formPay.post("/api/payment/debits/pay")
                 .then((data) => {
-                    if(data.error){
+                    if(data.data.error){
                         Swal.fire(
                             "Failed!",
-                            data.error,
+                            data.data.error,
                             "warning"
                         );
                     }

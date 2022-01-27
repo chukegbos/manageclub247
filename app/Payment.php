@@ -13,8 +13,15 @@ class Payment extends Model
     protected $table = 'default_esc_payments';
 
     protected $fillable = [
-        'debit_id', 'member_id', 'amount', 'payment_channel', 'created_by', 'receipt_number', 'pos', 'bank', 'get_product', 'get_member'
+        'debit_id', 'member_id', 'amount', 'payment_channel', 'created_by', 'receipt_number', 'pos', 'bank', 'get_product', 'get_member', 'rec_id'
     ];
+
+    /*public function getRecIdAttribute()
+    {
+        $debit_id = $this->attributes['debit_id'];
+        $member_id = $this->attributes['member_id'];
+        return 'ESC'.$debit_id.$member_id;
+    }*/
 
     public function getGetProductAttribute()
     {

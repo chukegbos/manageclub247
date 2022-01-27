@@ -18,6 +18,7 @@ use App\Ledger;
 use App\PaymentChannel;
 use App\User;
 use App\Setting;
+use App\Suspend;
 use App\Account;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -33,6 +34,10 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         $query = Payment::where('member_id', '!=', NULL);
+
+        if ($request->name) {
+            $query->where('rec_id', 'like', '%' . $request->name . '%');
+        }
 
         if ($request->selected==0) {
             $params['payments'] =  $query->get();
@@ -108,6 +113,10 @@ class PaymentController extends Controller
         ]);
         $product = Product::find($request['product']);
 
+        if (!$product->wallet) {
+            return ['error' => 'This payment product does not have any wallet attached to it, set a wallet to it and try again'];
+        }
+
         $payment_debit = PaymentDebit::create([
             'product' => $request['product'],
             'description' => $product->payment_name,
@@ -123,8 +132,21 @@ class PaymentController extends Controller
 
         $member = Member::findOrFail($request['member']);
         $the_member = User::where('unique_id', $member->membership_id)->first();
+        
+        if ($product->wallet==0) {
+            $wallet = $the_member->bar_wallet;
+            $the_member->bar_wallet = $the_member->bar_wallet - $request->amount;
+        }
+        elseif ($product->wallet==1) {
+            $wallet = $the_member->wallet_balance;
+            $the_member->wallet_balance = $the_member->wallet_balance - $request->amount;
+        }
+        else {
+            $wallet = $the_member->credit_unit;
+            $the_member->credit_unit = $the_member->credit_unit - $request->amount;
+        }
 
-        if (($the_member) && ($the_member->wallet_balance >= $request->amount)) {  
+        if (($the_member) && ($wallet >= $request->amount)) {
             Payment::create([
                 'debit_id' => $payment_debit->id,
                 'member_id' => $payment_debit->member_id,
@@ -135,8 +157,6 @@ class PaymentController extends Controller
 
             $payment_debit->status = 1;
             $payment_debit->update();
-
-            $the_member->wallet_balance = $the_member->wallet_balance - $request->amount;
             $the_member->update();
         }
         else {
@@ -326,7 +346,6 @@ class PaymentController extends Controller
         return ['Message' => 'Updated'];
     }
 
-
     public function updatebank(Request $request, $id)
     {
         $bank = PaymentBank::findOrFail($id);
@@ -386,7 +405,6 @@ class PaymentController extends Controller
 
         return ['Message' => 'Updated'];
     }
-
 
     public function updatechannel(Request $request, $id)
     {
@@ -463,6 +481,7 @@ class PaymentController extends Controller
             'grace_period' => $request->grace_period,
             'reoccuring_day' => ($request->type==1) ? $request->reoccuring_day : NULL,
             'type' => $request->type,
+            'wallet' => $request->wallet,
             'product_id' => $code,
             'created_by' => auth('api')->user()->id,
         ]);
@@ -505,6 +524,12 @@ class PaymentController extends Controller
             'amount' => 'required',
         ]);
 
+        $product = Product::find($request['product']);
+
+        if (!$product->wallet) {
+            return ['error' => 'This payment product does not have any wallet attached to it, set a wallet to it and try again'];
+        }
+
         set_time_limit(0);
         $members = Member::where('deleted_at', NULL)->get();
 
@@ -532,7 +557,20 @@ class PaymentController extends Controller
 
                     $the_member = User::where('unique_id', $member->membership_id)->first();
 
-                    if (($the_member) && ($the_member->wallet_balance >= $request->amount)) {
+                    if ($product->wallet==0) {
+                        $wallet = $the_member->bar_wallet;
+                        $the_member->bar_wallet = $the_member->bar_wallet - $request->amount;
+                    }
+                    elseif ($product->wallet==1) {
+                        $wallet = $the_member->wallet_balance;
+                        $the_member->wallet_balance = $the_member->wallet_balance - $request->amount;
+                    }
+                    else {
+                        $wallet = $the_member->credit_unit;
+                        $the_member->credit_unit = $the_member->credit_unit - $request->amount;
+                    }
+
+                    if (($the_member) && ($wallet >= $request->amount)) {
                         
                         $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
                         $bank = ($request->bank) ? $request->bank : NULL;
@@ -552,7 +590,116 @@ class PaymentController extends Controller
                         $payment_debit->status = 1;
                         $payment_debit->update();
 
+                        $the_member->update();
+                    }
+                    else {
+                        if($member->phone_1 || $member->phone_2 || $the_member->phone){
+                            if ($the_member->phone) {
+                                $phone = $the_member->phone;
+                            }
+                            elseif ($member->phone_1) {
+                                $phone = $member->phone_1;
+                            }
+                            else {
+                                $phone = $member->phone_2;
+                            }
+
+                            $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount;
+
+                            $data1 = [
+                                'from' => 'ESPORTSCLUB',
+                                'to' => $this->prep_number($phone),
+                                'text' => $message,
+                            ];
+
+                            $curl = curl_init();
+
+                            curl_setopt_array($curl, array(
+                                CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
+                                CURLOPT_RETURNTRANSFER => true,
+                                CURLOPT_ENCODING => "",
+                                CURLOPT_MAXREDIRS => 10,
+                                CURLOPT_TIMEOUT => 30000,
+                                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                                CURLOPT_CUSTOMREQUEST => "POST",
+                                CURLOPT_POSTFIELDS => json_encode($data1),
+                                CURLOPT_HTTPHEADER => array(
+                                    // Set here requred headers
+                                    "accept: */*",
+                                    "accept-language: en-US,en;q=0.8",
+                                    "content-type: application/json",
+                                    "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
+                                ),
+                            ));
+
+                            $response = curl_exec($curl);
+                            $err = curl_error($curl);
+                            curl_close($curl);
+
+                            MessageLog::create([
+                                'message_id' => $msg->id,
+                                'member_id' => $the_member->unique_id,
+                                'phone' => $phone,
+                            ]);
+                        }
+                    }
+                }
+            }          
+        }
+
+        $suspends = Suspend::where('deleted_at', NULL)->where('status', 0)->get();
+        foreach ($suspends as $suspend) {
+            foreach ($request->people_id as $id) {
+                if ($suspend->former_type == $id) {
+                    $payment_debit = PaymentDebit::create([
+                        'member_id' => $member->id,
+                        'product' => $request->product,
+                        'amount' => $request->amount,
+                        'description' => ucwords($request->description),
+                        'debit_type' => $request->debit_type,
+                        'grace_period' => $request->grace_period,
+                        'start_date' => Carbon::today(),
+                        'date_entered' => Carbon::today(),
+                        'created_by' => auth('api')->user()->id,
+                    ]);
+
+                    $member = Member::where('deleted_at', NULL)->where('membership_id', $suspend->membership_id)->first();
+
+                    $the_member = User::where('unique_id', $member->membership_id)->first();
+
+                    if ($product->wallet==0) {
+                        $wallet = $the_member->bar_wallet;
+                        $the_member->bar_wallet = $the_member->bar_wallet - $request->amount;
+                    }
+                    elseif ($product->wallet==1) {
+                        $wallet = $the_member->wallet_balance;
                         $the_member->wallet_balance = $the_member->wallet_balance - $request->amount;
+                    }
+                    else {
+                        $wallet = $the_member->credit_unit;
+                        $the_member->credit_unit = $the_member->credit_unit - $request->amount;
+                    }
+
+                    if (($the_member) && ($wallet >= $request->amount)) {
+                        
+                        $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
+                        $bank = ($request->bank) ? $request->bank : NULL;
+                        $pos = ($request->pos) ? $request->pos : NULL;
+
+                        Payment::create([
+                            'debit_id' => $payment_debit->id,
+                            'member_id' => $payment_debit->member_id,
+                            'amount' => $request->amount,
+                            'payment_channel' => 6,
+                            'created_by' => auth('api')->user()->id,
+                            'receipt_number' => $receipt_number,
+                            'pos' => $pos,
+                            'bank' => $bank,
+                        ]);
+
+                        $payment_debit->status = 1;
+                        $payment_debit->update();
+
                         $the_member->update();
                     }
                     else {
@@ -627,7 +774,7 @@ class PaymentController extends Controller
 
     public function pay(Request $request)
     {
-        $paymentDebit = PaymentDebit::find($request->debit_id); 
+        $paymentDebit = PaymentDebit::find($request->id); 
         $setting = Setting::find(1);
         $user = auth('api')->user();
         
@@ -637,38 +784,87 @@ class PaymentController extends Controller
         if (!$account->balancing_account) {
             return ['error' => "Please go to chart of account and set the corresponding accounts"];
         }
+        $member = Member::find($request->member_id);
+        $userMember = User::where('unique_id', $member->membership_id)->first();
 
-        if ($request->payment_channel==6) {
-            $member = Member::find($request->member_id);
-            $userMember = User::where('unique_id', $member->membership_id)->first();
-            if ($userMember) {
-                if ($userMember->wallet_balance < $request->amount) {
-                    return ['error' => "Member do not have upto that amount on his wallet"];
-                }
-                else{
-                    $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
-                    $bank = ($request->bank) ? $request->bank : NULL;
-                    $pos = ($request->pos) ? $request->pos : NULL;
+        if (!$account->balancing_account) {
+            return ['error' => "Member does not exist!"];
+        }
 
-                    
-
-                    Payment::create([
-                        'debit_id' => $request->debit_id,
-                        'member_id' => $paymentDebit->member_id,
-                        'amount' => $request->amount,
-                        'payment_channel' => $request->payment_channel,
-                        'created_by' => $user->id,
-                        'receipt_number' => $receipt_number,
-                        'pos' => $pos,
-                        'bank' => $bank,
-                    ]);
-
-                    $userMember->wallet_balance = $userMember->wallet_balance - $request->amount;
-                    $userMember->update();
-                }
+        if ($request->mop==6) {
+            if ($userMember->wallet_balance < $request->amount) {
+                return ['error' => "Member do not have upto that amount on his wallet"];
             }
-            else {
-                return ['error' => "Please re-edit member information"];
+            else{
+                $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
+                $bank = ($request->bank) ? $request->bank : NULL;
+                $pos = ($request->pos) ? $request->pos : NULL;
+
+                Payment::create([
+                    'debit_id' => $request->id,
+                    'member_id' => $paymentDebit->member_id,
+                    'amount' => $request->amount,
+                    'payment_channel' => $request->mop,
+                    'created_by' => $user->id,
+                    'receipt_number' => $receipt_number,
+                    'pos' => $pos,
+                    'bank' => $bank,
+                ]);
+
+                $userMember->wallet_balance = $userMember->wallet_balance - $request->amount;
+                $userMember->update();
+            }
+        }
+
+        elseif ($request->mop==7) {
+            if ($userMember->bar_wallet < $request->amount) {
+                return ['error' => "Member do not have upto that amount on his wallet"];
+            }
+            else{
+                $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
+                $bank = ($request->bank) ? $request->bank : NULL;
+                $pos = ($request->pos) ? $request->pos : NULL;
+
+                Payment::create([
+                    'debit_id' => $request->id,
+                    'member_id' => $paymentDebit->member_id,
+                    'amount' => $request->amount,
+                    'payment_channel' => $request->mop,
+                    'created_by' => $user->id,
+                    'receipt_number' => $receipt_number,
+                    'pos' => $pos,
+                    'bank' => $bank,
+                ]);
+
+                $userMember->bar_wallet = $userMember->bar_wallet - $request->amount;
+                $userMember->update();
+            }
+        }
+
+        elseif ($request->mop==8) {
+            if ($userMember->credit_unit < $request->amount) {
+                return ['error' => "Member do not have upto that amount on his wallet"];
+            }
+            else{
+                $receipt_number = ($request->receipt_number) ? $request->receipt_number : NULL;
+                $bank = ($request->bank) ? $request->bank : NULL;
+                $pos = ($request->pos) ? $request->pos : NULL;
+
+                
+
+                Payment::create([
+                    'debit_id' => $request->id,
+                    'member_id' => $paymentDebit->member_id,
+                    'amount' => $request->amount,
+                    'payment_channel' => $request->mop,
+                    'created_by' => $user->id,
+                    'receipt_number' => $receipt_number,
+                    'pos' => $pos,
+                    'bank' => $bank,
+                ]);
+
+                $userMember->credit_unit = $userMember->credit_unit - $request->amount;
+                $userMember->update();
             }
         }
         else 
@@ -678,10 +874,10 @@ class PaymentController extends Controller
             $pos = ($request->pos) ? $request->pos : NULL;
 
             Payment::create([
-                'debit_id' => $request->debit_id,
+                'debit_id' => $request->id,
                 'member_id' => $paymentDebit->member_id,
                 'amount' => $request->amount,
-                'payment_channel' => $request->payment_channel,
+                'payment_channel' => $request->mop,
                 'created_by' => $user->id,
                 'receipt_number' => $receipt_number,
                 'pos' => $pos,
@@ -1415,6 +1611,7 @@ class PaymentController extends Controller
             'grace_period' => $request->grace_period,
             'reoccuring_day' => ($request->type==1) ? $request->reoccuring_day : NULL,
             'type' => $request->type,
+            'wallet' => $request->wallet,
             'created_by' => auth('api')->user()->id,
         ]);
 

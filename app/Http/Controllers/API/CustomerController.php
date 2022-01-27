@@ -271,7 +271,19 @@ class CustomerController extends Controller
                 return ['error' => 'Member not found'];
             }
             
-            $params['payments'] = Payment::where('member_id', $params['member']->id)->get();
+            $queryp = Payment::where('member_id', $params['member']->id);
+
+            if ($request->start_date) {
+                $queryp->where('created_at', '>=', $request->start_date);
+            }
+
+            if ($request->end_date) {
+                $queryp->where('created_at', '<=', $request->end_date);
+            }
+
+            $params['payments'] = $queryp->get();
+            $params['payment_sum'] = $queryp->sum('amount');
+
             $params['channels'] = PaymentChannel::get();
             $params['orders'] = Sale::where('sales.deleted_at', NULL)
                 ->where('sales.status', 'concluded')
@@ -289,21 +301,18 @@ class CustomerController extends Controller
                 )->take(5)
             ->get();
 
-            $query1 = PaymentDebit::where('default_esc_payment_debits.member_id', $params['member']->id)->where('default_esc_payment_debits.status', 0)
-                ->orderBy('default_esc_payment_debits.created_at', 'desc');
+            $query1 = PaymentDebit::where('member_id', $params['member']->id)->where('status', 0)->latest();
 
                 if ($request->start_date) {
-                    $query1->where('default_esc_payment_debits.start_date', '>=', $request->start_date);
+                    $query1->where('start_date', '>=', $request->start_date);
                 }
 
                 if ($request->end_date) {
-                    $query1->where('default_esc_payment_debits.start_date', '<=', $request->end_date);
+                    $query1->where('start_date', '<=', $request->end_date);
                 }
 
-                $params['all_orders'] = $query1
-            ->get();
-
-
+            $params['payment_debts'] = $query1->get();
+            $params['payment_debts_sum'] = $query1->sum('amount');
 
             $query_invoice = Sale::where('sales.deleted_at', NULL)
                 ->where('sales.status', 'pending')
@@ -459,9 +468,7 @@ class CustomerController extends Controller
                 ->join('default_esc_sections', 'default_esc_member_sections.section_id', '=', 'default_esc_sections.id')
                 ->get();
 
-            $params['payment_debts_sum'] =  PaymentDebit::where('member_id', $params['member']->id)->where('status', 0)->sum('amount');
-
-            $params['payment_debts'] = PaymentDebit::where('member_id', $params['member']->id)->where('status', 0)->latest()->get();
+            
 
             $params['banks'] =  PaymentBank::get();
             $params['pos'] = PaymentPos::where('deleted_at', NULL)->get();
@@ -724,6 +731,30 @@ class CustomerController extends Controller
         return ['Update' => 'Updated'];
     }
 
+    public function dooraccess($unique_id)
+    {
+       
+        $getUser = User::where('deleted_at', NULL)->where('unique_id', $unique_id)->first();
+        
+        if (!$getUser) {
+            $error = 'Member with membership ID #'.$unique_id.' does not exist.';
+            return ['error' => $error];
+        }
+
+
+        if ($getUser->door_access==0) {
+            $door_access = 1;
+        }
+        else{
+            $door_access = 0;
+        }
+        $getUser->update([
+            'door_access' => $door_access,
+        ]);
+   
+      
+        return ['Update' => 'Updated'];
+    }
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
