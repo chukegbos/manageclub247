@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==6 || admin.role==7">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==6">
                         Add Bar
                     </b-button>
 
@@ -16,7 +16,7 @@
                
                     <b-form @submit.stop.prevent="onFilterSubmit" class="pull-right m-2" size="sm">
                         <b-input-group>
-                            <b-form-input id="name" v-model="filterForm.name" type="text" placeholder="Search store"></b-form-input>
+                            <b-form-input id="name" v-model="filterForm.name" type="text" placeholder="Search Bar"></b-form-input>
 
                             <b-input-group-append>
                                 <b-button variant="outline-primary" type="submit"><i class="fa fa-search"></i></b-button>
@@ -34,7 +34,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==6 || admin.role==7">
+                                <th v-if="admin.role==1 || admin.role==6">
                                     <input type="checkbox" v-model="selectAll">
                                 </th>
                                 
@@ -47,60 +47,24 @@
                                         </a>
                                     </div>
                                 </th>
-                                <th width="200px">Group</th>
-                                <!--<th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Email</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByEmail()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                <th>Phone</th>
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Target</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByTarget()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Stock Limit</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByLimit()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>-->
+                           
                                 <th v-if="unprintable==false">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="store in stores.data" :key="store.id">
-                                <td v-if="admin.role==1 || admin.role==6 || admin.role==7"> 
+                                <td v-if="admin.role==1 || admin.role==6"> 
                                     <input type="checkbox" v-model="action.selected" :value="store.id" number>
                                 </td>
                                
                                 <td>{{ store.name }}</td>
-
-                                <td>Group {{ store.group_bar }}</td>
-
-                               <!-- <td>{{ store.address }}</td>
-                                <td>{{ store.email }}</td>
-                                <td>{{ store.phone }}</td>
-                                <td>{{ store.target }}</td>
-                                <td>{{ store.stock_limit }}</td>-->
                                 <td>
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
                                         <b-dropdown-item href="javascript:void(0)" @click="view(store)">View</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(store)" v-if="admin.role==1 || admin.role==6 || admin.role==7">Edit</b-dropdown-item>
+                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(store)" v-if="admin.role==1 || admin.role==6">Edit</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(store.id)" v-if="admin.role==1 || admin.role==6 || admin.role==7">Delete</b-dropdown-item>
+                                        <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(store.id)" v-if="admin.role==1 || admin.role==6">Delete</b-dropdown-item>
                                     </b-dropdown>
                                 </td>
                             </tr>
@@ -186,109 +150,6 @@
                                         field="name"
                                     ></has-error>
                                 </div>
-
-                                <b-form-group class="col-md-12">
-                                  <label>Group Bar</label>
-                                  <b-form-select v-model="form.group_bar" :options="group_bar" required></b-form-select>
-                                </b-form-group>
-
-                                <!--<div class="form-group col-md-12">
-                                    <label>Address</label>
-                                    <input
-                                        v-model="form.address"
-                                        type="text"
-                                        name="address"
-                                        class="form-control"
-                                        placeholder="Address"
-                                        :class="{
-                                            'is-invalid': form.errors.has(
-                                                'address'
-                                            )
-                                        }"
-                                    />
-                                    <has-error
-                                        :form="form"
-                                        field="address"
-                                    ></has-error>
-                                </div>
-
-                                <div class="form-group col-md-6">
-                                    <label>Email</label>
-                                    <input
-                                        v-model="form.email"
-                                        type="email"
-                                        name="email"
-                                        class="form-control"
-                                        :class="{
-                                            'is-invalid': form.errors.has(
-                                                'email'
-                                            )
-                                        }"
-                                    />
-                                    <has-error
-                                        :form="form"
-                                        field="email"
-                                    ></has-error>
-                                </div>
-
-                                <div class="form-group col-md-6">
-                                    <label>Phone Number</label>
-                                    <input
-                                        v-model="form.phone"
-                                        type="tel"
-                                        name="phone"
-                                        class="form-control"
-                                        :class="{
-                                            'is-invalid': form.errors.has(
-                                                'phone'
-                                            )
-                                        }"
-                                    />
-                                    <has-error
-                                        :form="form"
-                                        field="phone"
-                                    ></has-error>
-                                </div>
-
-                                <div class="form-group col-md-6">
-                                    <label>Target</label>
-                                    <input
-                                        v-model="form.target"
-                                        type="number"
-                                        name="target"
-                                        class="form-control"
-                                        placeholder="Bar Target"
-                                        :class="{
-                                            'is-invalid': form.errors.has(
-                                                'target'
-                                            )
-                                        }"
-                                    />
-                                    <has-error
-                                        :form="form"
-                                        field="target"
-                                    ></has-error>
-                                </div>
-
-                                <div class="form-group col-md-6">
-                                    <label>Stock Limit</label>
-                                    <input
-                                        v-model="form.stock_limit"
-                                        type="number"
-                                        name="stock_limit"
-                                        class="form-control"
-                                        placeholder="Bar Stock Limit"
-                                        :class="{
-                                            'is-invalid': form.errors.has(
-                                                'stock_limit'
-                                            )
-                                        }"
-                                    />
-                                    <has-error
-                                        :form="form"
-                                        field="stock_limit"
-                                    ></has-error>
-                                </div>-->
                             </div>
                             <div class="modal-footer">
                                 <button
@@ -326,7 +187,6 @@
         created() {
             this.getUser();
             this.loadStores();
-            
         },
 
         data() {
@@ -465,7 +325,7 @@
                          
                 })
                 .catch(() => {
-                    Swal,fire(
+                    Swal.fire(
                         "Failed!",
                         "Ops, Something went wrong, try again.",
                         "warning"
@@ -490,7 +350,7 @@
                 })
 
                 .catch(() => {
-                    Swal,fire(
+                    Swal.fire(
                         "Failed!",
                         "Ops, Something went wrong, try again.",
                         "warning"

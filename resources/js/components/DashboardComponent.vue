@@ -747,8 +747,6 @@
                 </div>
             </div>
 
-
-
             <div class="row pt-5" v-else>
                 <div class="col-lg-6">
                     <div class="small-box bg-blue">

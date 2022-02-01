@@ -3,18 +3,14 @@
         <div class="container-fluid">
             <div class="row mb-2 p-1">
                 <div class="col-md-8">
-                    <h2><strong>List of Store Items ({{ store.name }})</strong></h2>
+                    <h2><strong>List of Items ({{ store.name }})</strong></h2>
                 </div>
 
                 <div class="col-md-4">
-                    <!--<b-button variant="outline-primary" size="sm" v-if="action.selected.length" class="pull-right m-1" @click="onSelectAll">Item Movement</b-button>
+                    <span v-if="((admin.role==1 || admin.role==7) && admin.store!=1) && (admin.store==store.name)" class="pull-right m-1">
+                        <b-button variant="outline-success" size="sm" v-if="action.selected.length" class="pull-right m-1" @click="onRequestAll">Item Request</b-button>
 
-                    <b-button disabled size="sm" variant="outline-primary" v-else class="pull-right m-1">Item Movement</b-button>-->
-
-                    <span v-if="(admin.role==1 || admin.role==7) && admin.store!=1">
-                    <b-button variant="outline-success" size="sm" v-if="action.selected.length" class="pull-right m-1" @click="onRequestAll">Item Request</b-button>
-
-                    <b-button disabled size="sm" variant="outline-success" v-else class="pull-right m-1">Item Request</b-button>
+                        <b-button disabled size="sm" variant="outline-success" v-else class="pull-right m-1">Item Request</b-button>
                     </span>
                     <b-form @submit.stop.prevent="onFilterSubmit" class="pull-right m-1" size="sm">
                         <b-input-group>

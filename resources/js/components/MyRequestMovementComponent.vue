@@ -37,14 +37,14 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="user.role==7">
-                                    <input type="checkbox" v-model="selectAll">
+                                <th>
+                                    <!--<input type="checkbox" v-model="selectAll">-->
                                 </th>
 
                                 <th>Product </th>
                                 <th>From</th>
                                 <th>Requested By</th>
-                                <th>Quantity</th>
+                                <th>Qty(Crate)</th>
                                 <th>Approved/Disapproved By</th>
                                 <th>Received/Rejected By</th>
                                 <th>Status</th>
@@ -62,9 +62,7 @@
                                 <td>{{ inventory.qty }}</td>
                                 <td>{{ inventory.approved_by }}</td>
                                 <td>{{ inventory.manager_id }}</td>
-                                <td>
-                                    {{ inventory.status | capitalize }}
-                                </td>
+                                <td>{{ inventory.status | capitalize }}</td>
                             </tr>
                         </tbody>
                     </table>

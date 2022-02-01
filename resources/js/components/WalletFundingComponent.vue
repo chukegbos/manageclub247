@@ -72,7 +72,8 @@
                             <td>{{ fund.created_at | myDate }}</td> 
                             <td>{{ formatPrice(fund.amount) }}</td>
                             <td>
-                                <span v-if="fund.wallet==1">Membership Wallet</span>
+                                <span v-if="fund.wallet==1">Subscription Wallet</span>
+                                <span v-else-if="fund.wallet==2">Levy Wallet</span>
                                 <span v-else>Bar/Kitchen Wallet</span>
                             </td>  
 

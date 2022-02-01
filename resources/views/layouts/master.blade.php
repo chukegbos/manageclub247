@@ -190,7 +190,7 @@
                   <a href="#" class="nav-link">
                     <i class="nav-icon fa fa-product-hunt"></i>
                     <p>
-                      Store House
+                      Bar Store House
                       <i class="right fa fa-angle-left"></i>
                     </p>
                   </a>
@@ -399,6 +399,35 @@
                     <p>Messages</p>
                   </router-link>
                 </li>
+
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-apple-alt"></i>
+                    <p>
+                      Kitchen & Grail
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/kitchen" class="nav-link ml-3">
+                        List of Kitchen
+                      </router-link>
+                    </li>
+                  
+                    <li class="nav-item">
+                      <router-link to="/kitchen/food" class="nav-link ml-3">
+                        Foods
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/kitchen/transactions" class="nav-link ml-3">
+                        Transaction
+                      </router-link>
+                    </li>
+                  </ul>
+                </li>
               @elseif(Auth::user()->role==2)
                 <li class="nav-item has-treeview">
                   <a href="#" class="nav-link">
@@ -470,7 +499,7 @@
                   <a href="#" class="nav-link">
                     <i class="nav-icon fa fa-product-hunt"></i>
                     <p>
-                      Store House
+                      Bar Store House
                       <i class="right fa fa-angle-left"></i>
                     </p>
                   </a>
@@ -710,7 +739,7 @@
                   <a href="#" class="nav-link">
                     <i class="nav-icon fa fa-product-hunt"></i>
                     <p>
-                      Store House
+                      Bar Store House
                       <i class="right fa fa-angle-left"></i>
                     </p>
                   </a>
@@ -991,7 +1020,7 @@
                   <a href="#" class="nav-link">
                     <i class="nav-icon fa fa-product-hunt"></i>
                     <p>
-                      Store House
+                      Bar Store House
                       <i class="right fa fa-angle-left"></i>
                     </p>
                   </a>
@@ -1292,7 +1321,7 @@
                   <a href="#" class="nav-link">
                     <i class="nav-icon fa fa-product-hunt"></i>
                     <p>
-                      Store House
+                      Bar Store House
                       <i class="right fa fa-angle-left"></i>
                     </p>
                   </a>
@@ -1785,7 +1814,7 @@
                   <a href="#" class="nav-link">
                     <i class="nav-icon fa fa-product-hunt"></i>
                     <p>
-                      Store House
+                      Bar Store House
                       <i class="right fa fa-angle-left"></i>
                     </p>
                   </a>

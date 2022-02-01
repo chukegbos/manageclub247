@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <div class="row mb-2 p-2">
                 <div class="col-md-6">
-                    <h2><strong>Outlet Movements</strong></h2>
+                    <h2><strong>Item Movements</strong></h2>
                 </div>
 
                 <div class="col-md-6">
@@ -36,14 +36,14 @@
                         <thead>
                             <tr>
                                 <th>
-                                    <input type="checkbox" v-model="selectAll">
+                                    <!--<input type="checkbox" v-model="selectAll">-->
                                 </th>
 
                                 <th>Product </th>
-                                <th>Requested</th>
-                                <th>Available</th>
+                                <th>Requested(crates)</th>
+                                <th>Avail(Crates/Bottles)</th>
                                 <th>Moved To</th>
-                                <th>Moved By</th>
+                                <th>Requested By</th>
                                 <th>Approved/Disapproved By</th>
                                 <th>Received/Rejected By</th>
                                 <th>Status</th>
@@ -52,13 +52,13 @@
 
                         <tbody>
                             <tr  v-for="(inventory, index) in inventories.data">
-                                <td v-if="inventory.available > inventory.quantity"> 
+                                <td v-if="inventory.main_product >= inventory.quantity"> 
                                     <input type="checkbox" v-if="inventory.status=='pending approval' || inventory.status=='requested'" v-model="action.selected" :value="inventory.id" number>
                                 </td>
                                 <td v-else><span class="fa fa-times fa-2x text-red"></span></td>
                                 <td>{{ inventory.title }}</td>
                                 <td>{{ inventory.quantity }}</td>
-                                <td>{{ inventory.available }}</td>
+                                <td>{{ inventory.main_product }}/{{ inventory.available }}</td>
                                 <td>{{ inventory.store_name }}</td>
                                 <td>{{ inventory.user_id }}</td>
                                 <td>{{ inventory.approved_by }}</td>

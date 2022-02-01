@@ -9,6 +9,7 @@ use App\Purchase;
 use App\Inventory;
 use App\Item;
 use App\Fund;
+use App\Member;
 use App\Category;
 use App\Login;
 use DB;
@@ -149,7 +150,7 @@ class DashboardController extends Controller
         if ($params['sale'] ) {
             //$params['word_price'] = $this->numberTowords($params['sale']->totalPrice);
             if ($params['sale']->buyer) {
-                $params['customer'] = User::where('deleted_at', NULL)->find($params['sale']->buyer);
+                $params['customer'] = Member::where('deleted_at', NULL)->find($params['sale']->buyer);
             }
             else {
                 $params['customer'] = $params['sale']->guest;

@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 && admin.role==5">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==6 || admin.role==11">
                         Add Supplier
                     </b-button>
 
@@ -32,7 +32,7 @@
                 <div class="card-body table-responsive p-0" v-if="users.data.length>0">
                     <table class="table table-hover">
                         <tr>
-                            <th v-if="admin.role==1 && admin.role==5">
+                            <th v-if="admin.role==1 || admin.role==6 || admin.role==11">
                                 <span v-if="unprintable==false">
                                     <input type="checkbox" v-model="selectAll">
                                 </span>
@@ -42,18 +42,18 @@
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Address</th>
-                            <th v-if="admin.role==1 && admin.role==5">Modify</th>
+                            <th v-if="admin.role==1 || admin.role==6 || admin.role==11">Modify</th>
                         </tr>
 
                         <tr v-for="user in users.data" :key="user.id">
-                            <td v-if="admin.role==1 && admin.role==5"> <input type="checkbox" v-model="action.selected" :value="user.id" number></td>
+                            <td v-if="admin.role==1 || admin.role==6 || admin.role==11"> <input type="checkbox" v-model="action.selected" :value="user.id" number></td>
                             <td>{{ user.supplier_name }}</td>
                             <td>{{ user.contact_person }}</td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.phone }}</td>
                             <td>{{ user.address }}</td>
                            
-                            <td v-if="admin.role==1 && admin.role==5">
+                            <td v-if="admin.role==1 || admin.role==6 || admin.role==11">
                                 <a href="javascript:void(0)" @click="editModal(user)">
                                     <i class="fa fa-edit"></i>
                                 </a>
@@ -104,7 +104,7 @@
                 role="dialog"
                 aria-labelledby="addNewUserLabel"
                 aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5
@@ -135,8 +135,8 @@
                                 editMode ? updateUser() : createUser()
                             "
                         >
-                            <div class="modal-body">
-                                <div class="form-group">
+                            <div class="modal-body row">
+                                <div class="form-group col-md-6">
                                     <label>Name of Supplier</label>
                                     <input
                                         v-model="form.supplier_name"
@@ -156,7 +156,7 @@
                                     ></has-error>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-6">
                                     <label>Contact Person</label>
                                     <input
                                         v-model="form.contact_person"
@@ -176,7 +176,7 @@
                                     ></has-error>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-6">
                                     <label>Email Address</label>
                                     <input
                                         v-model="form.email"
@@ -197,7 +197,7 @@
                                     ></has-error>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-6">
                                     <label>Phone Number</label>
                                     <input
                                         v-model="form.phone"
@@ -217,7 +217,7 @@
                                     ></has-error>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-12">
                                     <label>Address</label>
                                     <input
                                         v-model="form.address"
@@ -237,7 +237,7 @@
                                     ></has-error>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-4">
                                     <label>Account Number</label>
                                     <input
                                         v-model="form.bank_account"
@@ -246,7 +246,7 @@
                                     />
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-4">
                                     <label>Select Bank</label>
                                     <b-form-select
                                         v-model="form.bank_name"
@@ -267,7 +267,7 @@
                                     </b-form-select>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="form-group col-md-4">
                                     <label>Account Name</label>
                                     <input
                                         v-model="form.account_name"

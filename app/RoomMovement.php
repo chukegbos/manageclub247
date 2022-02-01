@@ -50,25 +50,48 @@ class RoomMovement extends Model
     {
         $store_id = $this->attributes['moved'];
         $product_id = $this->attributes['product_id'];
-      
         $owner = InventoryStore::where('deleted_at', NULL)->find($product_id);
         if ($owner) {
             $product = Inventory::where('deleted_at', NULL)->find($owner->inventory_id);
             if ($product) {
                 $id = $product->id; 
-                $main = InventoryStore::where('deleted_at', NULL)->where('store_id', $store_id)->where('inventory_id', $id)->first();
+                $main = InventoryStore::where('deleted_at', NULL)->where('store_id', 1)->where('inventory_id', $id)->first();
                 if ($main) {
                     return $main->number;
                 }
                 else{
                     return '0';
-                }
-                
+                }             
             }
             else{
                 return '0';
             }
-          
+        }
+    }
+
+    public function getMainProductAttribute()
+    {
+        $product_id = $this->attributes['product_id'];
+        $owner = InventoryStore::where('deleted_at', NULL)->find($product_id);
+        if ($owner) {
+            $product = Inventory::where('deleted_at', NULL)->find($owner->inventory_id);
+            if ($product) {
+                $id = $product->id; 
+                $crate = $product->number_per_crate;
+
+                $main = InventoryStore::where('deleted_at', NULL)->where('store_id', 1)->where('inventory_id', $id)->first();
+                if ($main) {
+                    $float = $main->number/$crate;
+                    $parts = explode('.', (string)$float);
+                    return $parts[0];
+                }
+                else{
+                    return '0';
+                }             
+            }
+            else{
+                return '0';
+            }
         }
     }
 

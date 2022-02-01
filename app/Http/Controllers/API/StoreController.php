@@ -89,37 +89,24 @@ class StoreController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|string|max:255',
-            'group_bar' => 'required',
+            /*'group_bar' => 'required',*/
         ]);
 
         $code = rand(3,99888888);
 
-        Store::create([
+        $store = Store::create([
             'name' => ucwords($request->name),
-            'group_bar' => $request->group_bar,
-            'phone' => $request->phone,
-            'email' => $request->email,
+            //'group_bar' => $request->group_bar,
             'code' => $code,
-            'stock_limit' => ($request->stock_limit) ? $request->stock_limit :'Unlimited',
-            'target' => ($request->target) ? $request->target :'None',
         ]);
 
-        $store = Store::where('deleted_at', NULL)->where('code', $code)->first();
         $inventories = Inventory::where('deleted_at', NULL)->get();
 
         foreach ($inventories as $inventory) {
             $search_term = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $inventory->id)->where('store_id', $store->id)->first();
+
             if (!$search_term) {
                 InventoryStore::create([
-                    'inventory_id' => $inventory->id,
-                    'store_id' => $store->id,
-                    'number' => 0,
-                ]);
-            }
-
-            $search_term1 = Room::where('deleted_at', NULL)->where('inventory_id', $inventory->id)->where('store_id', $store->id)->first();
-            if (!$search_term1) {
-                Room::create([
                     'inventory_id' => $inventory->id,
                     'store_id' => $store->id,
                     'number' => 0,
@@ -344,6 +331,7 @@ class StoreController extends Controller
                 'rooom_movement.status as status',
                 'rooom_movement.moved as moved',
                 'rooom_movement.user_id as user_id',
+                'rooom_movement.main_product as main_product',
                 'rooom_movement.available as available',
                 'rooom_movement.approved_by as approved_by',
                 'rooom_movement.manager_id as manager_id',
@@ -376,7 +364,7 @@ class StoreController extends Controller
         $params = [];
 
         $query = RoomMovement::where('deleted_at', NULL)
-            ->where('store_id', $user->store)->latest();
+            ->where('store_id', $user->getOriginal('store'))->latest();
 
             if ($request->store_id) {
                 $query->where('store_id', $request->store_id);
@@ -392,19 +380,7 @@ class StoreController extends Controller
             else{
                 $params['inventories']  =  $query->paginate($request->selected);
             }
-            
-        $query1 = RoomMovement::where('deleted_at', NULL)
-            ->where('store_id', $user->store);
-
-            if ($request->store_id) {
-                $query1->where('store_id', $request->store_id);
-            }
-        
-            if ($request->status) {
-                $query1->where('status', $request->status);
-            }
-
-        $params['all'] = $query1->count();
+        $params['all'] = $query->count();
 
         return $params;
     }
@@ -576,19 +552,19 @@ class StoreController extends Controller
     public function getnumber(Request $request)
     {
         $item = Inventory::where('deleted_at', NULL)->where('product_id', $request->inventory)->first();
-        $it = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $request->inventory)->where('store_id', $request->store)->first();
         if ($item) {
-            $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->id)->where('store_id', $request->store)->first();
+            $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->id)->where('store_id', auth('api')->user()->getOriginal('store'))->first();
+            return $inventory->number;
         }
-
-        elseif ($it) {
-            $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $request->inventory)->where('store_id', $request->store)->first();
+        else{
+            $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $request->inventory)->where('store_id', auth('api')->user()->getOriginal('store'))->first();
+            if($inventory) {
+                return $inventory->number;
+            }
+            else {
+                $inventory = NULL;
+            }
         }
-        else {
-            $inventory = NULL;
-        }
-
-        return $inventory->number;
     }
 
     public function allInventory(Request $request)
@@ -910,14 +886,16 @@ class StoreController extends Controller
         foreach ($request->selected as $id) {
             $room = RoomMovement::find($id);
             if ($room->status == 'approved') {
-
-                $room->status = 'accepted';
-                $room->manager_id = auth('api')->user()->id;
-                $room->update();
-
                 $inventory = InventoryStore::where('deleted_at', NULL)->find($room->product_id);
-                $inventory->number = $inventory->number + $room->qty;
-                $inventory->update();
+                $product = Inventory::find($inventory->inventory_id);
+
+                $inventory->number = $inventory->number + ($room->qty * $product->number_per_crate);
+                $sure = $inventory->update();
+                if ($sure) {
+                    $room->status = 'accepted';
+                    $room->manager_id = auth('api')->user()->id;
+                    $room->update();
+                }
             }
         }
         return 'ok';
@@ -947,24 +925,35 @@ class StoreController extends Controller
 
     public function outletacceptall(Request $request)
     {
+        //return $request->selected;
         foreach ($request->selected as $item) {
             $room = RoomMovement::find($item);
-            if ($room->status == 'pending approval' || $room->status == 'requested') {
-                
 
-                $rec = InventoryStore::where('deleted_at', NULL)->find($room->product_id);
-                $rec_inventory = $rec->inventory_id;
+            $recieve = InventoryStore::where('deleted_at', NULL)->find($room->product_id);
+            $product = $recieve->inventory_id;
+            $inv = Inventory::find($product);
 
-                $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $rec_inventory)->where('store_id', $room->getOriginal('moved'))->first();
-                if ($inventory->number>=$room->qty) {
-                    $inventory->number = $inventory->number - $room->qty;
+            $sending = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $product)->where('store_id', 1)->first();
+            
+
+            if ($room->status == 'pending approval' || $room->status == 'requested') {    
+                /*if ($sending->number>=$room->qty) {
+                    $sending->number = $sending->number - $room->qty;
+                }*/
+
+                $mainproduct = $sending->number/$inv->number_per_crate;
+
+                if ($mainproduct >= $room->qty) {
+                    $sending->number = $sending->number - ($room->qty * $inv->number_per_crate);
+                    $sending->update();
+
+                    //$recieve->number = $recieve->number + ($room->qty * $inv->number_per_crate);
+                    //$recieve->update();
+
+                    $room->status = 'approved';
+                    $room->approved_by = auth('api')->user()->id;
+                    $room->update();
                 }
-                
-                $room->status = 'approved';
-                $room->approved_by = auth('api')->user()->id;
-                $room->update();
-                
-                $inventory->update();
             }
         }
         return 'ok';

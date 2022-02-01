@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <div class="row mb-2 p-2">
                 <div class="col-md-5">
-                    <h2><strong>Outlet Items Movements</strong></h2>
+                    <h2><strong>Items Movements</strong></h2>
                 </div>
 
                 <div class="col-md-7">

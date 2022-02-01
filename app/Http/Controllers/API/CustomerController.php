@@ -271,7 +271,7 @@ class CustomerController extends Controller
                 return ['error' => 'Member not found'];
             }
             
-            $queryp = Payment::where('member_id', $params['member']->id);
+            $queryp = Payment::where('member_id', $params['member']->id)->latest();
 
             if ($request->start_date) {
                 $queryp->where('created_at', '>=', $request->start_date);

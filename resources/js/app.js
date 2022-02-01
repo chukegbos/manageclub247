@@ -487,8 +487,12 @@ let routes = [
 
     { path: '/messages', component: require('./components/MessageComponent.vue').default },
     { path: '/messages/compose', component: require('./components/MessageComposeComponent.vue').default },
+    { path: '/member/demand-notice/:unique_id', component: require('./components/CustomerDemandComponent.vue').default },
 
-     { path: '/member/demand-notice/:unique_id', component: require('./components/CustomerDemandComponent.vue').default },
+    { path: '/kitchen', component: require('./components/KitchenComponent.vue').default },
+    { path: '/kitchen/food', component: require('./components/KitchenFoodComponent.vue').default },
+    { path: '/kitchen/transactions', component: require('./components/KitchenTransactionComponent.vue').default },
+    { path: '/kitchen/:id', component: require('./components/KitchenViewComponent.vue').default },
 ];
 
 const router = new VueRouter({

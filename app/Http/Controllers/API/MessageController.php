@@ -69,43 +69,7 @@ class MessageController extends Controller
         if ($request->message_type==0) {
             $message = $request->message;
             if ($request->people == 0) {
-                // Make Post Fields Array
-                $data1 = [
-                    'from' => 'ESPORTSCLUB',
-                    'to' => '2348066267671',
-                    'text' => $message,
-                ];
-
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => "",
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30000,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => "POST",
-                    CURLOPT_POSTFIELDS => json_encode($data1),
-                    CURLOPT_HTTPHEADER => array(
-                        // Set here requred headers
-                        "accept: */*",
-                        "accept-language: en-US,en;q=0.8",
-                        "content-type: application/json",
-                        "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
-                    ),
-                ));
-
-                $response = curl_exec($curl);
-                $err = curl_error($curl);
-                curl_close($curl);
-
-                if ($response) {
-                    return $response;
-                }
-                else {
-                    return $err;
-                }
+               
             }
             else {
                 $msg = Message::create([
@@ -165,62 +129,6 @@ class MessageController extends Controller
                     }
                 }
 
-                $data3 = [
-                    'from' => 'ESPORTSCLUB',
-                    'to' => '2348066267671',
-                    'text' => $message,
-                ];
-
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => "",
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30000,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => "POST",
-                    CURLOPT_POSTFIELDS => json_encode($data3),
-                    CURLOPT_HTTPHEADER => array(
-                        // Set here requred headers
-                        "accept: */*",
-                        "accept-language: en-US,en;q=0.8",
-                        "content-type: application/json",
-                        "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
-                    ),
-                ));
-
-                $response = curl_exec($curl);
-                $err = curl_error($curl);
-                curl_close($curl);
-
-                $data2 = [
-                    'from' => 'ESPORTSCLUB',
-                    'to' => '2348176573133',
-                    'text' => $message,
-                ];
-
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => "",
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 30000,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => "POST",
-                    CURLOPT_POSTFIELDS => json_encode($data2),
-                    CURLOPT_HTTPHEADER => array(
-                        // Set here requred headers
-                        "accept: */*",
-                        "accept-language: en-US,en;q=0.8",
-                        "content-type: application/json",
-                        "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
-                    ),
-                ));
-
                 $response = curl_exec($curl);
                 $err = curl_error($curl);
                 curl_close($curl);
@@ -237,6 +145,8 @@ class MessageController extends Controller
 
             foreach ($members as $member) {
                 if($member->phone_1 || $member->phone_2 || $member->phone){
+                    $the_member = Member::where('deleted_at', NULL)->where('membership_id', $member->unique_id)->first();
+
                     if ($member->phone) {
                         $phone = $member->phone;
                     }
@@ -247,14 +157,11 @@ class MessageController extends Controller
                         $phone = $member->phone_2;
                     }
 
-                    $the_member = Member::where('deleted_at', NULL)->where('membership_id', $member->unique_id)->first();
-
                     $debt  = PaymentDebit::where('member_id', $the_member->id)->where('status', 0)->where('date_entered', '<=', $request->end_date)->sum('amount');
                     
-                    $myDate = Carbon::createFromTimeStamp(strtotime($request->end_date))->toFormattedDateString()
+                    $myDate = Carbon::createFromTimeStamp(strtotime($request->end_date))->toFormattedDateString();
 
-                    $message = 'Enugu Sports Club Membership ID: '.$member->unique_id. ';  
-                    Debt Bal: N'.$debt.'; Wallet Bal: N'.$member->wallet_balance. ' as at '. $request->end_date.' For clarifications contact Front Desk.';
+                    $message = 'Memb ID: '.$member->unique_id. '; Debt Bal: N'.$debt.'; M.Wallet: N'.$member->wallet_balance.'; L.Wallet: N' . $member->credit_unit. '; K/B Wallet: N' . $member->bar_wallet. ' as at '. $request->end_date.' Enugu Sports Club (FCMB ACCT NO) 1685653012';
 
                     $data1 = [
                         'from' => 'ESPORTSCLUB',
@@ -293,71 +200,7 @@ class MessageController extends Controller
                     ]);
                 }
             }
-
-            $message1 = 'If you recieve this message sir, just know i have sent the debit sms and it delivered';
-            
-            $data3 = [
-                'from' => 'ESPORTSCLUB',
-                'to' => '2348066267671',
-                'text' => $message1,
-            ];
-
-            $curl = curl_init();
-
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30000,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($data3),
-                CURLOPT_HTTPHEADER => array(
-                    // Set here requred headers
-                    "accept: */*",
-                    "accept-language: en-US,en;q=0.8",
-                    "content-type: application/json",
-                    "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
-                ),
-            ));
-
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-
-            $data2 = [
-                'from' => 'ESPORTSCLUB',
-                'to' => '2348176573133',
-                'text' => $message1,
-            ];
-
-            $curl = curl_init();
-
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => "",
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 30000,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => "POST",
-                CURLOPT_POSTFIELDS => json_encode($data2),
-                CURLOPT_HTTPHEADER => array(
-                    // Set here requred headers
-                    "accept: */*",
-                    "accept-language: en-US,en;q=0.8",
-                    "content-type: application/json",
-                    "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
-                ),
-            ));
-
-            $response = curl_exec($curl);
-            $err = curl_error($curl);
-            curl_close($curl);
-            return 'ok';
         }
-
-        
+        return 'ok';
     }
 }

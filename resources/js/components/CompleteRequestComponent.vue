@@ -15,7 +15,8 @@
                             <thead>
                                 <tr>
                                     <th width="400px">Product</th>
-                                    <th>Quantity</th>
+                                    <th>Quantity(Pack)</th>
+                                    <th>Bottles</th>
                                     <!--<th>Request from</th>-->
                                 </tr>
                             </thead>
@@ -24,7 +25,9 @@
                                 <tr v-for="(item, index) in form.productItems">
                                     <td>{{ item.title }}</td>
                                     <td>
-                                        <b-form-input v-model="item.qty" type="number" class="form-control qty-input"></b-form-input></td>
+                                        <b-form-input v-model="item.qty" type="number" class="form-control qty-input"></b-form-input>
+                                    </td>
+
                                     <!--<td>
                                         <b-form-select
                                             v-model="item.store"

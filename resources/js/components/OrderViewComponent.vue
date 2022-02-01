@@ -68,12 +68,12 @@
                                     <tbody>
                                         <tr>
                                             <td>
+
                                                 <span v-if="customer">
-                                                    <span v-if="customer.name">
-                                                        {{ customer.name }}<br>
-                                                        {{ customer.c_person.membership_id}}<br>
-                                                        {{ customer.phone }}<br>
-                                                        {{ customer.address }} {{ customer.state }}
+                                                    <span v-if="customer.first_name">
+                                                        {{ customer.get_member }}<br>
+                                                        {{ customer.phone_1 }}<br>
+                                                        {{ customer.address }}
                                                     </span>
                                                     <span v-else>
                                                         {{ customer }}
@@ -198,8 +198,17 @@
                                 
                                 <span v-if="sale.mop == 0">
                                     <div class="form-group">
+                                        <label>Part Payment</label>
+                                        <input v-model="form.part_payment" type="number" class="form-control"/>
+                                    </div>
+
+                                    <!--<div class="form-group">
                                         <label>Date of Repayment</label>
                                         <input v-model="form.date" type="date" class="form-control" />
+                                    </div>-->
+                                    <div class="form-group">
+                                        <label>Grace Period (Days)</label>
+                                        <input v-model="form.grace_period" type="number" value="1" class="form-control" />
                                     </div>
                                 </span>   
 
@@ -207,7 +216,7 @@
                                     <b-form-group label="Method of Fund:" label-for="payment_method">
                                         <select v-model="form.channel" class="form-control">
                                             <option v-for="option in payment_types" v-bind:value="option.id">
-                                                {{ option.title }}
+                                                <span v-if="(option.id==1) || (option.id==7)">{{ option.title }}</span>
                                             </option>
                                         </select>
                                     </b-form-group>
@@ -444,6 +453,8 @@
                 channel: '',
                 link: '',
                 draft_id: '',
+                part_payment: '',
+                grace_period: '',
             }),
             accounts: [],
             nairaSign: "&#x20A6;",
@@ -502,7 +513,7 @@
         loadChannels() {
             axios.get("/api/payment/channels", { params: this.filterForm })
             .then(({ data }) => {
-                this.payment_types = data.channels;
+                this.payment_types = data.selected_channel;
                 this.banks = data.banks;
                 this.pos = data.pos;
                 console.log(data);
@@ -615,50 +626,29 @@
         },
 
         updateDeal() {
-            if(!this.form.channel){
-                Swal.fire(
-                    "Failed!",
-                    'Please select Method of Payment',
-                    "warning"
-                );
-            }
-            else {
-                if(((this.form.channel==2) || (this.form.channel==3)) && !this.form.link){
+            if(this.is_busy) return;
+            this.is_busy = true;
+            $("#addNewUser").modal("hide");
+            axios.post("/api/cart/closedeal", this.form)
+            .then((data) => {
+                
+                if(data.data.error){
                     Swal.fire(
                         "Failed!",
-                        'Please select POS ID or Bank ID',
+                        data.data.error,
                         "warning"
                     );
                 }
-                else if(((this.form.channel==4) || (this.form.channel==5)) && !this.form.draft_id){
-                    Swal.fire(
-                        "Failed!",
-                        'Please select Cheque ID or Bank Draft ID',
-                        "warning"
-                    );
-                }
-
                 else{
-                    axios.post("/api/cart/closedeal", this.form)
-                    .then((data) => {
-                        $("#addNewUser").modal("hide");
-                        if(data.data.error){
-                            Swal.fire(
-                                "Failed!",
-                                data.data.error,
-                                "warning"
-                            );
-                        }
-                        else{
-                            Swal.fire("Updated!", "Deal Closed Successfully.", "success");
-                        }
-
-                        this.viewOrder();
-                        this.loadSite();
-                    })
-                    .catch();
+                    Swal.fire("Updated!", "Deal Closed Successfully.", "success");
                 }
-            }
+            })
+            .catch()
+            .finally(() => {
+                this.is_busy = false;
+                this.viewOrder();
+                this.loadSite();
+            });
         },
 
         updateCredit() {

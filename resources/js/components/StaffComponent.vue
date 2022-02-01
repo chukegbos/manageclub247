@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==6 || admin.role==11">
                         Add User
                     </b-button>
 
@@ -43,26 +43,22 @@
                             <td>{{ user.name }}</td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.phone }}</td>
-                            <td><span v-if="user.get_role.system==1">{{ user.store }}</span></td>
-                            <td>
-                                <span v-if="user.role==8">
-                                    <span v-if="user.invoice==1">Bar Front desk officer</span>
-                                    <span v-else>{{ user.get_role.title }}</span>
 
-                                </span>
-                                <span v-else>{{ user.get_role.title }}</span>
+                            <td>{{ user.store }}</td>
+                            <td>
+                                <span>{{ user.get_role.title }}</span>
                             </td>
                             
                             <td>{{ user.address }}</td>
                             <td>
                                 <b-dropdown id="dropdown-dropup" text="Action" variant="info">
-                                    <b-dropdown-item href="javascript:void(0)" @click="updateRole(user)" v-if="admin.role==1 || admin.role==5">Update User Role</b-dropdown-item>
+                                    <b-dropdown-item href="javascript:void(0)" @click="updateRole(user)" v-if="admin.role==1 || admin.role==6 || admin.role==11">Update User Role</b-dropdown-item>
 
                                     <b-dropdown-item href="javascript:void(0)" @click="view(user)">View User</b-dropdown-item>
 
-                                    <b-dropdown-item href="javascript:void(0)" @click="editModal(user)" v-if="admin.role==1 || admin.role==5">Edit User</b-dropdown-item>
+                                    <b-dropdown-item href="javascript:void(0)" @click="editModal(user)" v-if="admin.role==1 || admin.role==6 || admin.role==11">Edit User</b-dropdown-item>
 
-                                    <span v-if="admin.role==1 || admin.role==5">
+                                    <span v-if="admin.role==1 || admin.role==6 || admin.role==11">
                                         <b-dropdown-item href="javascript:void(0)" @click="deleteUser(user.id)" v-if="user.id!=admin.id && user.id!=1">Delete User</b-dropdown-item>
                                     </span>
                                 </b-dropdown>
@@ -184,12 +180,12 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-4">
+                                <!--<div class="col-md-4">
                                     <label>Select Bar</label>
                                     <b-form-group>
                                         <v-select label="name" :options="stores" @input="setStore" ></v-select>
                                     </b-form-group>
-                                </div>
+                                </div>-->
 
                                 <div class="col-md-4">
                                     <div class="form-group" v-if="show_password==1">

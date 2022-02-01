@@ -108,7 +108,7 @@
                                 <tr>
                                     <th>User Type</th>
                                     <th>Name</th>
-                                    <th>Type of sale</th>
+                                    <th v-if="form.user_type==1">Type of sale</th>
                                     <th>Total Amount</th>
                                 </tr>
                             </thead>
@@ -124,7 +124,7 @@
 
                                     <th>
                                         <span v-if="form.user_type==1">
-                                            <v-select label="name" :options="users" @input="getUserID($event)"></v-select>
+                                            <v-select label="get_member" :options="users" @input="getUserID($event)"></v-select>
                                         
                                             <b-button variant="info" size="sm" class="float-right mt-1 mb-1" v-on:click="CreateCustomer()">New Customer</b-button>
                                         </span>
@@ -132,7 +132,7 @@
                                             <b-form-input v-model="form.guest"  type="text" class="form-control" placeholder="Name of guest (Optional)"></b-form-input>
                                         </span>
                                     </th>
-                                    <th>
+                                    <th v-if="form.user_type==1">
                                         <select v-model="form.mop" class="form-control">
                                             <option v-for="option in options" v-bind:value="option.value">
                                                 {{ option.text }}
@@ -248,7 +248,7 @@
                     serviceItems: [],
                     amount: 0,
                     mop: 1,
-                    user_type: '',
+                    user_type: 0,
                     guest: '',
                 }),
 
@@ -300,6 +300,7 @@
                 this.is_busy = true;
                 axios.get("/api/user")
                 .then(({ data }) => {
+                    console.log(data)
                     this.user = data.user;
                     this.user_store = data.user_store;
                     this.discount = data.user.sale_percent;

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Store;
 use App\Category;
 use App\Inventory;
 use App\InventoryStore;
@@ -229,7 +230,7 @@ class InventoryController extends Controller
 
         $productId = 'FO'. rand();
 
-        return Inventory::create([
+        $inventory = Inventory::create([
             'product_id' => $productId,
             'product_name' => ucwords($request->product_name),
             'price' => $request->price,
@@ -238,6 +239,23 @@ class InventoryController extends Controller
             'unit' =>$request->unit,
             'number_per_crate' => $request->number_per_crate,
         ]);
+
+
+        $stores = Store::where('deleted_at', NULL)->get();
+        foreach ($stores as $store) {
+            $product = InventoryStore::where('deleted_at', NULL)
+                ->where('store_id', $store->id)
+                ->where('inventory_id', $inventory->id)
+                ->first();
+            if (!$product) {
+                InventoryStore::create([
+                    'inventory_id' => $inventory->id,
+                    'store_id' => $store->id,
+                    'number' => 0,
+                ]);
+            }
+        }
+        return 'ok';
     }
 
     public function increase(Request $request)
