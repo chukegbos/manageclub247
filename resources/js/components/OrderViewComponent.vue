@@ -92,7 +92,7 @@
                             <div class="table-responsive border">
                                 <table class="table table-bordered">
                                     <tr>
-                                        <th><h5>Item List</h5></th>
+                                        <th><h5>Drink List</h5></th>
                                     </tr>
                                 </table>
                                 <table class="table table-bordered">
@@ -115,6 +115,35 @@
                                             <td>{{ formatPrice(item.price) }}</td>
                                             <!--<td>{{ formatPrice(item.qty*item.price) }}</td>-->
                                             <td>{{ formatPrice((item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))) }}</td>
+                                        </tr>                                 
+                                    </tbody>
+                                </table>
+
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th><h5>Food List</h5></th>
+                                    </tr>
+                                </table>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Qty</th>
+                                            <th>Unit Amount (<span v-html="nairaSign"></span>)</th>
+                                         
+                                            <th>Amount (<span v-html="nairaSign"></span>)</th>
+                                            
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr v-for="(item, index) in services">
+                                            <!--<td>{{ index + 1}}</td>-->
+                                            <td>{{ item.food }}</td>
+                                            <td>{{ item.qty }}</td>
+                                            <td>{{ formatPrice(item.amount) }}</td>
+                                          
+                                            <td>{{ formatPrice(item.qty * item.amount) }}</td>
                                         </tr>                                 
                                     </tbody>
                                 </table>
@@ -248,6 +277,11 @@
                                         <small><a href="javascript:void(0)" @click="WalletModal(customer)" class="pull-right">Fund Account</a></small>
                                     </div>
                                 </span> 
+
+                                <div class="form-group">
+                                    <label>Select Steward</label>
+                                    <v-select label="name" :options="stewards" @input="getUserID($event)"></v-select>
+                                </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger" data-dismiss="modal">
@@ -455,10 +489,11 @@
                 draft_id: '',
                 part_payment: '',
                 grace_period: '',
+                steward_id: '',
             }),
             accounts: [],
             nairaSign: "&#x20A6;",
-
+            stewards: [],
             account: new Form({
                 credit: '',
                 date: '',
@@ -505,8 +540,10 @@
         getUser() {
             axios.get("/api/user")
             .then(({ data }) => {
+                console.log(data.stewards)
                 this.user = data.user;
                 this.accounts = data.accounts;
+                this.stewards = data.stewards;
             });
         },
 
@@ -520,6 +557,9 @@
             });
         },
 
+        getUserID(data){
+            this.form.steward_id = data.id;
+        },
 
         setSelected(value) {
             this.form.account_one = value.id;

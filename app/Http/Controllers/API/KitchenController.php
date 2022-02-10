@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Kitchen;
 use App\FoodKitchen;
+use App\ServiceItem;
+use App\Production;
 use Carbon\Carbon;
 use App\User;
 use App\Food;
@@ -88,6 +90,26 @@ class KitchenController extends Controller
         return ['message' => "Success"];
     }
 
+    public function updatedish(Request $request, $id)
+    {
+        $kitchen = FoodKitchen::where('deleted_at')->find($id);
+        $this->validate($request, [
+            'number' => 'required',
+        ]);
+
+        $kitchen->update([
+            'number' => $kitchen->number + $request->number,
+        ]);
+
+        Production::create([
+            'production_date' => Carbon::today(),
+            'product' => $kitchen->id,
+            'quantity' => $request->number,
+        ]);
+
+        return ['message' => "Success"];
+    }
+
     public function destroy(Request $request)
     {
        foreach ($request->selected as $id) {
@@ -96,7 +118,7 @@ class KitchenController extends Controller
         return 'ok';
     }
 
-    public function getStore($code)
+    public function viewkitchen($code)
     {
         $kitchen = Kitchen::where('deleted_at', NULL)->where('code', $code)->first();
         if ($kitchen) {
@@ -104,76 +126,80 @@ class KitchenController extends Controller
         }
     }
 
+    public function service(Request $request)
+    {
+        $query = ServiceItem::where('deleted_at', NULL);
+
+        if (auth('api')->user()->role==14 || auth('api')->user()->role==15) {
+            $kitchen_id = auth('api')->user()->getOriginal('kitchen');
+
+            $query->where('main_kitchen', $kitchen_id);
+        }
+
+        if ($request->selected==0) {
+            $params['services'] =  $query->get();
+        }
+        else{
+            $params['services'] =  $query->paginate($request->selected);
+        }
+
+        $params['all'] = $query->count();
+
+        return $params;
+    }
+
+    public function pendingservice(Request $request)
+    {
+        $query = ServiceItem::where('deleted_at', NULL)->where('status', 0);
+
+        if (auth('api')->user()->role==14 || auth('api')->user()->role==15) {
+            $kitchen_id = auth('api')->user()->getOriginal('kitchen');
+
+            $query->where('main_kitchen', $kitchen_id);
+        }
+
+        if ($request->selected==0) {
+            $params['services'] =  $query->get();
+        }
+        else{
+            $params['services'] =  $query->paginate($request->selected);
+        }
+
+        $params['all'] = $query->count();
+
+        return $params;
+    }
+
+    public function markservice($id)
+    {
+        $food = ServiceItem::where('deleted_at', NULL)->find($id);
+        if ($food) {
+            $food->status = 1;
+            $food->update();
+        }
+
+        return 'ok';
+    }
 
     public function show(Request $request, $code, $id)
     {
         $params = [];
-        $query = FoodKitchen::where('inventory_store.deleted_at', NULL)->where('inventory_store.store_id', $id)
-            ->join('foods', 'inventory_store.inventory_id', '=', 'foods.id')
-            ->join('categories', 'foods.category', '=', 'categories.id')
-            ->where('categories.deleted_at', NULL)
+        $query = FoodKitchen::where('food_kitchen.deleted_at', NULL)->where('food_kitchen.kitchen_id', $id)
+            ->join('foods', 'food_kitchen.food_id', '=', 'foods.id')
             ->where('foods.deleted_at', NULL);
 
-            if ($request->orderName==0) {
-                $query->orderBy('foods.product_name', 'Desc');
-            }
-            elseif ($request->orderName==1) {
-                $query->orderBy('foods.product_name', 'asc');
-            }
-
-            if ($request->orderCategory==0) {
-                $query->orderBy('categories.name', 'Desc');
-            }
-            elseif ($request->orderCategory==1) {
-                $query->orderBy('categories.name', 'asc');
-            }
-
-            if ($request->orderAmount==0) {
-                $query->orderBy('foods.price', 'Desc');
-            }
-            elseif ($request->orderAmount==1) {
-                $query->orderBy('foods.price', 'asc');
-            }
-
-            if ($request->orderQuantity==0) {
-                $query->orderBy('inventory_store.number', 'Desc');
-            }
-            elseif ($request->orderQuantity==1) {
-                $query->orderBy('inventory_store.number', 'asc');
-            }
-
-            if ($request->orderThreshold==0) {
-                $query->orderBy('foods.threshold', 'Desc');
-            }
-            elseif ($request->orderThreshold==1) {
-                $query->orderBy('foods.threshold', 'asc');
-            }
-
-            if ($request->orderPeriod==0) {
-                $query->orderBy('inventory_store.updated_at', 'Desc');
-            }
-            elseif ($request->orderPeriod==1) {
-                $query->orderBy('inventory_store.updated_at', 'asc');
-            }
 
             if ($request->name) {
-                $query->where('foods.product_name', 'like', '%' . $request->name . '%')->orWhere('foods.product_id', 'like', '%' . $request->name . '%')->orWhere('categories.name', 'like', '%' . $request->name . '%');
+                $query->where('foods.name', 'like', '%' . $request->name . '%')->orWhere('foods.code', 'like', '%' . $request->name . '%');
             }
 
             //return $request;
             $query->select(
-                'foods.id as id',
-                'foods.category as category',
-                'categories.name as name',
-                'foods.product_id as product_id',
-                'foods.product_name as product_name',
-                'inventory_store.number as quantity',
-                'inventory_store.id as room_id',
-                'inventory_store.updated_at as updated_at',
-                'foods.cost_price as cost_price',
-                'foods.price as price',
-                'foods.unit as unit',
-                'foods.threshold as threshold'
+                'food_kitchen.id as id',
+                'foods.name as item',
+                'food_kitchen.number as number',
+                'foods.amount as amount',
+                'foods.period as period'
             );
 
             if ($request->selected==0) {

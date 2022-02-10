@@ -8,6 +8,7 @@ use App\Store;
 use App\Category;
 use App\Inventory;
 use App\InventoryStore;
+use App\KitchenItem;
 use Illuminate\Support\Str;
 
 class InventoryController extends Controller
@@ -171,6 +172,29 @@ class InventoryController extends Controller
                 $params['invt']  =  $qy->paginate(20);
             }
         $params['all_inventory'] = $qy->count();
+
+
+        $querykit = KitchenItem::where('kitchen_items.deleted_at', NULL)
+            ->where('kitchen_items.kitchen_id', auth('api')->user()->getOriginal('kitchen'))
+            ->join('food_inventory', 'kitchen_items.item', '=', 'food_inventory.id')
+            ->where('food_inventory.deleted_at', NULL);
+
+           
+
+            //return $request;
+            $querykit->select(
+                'kitchen_items.id as id',
+                'food_inventory.name as name',
+                'kitchen_items.number as quantity',
+            );
+
+            if ($request->selected==0) {
+                $params['kit_invt'] =  $querykit->get();
+            }
+            else{
+                $params['kit_invt']  =  $querykit->paginate($request->selected);
+            }
+        $params['all_kit_inventory'] = $querykit->count();
         return $params;
     }
 

@@ -3,128 +3,51 @@
         <div class="container-fluid">
             <div class="row mb-2 p-1">
                 <div class="col-md-8">
-                    <h2><strong>List of kitchen Items ({{ kitchen.name }})</strong></h2>
+                    <h2><strong>Menu List ({{ kitchen.name }})</strong></h2>
                 </div>
 
                 <div class="col-md-4">
-                    <!--<b-button variant="outline-primary" size="sm" v-if="action.selected.length" class="pull-right m-1" @click="onSelectAll">Item Movement</b-button>
-
-                    <b-button disabled size="sm" variant="outline-primary" v-else class="pull-right m-1">Item Movement</b-button>-->
-
                     <span v-if="(admin.role==1 || admin.role==7) && admin.kitchen!=1">
-                    <b-button variant="outline-success" size="sm" v-if="action.selected.length" class="pull-right m-1" @click="onRequestAll">Item Request</b-button>
+                    <b-button variant="outline-success" size="sm" v-if="action.selected.length" class="pull-right m-1" @click="onRequestAll">Request Item</b-button>
 
-                    <b-button disabled size="sm" variant="outline-success" v-else class="pull-right m-1">Item Request</b-button>
-                    </span>
-                    <b-form @submit.stop.prevent="onFilterSubmit" class="pull-right m-1" size="sm">
-                        <b-input-group>
-                            <b-form-input id="name" v-model="filterForm.name" type="text" placeholder="Search Item"></b-form-input>
-
-                            <b-input-group-append>
-                                <b-button variant="outline-primary" type="submit"><i class="fa fa-search"></i></b-button>
-                            </b-input-group-append>
-                        </b-input-group>
-                    </b-form>                 
+                    <b-button disabled size="sm" variant="outline-success" v-else class="pull-right m-1">Request Item</b-button>
+                    </span>                 
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-body table-responsive p-0" v-if="food.data.length>0" id="printMe">
-                    <div class="text-center" v-if="unprintable==true">
-                        <h2>{{ site.sitename }} - List of Items</h2>
-                    </div>
+                <div class="card-body table-responsive p-0" v-if="foods.data.length>0" id="printMe">
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="(admin.role==1 || admin.role==7) && admin.kitchen!=1">
-                                    <input type="checkbox" v-model="selectAll">
-                                </th>
 
-                                <th width="300px">
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Name</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByName()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Category</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByCategory()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Amount (<span v-html="nairaSign"></span>)</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByAmount()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Quantity</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByQuantity()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                <!--<th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Threshold</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByThreshold()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                <th>
-                                    <div class="pull-left">
-                                        <span style="padding-right: 8px">Age Period</span>
-                                        <a href="javascript:void(0)" class="fa fa-stack" @click="orderByPeriod()">
-                                            <i class="fa fa-caret-up" aria-hidden="true"></i>
-                                            <i class="fa fa-caret-down" aria-hidden="true"></i>
-                                        </a>
-                                    </div>
-                                </th>
-                                <th v-if="unprintable==false">Action</th>-->
+                                <th>Item</th>
+                                <th>Amount</th>
+                                <th>Available</th>
+                                <!--<th>Waiting Period</th>-->
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr  v-for="(inventory, index) in food.data">
-                                <td v-if="(admin.role==1 || admin.role==7) && admin.kitchen!=1"> 
-                                    <input type="checkbox" v-model="action.selected" :value="inventory.room_id"  number>
-                                </td>
-                                <td>{{ inventory.product_name }}</td>
-                                <td>{{ inventory.name }}</td>
-                                <td>{{ formatPrice(inventory.price) }}</td>
+                            <tr  v-for="(inventory, index) in foods.data">
+                                
+                                <td>{{ inventory.item }}</td>
                                 <td>
-                                    <span class="text-red" v-if="inventory.threshold > inventory.quantity">{{ inventory.quantity }}</span>
-                                    <span v-else>{{ inventory.quantity }}</span>
+                                    <span v-html="nairaSign"></span>{{ formatPrice(inventory.amount) }}
                                 </td>
-                                <!--<td>{{ inventory.threshold }}</td>
-                                <td>{{ inventory.updated_at }}</td>-->
+                                <td>{{ inventory.number }}</td>
+                                <!--<td>{{ inventory.period }} Mins</td>-->
+                                <td>
+                                    <a href="javascript:void(0)" @click="editModal(inventory)" v-if="admin.role==1 || admin.role==14 || admin.role==15">Update Dish</a></td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
 
-                    <div class="text-center mt-1" v-if="unprintable==true">
-                        <hr>
-                        <p>Total of {{ count_all }} item(s) printed as at {{ today_date }}</p>
-                    </div>
-                </div>
                 <div class="card-body" v-else>
-                    <div class="alert alert-info text-center"><h3><strong>No Item Found.</strong></h3></div>
+                    <div class="alert alert-info text-center"><h3><strong>No Food Found.</strong></h3></div>
                 </div>
+
                 <div class="card-footer">
                     <div class="row">
                         <div class="col-md-2">
@@ -140,9 +63,97 @@
                         </div>
 
                         <div class="col-md-10" v-if="this.filterForm.selected!=0">
-                            <pagination :data="food" @pagination-change-page="getResults"></pagination>
+                            <pagination :data="foods" @pagination-change-page="getResults"></pagination>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="addNewKitchen" tabindex="-1" role="dialog" aria-labelledby="addNewKitchenLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5
+                            class="modal-title"
+                            id="addNewKitchenLabel"
+                            v-show="!editMode"
+                        >
+                            Add New Kitchen
+                        </h5>
+                        <h5
+                            class="modal-title"
+                            id="addNewKitchenLabel"
+                            v-show="editMode"
+                        >
+                            Update Dish Status
+                        </h5>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form @submit.prevent="editMode ? updateKitchen() : createKitchen()">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input
+                                    v-model="form.item"
+                                    type="text"
+                                    class="form-control"
+                                    readonly="true"
+                                />
+                            </div>
+
+                            <div class="form-group">
+                                <label>Number of Dish<span class="text-danger pulll-right">*</span></label>
+                                <input
+                                    v-model="form.number"
+                                    type="number"
+                                    name="number"
+                                    required
+                                    class="form-control"
+                                    :class="{
+                                        'is-invalid': form.errors.has(
+                                            'number'
+                                        )
+                                    }"
+                                />
+                                <has-error
+                                    :form="form"
+                                    field="number"
+                                ></has-error>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                class="btn btn-danger"
+                                data-dismiss="modal"
+                            >
+                                Close
+                            </button>
+                            <button
+                                v-show="editMode"
+                                type="submit"
+                                class="btn btn-success"
+                            >
+                                Update
+                            </button>
+                            <button
+                                v-show="!editMode"
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                Create
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -158,19 +169,15 @@
             return {
                 is_busy: false,
                 editMode: false,
-                queue: {
-                    payload: '',
-                },
+             
                 today_date: moment().format("YYYY-MM-DD"),
-                food: {},
-                categories: [],
+                foods: {},
                 admin: "",
                 nairaSign: "&#x20A6;",
                 form: new Form({
                     id: "",
-                    product_name: "",
-                    price: "0",
-                    category: 1,
+                    number: "",
+                    item: "",
                 }),
 
                 site: '', 
@@ -178,17 +185,11 @@
                 filterForm: {
                     name: '',
                     selected: '10',
-                    orderName: 1,
-                    orderCategory: 1,
-                    orderAmount: 1,
-                    orderQuantity: 1,
-                    orderThreshold: 1,
-                    orderPeriod: 1,
                 },
                 action: {
                     selected: []
                 },
-                food: {
+                foods: {
                     data: {},
                 },
                 unprintable: false,
@@ -224,7 +225,6 @@
             {
                 this.getUser();
                 this.loadInventory();
-                
             },
 
             onPrint() {
@@ -234,6 +234,12 @@
                 this.$htmlToPaper('printMe');
                 this.unprintable = false;
                 this.is_busy = false;
+            },
+
+            editModal(inventory) {
+                (this.editMode = true), this.form.reset();
+                $("#addNewKitchen").modal("show");
+                this.form.fill(inventory);
             },
 
             loadInventory() {
@@ -250,10 +256,10 @@
                         .then(({ data }) => {
                             if(this.filterForm.selected==0)
                             {
-                                this.food.data = data.food;
+                                this.foods.data = data.foods;
                             }
                             else{
-                                this.food = data.food;
+                                this.foods = data.foods;
                             }
                             this.count_all = data.all;
                         });
@@ -271,13 +277,37 @@
             getResults(page = 1) {
                 axios.get("/api/kitchen/" + code + "/" + data.id + "?page=", { params: this.filterForm })
                 .then(response => {
-                    this.food = response.data.food;
+                    this.foods = response.data.food;
                 });
             },   
 
             formatPrice(value) {
                 let val = (value/1).toFixed(2).replace(',', '.')
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            },
+
+            updateKitchen(){
+                if (this.is_busy) return;
+                this.is_busy = true;
+                $("#addNewKitchen").modal("hide");
+
+                this.form.put("/api/kitchen/dish/" + this.form.id)
+                .then(() => {
+                    Swal.fire("Updated!", "Dish Updated Successfully.", "success");     
+                })
+
+                .catch(() => {
+                    Swal.fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.getUser();
+                    this.loadInventory();
+                });
             },
 
             onSelectAll(){
@@ -414,13 +444,13 @@
         computed: {
             selectAll: {
                 get: function () {
-                    return this.food.data ? this.action.selected.length == this.food.data.length : false;
+                    return this.foods.data ? this.action.selected.length == this.foods.data.length : false;
                 },
                 set: function (value) {
                     var selected = [];
 
                     if (value) {
-                        this.food.data.forEach(function (item) {
+                        this.foods.data.forEach(function (item) {
                             selected.push(item.room_id);
                         });
                     }

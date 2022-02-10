@@ -14,6 +14,7 @@ use App\ProductType;
 use App\PaymentDebit;
 use App\PaymentBank;
 use App\PaymentPos;
+use App\FoodKitchen;
 use Illuminate\Support\Facades\Hash;
 use DB;
 use Illuminate\Support\Arr;
@@ -280,10 +281,15 @@ class CartController extends Controller
         }
 
         foreach ($request->serviceItems as $item) {
+            $kitchen = FoodKitchen::find($item['kitchen']);
+           
             $sold = ServiceItem::create([
                 'code' => $trans_id,
-                'title' => $item['title'],
-                'price' => $item['price'],
+                'qty' => $item['qty'],
+                'amount' => $item['amount'],
+                'food' => $item['food_id'],
+                'kitchen' => $item['kitchen'],
+                'main_kitchen' => $kitchen->kitchen_id,
             ]);
         }
 
@@ -495,6 +501,7 @@ class CartController extends Controller
             $product->update();
         }
 
+        $sale->market_id = $request->steward_id;
         $sale->cashier_id = $user->id;
         $sale->channel = $request->channel;
         $sale->status = 'concluded';

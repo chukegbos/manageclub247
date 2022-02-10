@@ -12,6 +12,6 @@ class Food extends Model
 	use SoftDeletes;
     protected $table = 'foods';
     protected $fillable = [
-    	'code', 'name', 'amount', 'status'
+    	'code', 'name', 'amount', 'status', 'period'
     ];
 }

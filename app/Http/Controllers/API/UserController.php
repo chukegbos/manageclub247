@@ -13,9 +13,13 @@ use App\AccountType;
 use App\Setting;
 use App\Supplier;
 use App\Credit;
+use App\Kitchen;
 use App\Inventory;
+use App\FoodInventory;
 use App\Member;
 use App\InventoryStore;
+use App\FoodKitchen;
+use App\Food;
 use App\Store;
 use Illuminate\Support\Facades\Hash;
 use Auth;
@@ -152,7 +156,7 @@ class UserController extends Controller
 
     public function getUser(Request $request)
     {
-        //return carbon::now();
+        //return auth('api')->user()->id;
         /*$ledger = Ledger::where('deleted_at', NULL)->where('ledger_date', carbon::now())->where('account', 6)->first();
 
         if (!$ledger) {
@@ -237,7 +241,10 @@ class UserController extends Controller
         $params['accounts'] = Account::where('deleted_at', NULL)->get();
         $params['types'] = AccountType::where('deleted_at', NULL)->get();
         $params['products'] = Inventory::where('deleted_at', NULL)->get();
+        $params['stewards'] = User::where('deleted_at', NULL)->where('role', 8)->orWhere('role', 7)->get();
+        $params['items'] = FoodInventory::where('deleted_at', NULL)->get();
         $params['stores'] = Store::where('deleted_at', NULL)->where('id', '!=', 1)->get();
+        $params['kitchens'] = Kitchen::where('deleted_at', NULL)->get();
         $params['suppliers'] = Supplier::where('deleted_at', NULL)->get();
         $params['login'] = Login::where('user_id', auth('api')->user()->id)->where('logout', '!=', NULL)->where('verified_by', NULL)->first();
         $params['inventory'] = InventoryStore::where('inventory_store.deleted_at', NULL)
@@ -245,6 +252,23 @@ class UserController extends Controller
             ->join('inventories', 'inventory_store.inventory_id', '=', 'inventories.id')
             ->where('inventories.deleted_at', NULL)
             ->get();
+
+        //$params['foods'] = Food::get();
+
+        $params['foods'] = FoodKitchen::where('food_kitchen.deleted_at', NULL)
+            ->join('foods', 'food_kitchen.food_id', '=', 'foods.id')
+            ->where('foods.deleted_at', NULL)
+            ->select(
+                'foods.name as name',
+                'foods.amount as amount',
+                'food_kitchen.id as kitchen',
+                'food_kitchen.food_id as food_id',
+                'food_kitchen.kitchen_id as kitchen_id',
+                'food_kitchen.status as status',
+                'food_kitchen.period as period'
+            )
+            ->get();
+
         $params['roles'] =  DB::table('roles')->where('id', '!=', 1)->get();
         if ($params['login']) {
             $params['store'] = Store::where('deleted_at', NULL)->find($params['login']->store_id);
@@ -340,17 +364,24 @@ class UserController extends Controller
     public function login(Request $request)
     {
         $this->validate($request, [
-            'bar' => 'required',   
+            //'bar' => 'required',   
         ]);
 
         $user = User::find($request->user_id);
-        $user->store = $request->bar;
+        if ($request->bar) {
+            $user->store = $request->bar;
+        }
+        else{
+            $user->kitchen = $request->kitchen;
+        }
+        
         $user->update();
 
 
         $login = Login::create([
             'user_id' => auth('api')->user()->id,
             'store_id' => $request->bar,
+            'kitchen_id' => $request->kitchen,
         ]);
         return 'ok';
     }

@@ -185,7 +185,7 @@
             },
 
             getResults(page = 1) {
-                axios.get("/api/movement/movement?page=" + page, { params: this.filterForm })
+                axios.get("/api/movement/request?page=" + page, { params: this.filterForm })
                 .then(response => {
                     this.inventories = response.data.inventories;
                 });

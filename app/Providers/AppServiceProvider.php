@@ -10,6 +10,7 @@ use App\Providers;
 use App\Setting;
 use App\Debtor;
 use App\Store;
+use App\Kitchen;
 use App\Notification;
 use App\Sale;
 use Auth;
@@ -44,6 +45,9 @@ class AppServiceProvider extends ServiceProvider
                 $role = Auth()->user()->role;
                 $store_id = Auth()->user()->getOriginal('store');
                 $view->with('my_store', Store::where('deleted_at', NULL)->find($store_id));
+
+                $kitchen_id = Auth()->user()->getOriginal('kitchen');
+                $view->with('my_kitchen', Kitchen::where('deleted_at', NULL)->find($kitchen_id));
             }
         });
     }

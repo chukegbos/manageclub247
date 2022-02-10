@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Kitchen;
 use App\FoodKitchen;
+use App\Production;
 use Carbon\Carbon;
 use App\User;
 use App\Food;
@@ -46,11 +47,34 @@ class FoodController extends Controller
         return $params;
     }
 
+    public function production(Request $request)
+    {
+        $params = [];
+
+        $query = Production::where('deleted_at', NULL);
+
+        if ($request->name) {
+            $query->where('foods.name', 'like', '%' . $request->name . '%')->orWhere('foods.code', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->selected==0) {
+            $params['productions'] =  $query->get();
+        }
+        else{
+            $params['productions'] =  $query->paginate($request->selected);
+        }
+
+        $params['all'] = $query->count();
+
+        return $params;
+    }
+
     public function store(Request $request)
     {
         $this->validate($request, [
             'name' => 'required|string|max:255',
             'amount' => 'required',
+            'period' => 'required',
         ]);
 
         $code = rand(3,99888888);
@@ -58,18 +82,19 @@ class FoodController extends Controller
         Food::create([
             'name' => ucwords($request->name),
             'amount' => $request->amount,
+            'period' => $request->period,
             'code' => $code,
         ]);
 
         $food = Food::where('deleted_at', NULL)->where('code', $code)->first();
-        $foods = Kitchen::where('deleted_at', NULL)->get();
+        $kitchens = Kitchen::where('deleted_at', NULL)->get();
 
-        foreach ($foods as $food) {
-            $search_term = FoodKitchen::where('deleted_at', NULL)->where('food_id', $food->id)->where('kitchen_id', $food->id)->first();
+        foreach ($kitchens as $kitchen) {
+            $search_term = FoodKitchen::where('deleted_at', NULL)->where('food_id', $food->id)->where('kitchen_id', $kitchen->id)->first();
             if (!$search_term) {
                 FoodKitchen::create([
                     'food_id' => $food->id,
-                    'kitchen_id' => $food->id,
+                    'kitchen_id' => $kitchen->id,
                     'number' => 0,
                 ]);
             }
@@ -84,11 +109,13 @@ class FoodController extends Controller
         $this->validate($request, [
             'name' => 'required|string|max:255',
             'amount' => 'required',
+            'period' => 'required',
         ]);
 
         $food->update([
             'name' => ucwords($request->name),
             'amount' => $request->amount,
+            'period' => $request->period,
         ]);
         return ['message' => "Success"];
     }

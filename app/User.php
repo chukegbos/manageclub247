@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Member;
 use App\MemberCard;
+use App\Kitchen;
 use App\Store;
 use App\Role;
 use App\User;
@@ -155,6 +156,24 @@ class User extends Authenticatable
             $store = Store::where('deleted_at', NULL)->find($id);
             if ($store) {
                 return $store->name;
+            }
+            else{
+                return "---";
+            }
+        }
+        else{
+            return "---";
+        }
+    }
+
+
+    public function getKitchenAttribute()
+    {
+        $id = $this->attributes['kitchen'];
+        if ($id) {
+            $kitchen = Kitchen::where('deleted_at', NULL)->find($id);
+            if ($kitchen) {
+                return $kitchen->name;
             }
             else{
                 return "---";

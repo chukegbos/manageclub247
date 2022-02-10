@@ -1,7 +1,89 @@
 <template>
     <b-overlay :show="is_busy" rounded="sm">
         <div class="container-fluid mb-2">
-            <div class="pt-5" v-if="user.role==8">
+
+            <div class="pt-5" v-if="user.role==14 || user.role==15">
+                <div v-if="user.kitchen=='---'" class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                     
+                                <form @submit.prevent="loginUserKitchen()">
+                                    <b-form-group label="Select Kitchen:">
+                                        <v-select label="name" :options="kitchens" @input="setSelectedKitchen" ></v-select>
+                                    </b-form-group>
+                                    <button v-show="!editMode" type="submit" class="btn btn-primary btn-lg btn-block">
+                                        Enter
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3> Kitchen Inventory
+                                <b-button variant="outline-primary" size="sm" @click="logout" class="pull-right mb-2">
+                                   Kitchen Sign-out
+                                </b-button>
+                            </h3>
+                        </div>
+
+                        <div class="card-body table-responsive p-0" v-if="kit_invt.data.length>0">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="300px">
+                                            <div class="float-left">
+                                                <span style="padding-right: 8px">Name</span>
+                                                <a href="javascript:void(0)" class="fa fa-stack" @click="orderByName()">
+                                                    <i class="fa fa-caret-up" aria-hidden="true"></i>
+                                                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        </th>
+
+                                      
+                                        
+                                        <th>
+                                            <div class="float-left">
+                                                <span style="padding-right: 8px">Quantity</span>
+                                                <a href="javascript:void(0)" class="fa fa-stack" @click="orderByQuantity()">
+                                                    <i class="fa fa-caret-up" aria-hidden="true"></i>
+                                                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                                                </a>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr  v-for="(inventory, index) in kit_invt.data">
+                                        <td>{{ inventory.name }}</td>
+                                        <td>{{ inventory.quantity }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-body" v-else>
+                            <div class="alert alert-info text-center"><h3><strong>No Item Found.</strong></h3></div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <br> Total: <b>{{ all_kit_inventory }} Items</b>
+                                </div>
+                                <pagination :data="invt" @pagination-change-page="getResults"></pagination>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-5" v-else-if="user.role==8">
                 <div v-if="user.store=='---'" class="row">
                     <div class="col-md-3"></div>
                     <div class="col-md-6">
@@ -137,12 +219,12 @@
                                 
                                 <tr>
                                   <th>Logout Time</th>
-                                  <td>{{ login.logout }} <a href="javascript:void(0)" @click="returnLogin()">Return Back</a></td>
+                                  <td>{{ login.logout }} <a href="javascript:void(0)" @click="rLogin()">Return Back</a></td>
                                 </tr>
 
                                 <tr>
                                   <th>Verified?</th>
-                                  <td>Not Verified, contact the store manager to verify and approve your logout</td>
+                                  <td>Not Verified, contact the supervisior to verify and approve your logout</td>
                                 </tr>
 
                                 <tr>
@@ -1007,6 +1089,7 @@
                     selected: 5,
                 },
                 all_inventory: '',
+                all_kit_inventory: '',
                 invoices: {},
                 invoices: {
                     data: '',
@@ -1017,6 +1100,12 @@
                 invt: {
                     data: {},
                 },
+
+                kit_invt: {},
+                kit_invt: {
+                    data: {},
+                },
+                
                 quotes: {},
                 quotes: {
                     data: '',
@@ -1028,6 +1117,7 @@
                     id: "",
                     user_id: "",
                     bar: '',
+                    kitchen: '',
                 }),
             };
         },
@@ -1041,6 +1131,7 @@
                 .then(({ data }) => {
                     this.user = data.user;
                     this.stores = data.stores;
+                    this.kitchens = data.kitchens;
                     this.store = data.store;
                     this.login = data.login;
                 })
@@ -1069,6 +1160,25 @@
                 this.form.user_id = this.user.id;
             },
 
+            setSelectedKitchen(value) {
+                this.form.kitchen = value.id;
+                this.form.user_id = this.user.id;
+            },
+
+            rLogin(){
+
+                if(this.is_busy) return;
+                this.is_busy = true;
+
+                axios.get("/api/user/relogin/" + this.login.id)
+                .then(({ data }) => {
+                    location.reload();
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                });
+            },
+
             loginUser() {
                
                 if(this.form.bar=='')
@@ -1076,6 +1186,32 @@
                     Swal.fire(
                         "Failed!",
                         "Ops, Please Select Bar.",
+                        "warning"
+                    );
+                }
+                else {
+                    this.form.post("/api/user/login")
+                    .then(() => {
+                        Swal.fire(
+                            "Created!",
+                            "Logged in Successfully.",
+                            "success"
+                        );
+                        
+                        location.reload();
+                    })
+
+                    .catch();
+                }
+            },
+
+            loginUserKitchen() {
+               
+                if(this.form.kitchen=='')
+                {
+                    Swal.fire(
+                        "Failed!",
+                        "Ops, Please Select Kitchen.",
                         "warning"
                     );
                 }
@@ -1199,6 +1335,9 @@
                     this.inventories = data.inventories;
                     this.invt = data.invt;
                     this.all_inventory = data.all_inventory;
+
+                    this.kit_invt = data.kit_invt;
+                    this.all_inventory = data.all_kit_inventory;
                 });
             },
 
@@ -1212,6 +1351,7 @@
         }      
     };
 </script>
+
 <style>
     .help-img{
         height:40px;

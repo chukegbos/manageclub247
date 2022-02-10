@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use DB;
 use App\User;
+use App\Kitchen;
 use App\InventoryStore;
 
 class ServiceItem extends Model
@@ -15,10 +16,36 @@ class ServiceItem extends Model
     protected $table = 'service_items';
 
     protected $fillable = [
-        'code', 'price', 'title'
+        'code', 'amount', 'qty', 'food', 'kitchen', 'status', 'main_kitchen'
     ];
 
     protected $dates = [
         'deleted_at', 
     ];
+
+    public function getFoodAttribute()
+    {
+        $food_id = $this->attributes['food'];
+        $food = Food::find($food_id);
+        if ($food) {
+            return $food->name;        
+        }
+
+        else{
+            return '---';
+        }
+    }
+
+    public function getKitchenAttribute()
+    {
+        $kitchen_id = $this->attributes['kitchen'];
+        $kitchen = FoodKitchen::find($kitchen_id);
+        if ($kitchen) {
+            return $kitchen->status;        
+        }
+
+        else{
+            return '---';
+        }
+    }
 }

@@ -538,15 +538,17 @@ class StoreController extends Controller
     {
         $get_price = array();
         foreach ($request->productItems as $product) {
-            $each_price = ($product['qty'] * $product['price'])-(($product['discount']/100) * ($product['qty'] * $product['price']));
+            $each_price = $product['qty'] * $product['price'];
             array_push($get_price, $each_price);
         }
 
+        $get_amount = array();
         foreach ($request->serviceItems as $service) {
-            $each_price = $service['price'];
-            array_push($get_price, $each_price);
+            $each_amount = $service['qty'] * $service['amount'];
+            array_push($get_amount, $each_amount);
         }
-        return array_sum($get_price);
+      
+        return (array_sum($get_price) + array_sum($get_amount));
     }
 
     public function getnumber(Request $request)

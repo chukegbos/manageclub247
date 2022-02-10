@@ -7,18 +7,18 @@
                 </div>
                 <div class="col-md-5">
                     <b-button type="button" variant="primary" @click="onAddNewProduct" size="sm" class="float-right m-2">
-                        Add Item
+                        Add Drink
                     </b-button>
-                    <!--<b-button type="button" variant="primary" @click="onAddNewService" size="sm" class="float-right m-2">
-                        Add Service
-                    </b-button>-->
+                    <b-button type="button" variant="primary" @click="onAddNewService" size="sm" class="float-right m-2">
+                        Add Food
+                    </b-button>
                 </div>
             </div>
 
             <div class="card">
                 <div class="card-body">
                     <b-form @submit.stop.prevent="is_edit ? updateForm() : onFormSubmit()">
-                        <h4 class="p-2"><b>Item List</b></h4>
+                        <h4 class="p-2"><b>Drink List</b></h4>
                         <table class="table table-striped table-responsive-md text-center">
                             <thead>
                                 <tr>
@@ -62,7 +62,7 @@
                                     </td>
                                     <td>{{ item.price }}</td>
                                     <td>
-                                        {{ (item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))}}
+                                        {{ item.qty * item.price }}
                                     </td>
 
                                     <!--<b-form-input v-model="item.discount" type="number" class="form-control qty-input" @input="updateDiscount(item)"></b-form-input>-->
@@ -74,34 +74,39 @@
                             </tbody>
                         </table>
                         
-                        <!--<h4 class="p-2"><b>Service List</b></h4>
+                        <h4 class="p-2"><b>Food List</b></h4>
 
                         <table class="table table-striped table-responsive-md text-center">
                             <thead>
                                 <tr>
-                                    <th width="600px">Service</th>
-                                    <th>Price (<span v-html="nairaSign"></span>)</th>
-                                    <th>
-                                        
-                                    </th>
+                                    <th width="600px">Food</th>
+                                    <th width="100px">Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th>Total Price</th>
+                                    <th></th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 <tr v-for="(service, index) in form.serviceItems">
                                     <td>
-                                        <b-form-input v-model="service.title" type="text" class="form-control" placeholder="installation of equipment"></b-form-input>
+                                        <span v-if="service.food">{{ service.food }}</span>
+                                      
+                                        <v-select label="status" :options="foods" @input="setService($event, service)" v-else></v-select>
                                     </td>
                                     <td>
-                                        <b-form-input v-model="service.price"  type="number" class="form-control qty-input"  @input="getTotal()"></b-form-input>
+                                        <b-form-input v-model="service.qty" type="number" class="form-control qty-input"  @input="getTotal()"></b-form-input>
                                     </td>
+                                  
+                                    <td><span v-html="nairaSign"></span>{{ service.amount }}</td>
+                                    <td><span v-html="nairaSign"></span>{{ service.qty * service.amount }}</td>
 
                                     <td>
                                         <a href="javascript:void(0)" @click="onRemoveService(form.serviceItems.indexOf(service))"><i class="fa fa-times text-red 2x"></i></a>
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>-->
+                        </table>
 
                         <table class="table table-bordered table-responsive-md text-center">
                             <thead>
@@ -125,8 +130,6 @@
                                     <th>
                                         <span v-if="form.user_type==1">
                                             <v-select label="get_member" :options="users" @input="getUserID($event)"></v-select>
-                                        
-                                            <b-button variant="info" size="sm" class="float-right mt-1 mb-1" v-on:click="CreateCustomer()">New Customer</b-button>
                                         </span>
                                         <span v-else>
                                             <b-form-input v-model="form.guest"  type="text" class="form-control" placeholder="Name of guest (Optional)"></b-form-input>
@@ -148,76 +151,6 @@
                     </b-form>
                 </div>
             </div>
-
-            <b-modal id="form-modal" ref="formCustomer" :title="'New Customer'" hide-footer>
-                <b-form @submit.stop.prevent="onCustomerSubmit($event)">
-                    <fieldset>
-                        <div class="row">
-                            <div class="col-md-6 form-group">
-                                <label>Customer Name</label>
-                                <input v-model="formCustomer.name" type="text" class="form-control"/>
-                            </div>
-
-                            <div class="col-md-6 form-group">
-                                <label>Contact Person</label>
-                                <input v-model="formCustomer.c_person" type="text" class="form-control"/>
-                            </div>
-
-                            <div class="col-md-6 form-group">
-                                <label>Email Address</label>
-                                <input v-model="formCustomer.email" type="email" class="form-control"/>
-                            </div>
-
-                            <div class="col-md-6 form-group">
-                                <label>Phone Number</label>
-                                <input v-model="formCustomer.phone" type="tel" class="form-control">
-                            </div>
-
-                            <div class="col-md-12 form-group">
-                                <label>Address</label>
-                                <textarea v-model="formCustomer.address" class="form-control"></textarea>
-                            </div>
-
-                            <div class="col-md-6 form-group">
-                                <label>City</label>
-                                <input v-model="formCustomer.city" type="text" class="form-control"/>
-                            </div>
-
-                            <div class="col-md-6 form-group">
-                                <label>State</label>
-                                <input v-model="formCustomer.state" type="text" class="form-control"/>
-                            </div>
-                        </div>
-                        <b-button type="submit" variant="primary">Save</b-button>
-                    </fieldset>
-                </b-form>
-            </b-modal>
-
-            <div class="modal fade" id="discountModal" tabindex="-1" role="dialog" aria-labelledby="addNewstoreLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Discount</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form @submit.stop.prevent="onApply">
-                            <div class="modal-body">
-                                <div class="form-group">
-                                    <input v-model="discount" type="number" class="form-control"  :max="user.sale_percent"/>
-                                </div>
-
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">
-                                    Apply
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
         </div>
     </b-overlay>
 </template>
@@ -237,6 +170,7 @@
                 user: '',
                 product: null,
                 products: [],
+                foods: [],
                 nairaSign: "&#x20A6;",
                 typeQuery: '',
              
@@ -306,6 +240,7 @@
                     this.discount = data.user.sale_percent;
                     this.store = data.store;
                     this.products = data.inventory;
+                    this.foods = data.foods;
                     this.stores = data.stores;
                     this.suppliers = data.suppliers;
                     this.accounts = data.accounts;
@@ -365,8 +300,8 @@
                 .catch((error) => {
                 })
                 .finally(() => {
-                this.is_busy = false;
-            });
+                    this.is_busy = false;
+                });
             },
 
             updateForm($event) {
@@ -449,7 +384,7 @@
                 }
                 else{
                     this.form.productItems.push(this.setItemModel({}));
-                    //this.form.serviceItems.push(this.setServiceModel({}));
+                    this.form.serviceItems.push(this.setServiceModel({}));
                 }  
             },
 
@@ -478,6 +413,7 @@
                 this.fil.store = this.user_store;
                 this.fil.inventory = item.product_id;
                 console.log(this.fil)
+
                 axios.get("/api/store/getnumber", { params: this.fil })
                 .then(({ data }) => {
                     if(Number(item.qty) > Number(data)){
@@ -516,9 +452,7 @@
 
                 else{
                     this.getTotal();
-                }
-
-                
+                }              
             },
 
             getTotal(){
@@ -529,7 +463,7 @@
                 .catch();
             },
 
-            setProduct(product, index){      
+            setProduct(product, index){
                 if((product.number <= 0) || (product.number == null)){
                     Swal.fire(
                         'Failed!',
@@ -541,6 +475,11 @@
                     this.setItemModel(index, product);
                     this.getTotal();
                 }
+            },
+
+            setService(food, index){
+                this.setServiceModel(index, food);
+                this.getTotal();
             },
 
             setItemModel(model, newModel){
@@ -558,8 +497,11 @@
 
             setServiceModel(model, newModel){
                 model.id = newModel !== undefined ? newModel.id: 0;
-                model.price = newModel !== undefined ? newModel.price: 0;
-                model.title = newModel !== undefined ? newModel.title: '';
+                model.amount = newModel !== undefined ? newModel.amount: 0;
+                model.food = newModel !== undefined ? newModel.food: '';
+                model.food_id = newModel !== undefined ? newModel.food_id: '';
+                model.kitchen = newModel !== undefined ? newModel.kitchen: '';
+                model.qty = model.qty !== undefined ? model.qty : 1;
                 return model;
             },
 

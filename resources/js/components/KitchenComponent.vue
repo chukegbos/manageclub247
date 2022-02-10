@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==9 || admin.role==11">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==11 || admin.role==13">
                         Add Kitchen
                     </b-button>
 
@@ -28,7 +28,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==9 || admin.role==11">
+                                <th v-if="admin.role==1 || admin.role==11 || admin.role==13">
                                     <input type="checkbox" v-model="selectAll">
                                 </th>
                                 
@@ -39,18 +39,20 @@
                         </thead>
                         <tbody>
                             <tr v-for="kitchen in kitchens.data" :key="kitchen.id">
-                                <td v-if="admin.role==1 || admin.role==9 || admin.role==11"> 
+                                <td v-if="admin.role==1 || admin.role==11 || admin.role==13"> 
                                     <input type="checkbox" v-model="action.selected" :value="kitchen.id" number>
                                 </td>
                                 <td>{{ kitchen.name }}</td>
                                 <td>{{ kitchen.code }}</td>
                                 <td>
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
-                                        <b-dropdown-item href="javascript:void(0)" @click="view(kitchen)">View</b-dropdown-item>
+                                        <b-dropdown-item href="javascript:void(0)" @click="view(kitchen)">Food/Dishes</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(kitchen)" v-if="admin.role==1 || admin.role==6 || admin.role==7">Edit</b-dropdown-item>
+                                        <b-dropdown-item href="javascript:void(0)" @click="viewstock(kitchen)">Items Stocks</b-dropdown-item>
 
-                                        <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(kitchen.id)" v-if="admin.role==1 || admin.role==6 || admin.role==7">Delete</b-dropdown-item>
+                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(kitchen)" v-if="admin.role==1 || admin.role==11 || admin.role==13">Edit</b-dropdown-item>
+
+                                        <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(kitchen.id)" v-if="admin.role==1 || admin.role==11 || admin.role==13">Delete</b-dropdown-item>
                                     </b-dropdown>
                                 </td>
                             </tr>
@@ -351,6 +353,10 @@
 
             view(kitchen) {
                 this.$router.push({ path: "/kitchen/" + kitchen.code });
+            },
+
+            viewstock(kitchen) {
+                this.$router.push({ path: "/kitchen/stock/" + kitchen.code });
             },
 
             onDeleteAll(id) {

@@ -5,16 +5,12 @@ namespace App;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\FoodKitchen;
 
 class Production extends Model
 {
     use SoftDeletes;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'production_id', 'production_date', 'product', 'quantity'
     ];
@@ -24,4 +20,19 @@ class Production extends Model
     ];
 
     protected $dates = ['production_date'];
+
+    public function getProductAttribute()
+    {
+        $product_id = $this->attributes['product'];
+
+        $food = FoodKitchen::find($product_id);
+      
+        if ($food) { 
+            return $food->status;     
+        }
+
+        else{
+            return '---';
+        }
+    }
 }

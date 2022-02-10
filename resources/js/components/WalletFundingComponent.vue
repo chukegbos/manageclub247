@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <router-link to="/admin/customers/fund" class="pull-right m-2 btn btn-primary btn-sm" v-if="admin.role==1 || admin.role==3 ||admin.role==4 || admin.role==1 || admin.role==4 || admin.role==5 || admin.role==11">
+                    <router-link to="/admin/customers/fund" class="pull-right m-2 btn btn-primary btn-sm" v-if="admin.role==1 || admin.role==3 || admin.role==4 || admin.role==1 || admin.role==4 || admin.role==5 || admin.role==11">
                         Fund Member
                     </router-link>
 
@@ -84,7 +84,7 @@
                             <td>
                                 {{ fund.status }} <a href="javascript:void(0)" @click="viewReceipt(fund)">Receipt</a>
                                 
-                                <span v-if="(admin.role==1 || admin.role==10 || admin.role==11) && fund.status=='Pending'"> <br>
+                                <span v-if="(admin.role==1 || admin.role==4 || admin.role==11) && fund.status=='Pending'"> <br>
                                     <a href="javascript:void(0)" @click="approve(fund)" class="text-green">Approve</a> | 
                                     <a href="javascript:void(0)" @click="reject(fund)" class="text-red">Reject</a>
                                 </span>

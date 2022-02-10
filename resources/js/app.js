@@ -484,15 +484,25 @@ let routes = [
     { path: '/members/types', component: require('./components/MemberTypeComponent.vue').default },
     { path: '/members/sections', component: require('./components/MemberSectionComponent.vue').default },
     { path: '/admin/logins', component: require('./components/LoginComponent.vue').default },
-
     { path: '/messages', component: require('./components/MessageComponent.vue').default },
     { path: '/messages/compose', component: require('./components/MessageComposeComponent.vue').default },
     { path: '/member/demand-notice/:unique_id', component: require('./components/CustomerDemandComponent.vue').default },
 
     { path: '/kitchen', component: require('./components/KitchenComponent.vue').default },
+    { path: '/kitchen/market', component: require('./components/KitchenMarketComponent.vue').default },
+    { path: '/kitchen/store', component: require('./components/KitchenStoreComponent.vue').default },
+    { path: '/kitchen/transactions', component: require('./components/KitchenTransactionComponent.vue').default },
+    { path: '/kitchen/market/create', component: require('./components/KitchenMarketCreateComponent.vue').default },
+    { path: '/kitchen/markets/:market_id', component: require('./components/KitchenMarketViewComponent.vue').default },
     { path: '/kitchen/food', component: require('./components/KitchenFoodComponent.vue').default },
     { path: '/kitchen/transactions', component: require('./components/KitchenTransactionComponent.vue').default },
-    { path: '/kitchen/:id', component: require('./components/KitchenViewComponent.vue').default },
+    { path: '/kitchen/transactions/pending', component: require('./components/KitchenTransactionPendingComponent.vue').default },
+    { path: '/kitchen/request', component: require('./components/KitchenRequestComponent.vue').default },
+    { path: '/kitchen/storerequest/:ref_id', component: require('./components/StockCompleteRequestComponent.vue').default },
+    { path: '/kitchen/stock/:code', component: require('./components/KitchenStockComponent.vue').default },
+    { path: '/kitchen/movements/myrequest', name: 'myrequest', component: require('./components/MyKitchenRequestMovementComponent.vue').default },
+    { path: '/kitchen/:code', component: require('./components/KitchenViewComponent.vue').default },
+    { path: '/food/production', component: require('./components/ViewProductionComponent.vue').default },
 ];
 
 const router = new VueRouter({

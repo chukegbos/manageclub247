@@ -75,6 +75,16 @@ Route::group(['prefix' => 'purchases'], function(){
 	Route::delete('{id}', 'API\PurchaseController@destroy');
 });
 
+
+Route::group(['prefix' => 'markets'], function(){
+	Route::get('/', 'API\MarketController@index');
+	Route::post('/', 'API\MarketController@store');
+	Route::put('{id}', 'API\MarketController@update');
+	Route::get('{id}', 'API\MarketController@show');
+	Route::delete('{id}', 'API\MarketController@destroy');
+});
+
+
 Route::group(['prefix' => 'messages'], function(){
 	Route::get('/', 'API\MessageController@index');
 	Route::post('/', 'API\MessageController@store');
@@ -333,8 +343,24 @@ Route::group(['prefix' => 'kitchen'], function(){
 	Route::get('', 'API\KitchenController@index');
 	Route::post('', 'API\KitchenController@store');
 	Route::put('{id}', 'API\KitchenController@update');
+	Route::get('service', 'API\KitchenController@service');
+	Route::get('service/pending', 'API\KitchenController@pendingservice');
+	Route::put('dish/{id}', 'API\KitchenController@updatedish');
+	Route::get('service/{id}', 'API\KitchenController@markservice');
 	Route::get('delete', 'API\KitchenController@destroy');
-	Route::get('{id}', 'API\KitchenController@view');
+	Route::get('reject', 'API\FoodInventoryController@srejectall');
+	Route::get('accept', 'API\FoodInventoryController@sacceptall');
+	Route::get('store/delete', 'API\MarketController@destroyitem');
+	Route::get('/outlet/reject', 'API\FoodInventoryController@outletrejectall');
+	Route::get('/outlet/accept', 'API\FoodInventoryController@outletacceptall');
+
+	Route::get('/movement/request', 'API\FoodInventoryController@myrequest');
+	Route::get('movement', 'API\FoodInventoryController@movements');
+	Route::get('movement/{ref_id}', 'API\FoodInventoryController@getmovements');
+	Route::post('movement/req', 'API\FoodInventoryController@updatereq');
+	Route::get('store', 'API\MarketController@viewstore');
+	Route::get('{code}', 'API\KitchenController@viewkitchen');
+	Route::get('{code}/{id}', 'API\KitchenController@show');
 });
 
 Route::group(['prefix' => 'food'], function(){
@@ -342,4 +368,16 @@ Route::group(['prefix' => 'food'], function(){
 	Route::post('', 'API\FoodController@store');
 	Route::put('{id}', 'API\FoodController@update');
 	Route::get('delete', 'API\FoodController@destroy');
+	Route::get('production', 'API\FoodController@production');
+	Route::get('transaction', 'API\FoodController@orders');
+
+	Route::group(['prefix' => 'inventory'], function(){
+	    Route::get('', 'API\FoodInventoryController@index');
+	    Route::get('delete', 'API\FoodInventoryController@destroy');
+	    Route::get('requestinitiate/{id}', 'API\FoodInventoryController@requestinitiate');
+	    Route::get('{code}/{id}', 'API\FoodInventoryController@show');
+	    Route::post('', 'API\FoodInventoryController@store');
+	    Route::put('{id}', 'API\FoodInventoryController@update');
+	    Route::delete('{id}', 'API\FoodInventoryController@destroy');
+	});
 });

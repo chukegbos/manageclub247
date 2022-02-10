@@ -222,17 +222,7 @@ class PurchaseController extends Controller
         $get_featured_price = array();
         $setting = Setting::find(1);
 
-        if ($request->mop == 1) {
-            $account = Account::find($setting->purchase_cash_account);
-        }
-        else{
-            $account = Account::find($setting->purchase_credit_account);
-        }
-
-        if (!$account->balancing_account) {
-            return ['error' => "Please go to chart of account and set the corresponding accounts"];
-        }
-        
+    
         foreach ($request->productItems as $item) {
             $it = new ItemPurchase ();
             $it->purchase_id = $purchaseId;
@@ -240,16 +230,17 @@ class PurchaseController extends Controller
 
             $it->qty = $item['quantity'] * $item['number_per_crate'];
 
-            $it->total = $item['amount'];
-            $it->cost = $item['amount']/($item['quantity'] * $item['number_per_crate']);
+            $it->total = $item['unit_amount'] * $item['quantity'];
+            $it->cost = $item['unit_amount']/$item['number_per_crate'];
             $it->save();
             
-            array_push($get_price, $item['amount']);
+            array_push($get_price, ($item['unit_amount'] * $item['quantity']));
 
             $inventory = Inventory::where('deleted_at', NULL)->find($item['id']);
 
             if ($inventory) {
                 $inventory->price = $item['price'];
+                $inventory->cost_price = $item['unit_amount']/$item['number_per_crate'];
                 $inventory->update();
             }
 
@@ -276,39 +267,6 @@ class PurchaseController extends Controller
         $purchases->status = 1;    
         $purchases->total_price = $totalPrice;
         $purchases->save();  
-
-        if ($purchases->mop==0) {
-            $set_debt = new Debtor();
-            $set_debt->trans_id = $purchaseId;
-            $set_debt->amount = $totalPrice;
-            $set_debt->supplier_id = $purchases->supplier;
-            $set_debt->processed_by = auth('api')->user()->id;
-            $set_debt->store_id = auth('api')->user()->store;
-            $set_debt->status = 0;
-            $set_debt->type = 0;
-            $set_debt->save();
-            
-            Ledger::create([
-                'ledger_id' => $ledger_id,
-                'ledger_date' => Carbon::today(),
-                'amount' => $totalPrice,
-                'debit' => $account->id,
-                'credit' => $account->balancing_account->id,
-                'trans_id' => $purchaseId,
-                'description' => 'Credit purchase of Items with ID '. $purchaseId,
-            ]);       
-        }
-        else{
-            Ledger::create([
-                'ledger_id' => $ledger_id,
-                'ledger_date' => Carbon::today(),
-                'amount' => $totalPrice,
-                'debit' => $account->id,
-                'credit' => $account->balancing_account->id,
-                'trans_id' => $purchaseId,
-                'description' => 'Cash purhcase of Items with ID '. $purchaseId,
-            ]);
-        }
         return $purchaseId;
     }
 

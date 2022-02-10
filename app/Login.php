@@ -15,7 +15,7 @@ class Login extends Model
      * @var array
      */
     protected $fillable = [
-        'store_id', 'logout', 'user_id', 'status', 'verified_by'
+        'store_id', 'logout', 'user_id', 'status', 'verified_by', 'kitchen_id'
     ];
 
     /**

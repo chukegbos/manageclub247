@@ -58,21 +58,21 @@
 
                             <div class="form-group col-md-4">
                                 <label>Number Per Pack</label>
-                                <input v-model="form.number_per_crate" type="number" name="number_per_crate" class="form-control":class="{'is-invalid': form.errors.has('number_per_crate')}" required/>
+                                <input v-model="form.number_per_crate" type="number" name="number_per_crate" class="form-control" :class="{'is-invalid': form.errors.has('number_per_crate')}" required/>
 
                                 <has-error :form="form" field="number_per_crate"></has-error>
                             </div>
 
                             <div class="form-group col-md-4">
                                 <label>Cost Price</label>
-                                <input v-model="form.cost_price" type="number" name="cost_price" class="form-control":class="{'is-invalid': form.errors.has('cost_price')}" required/>
+                                <input v-model="form.cost_price" type="number" name="cost_price" class="form-control" :class="{'is-invalid': form.errors.has('cost_price')}" required/>
 
                                 <has-error :form="form" field="cost_price"></has-error>
                             </div>
 
                             <div class="form-group col-md-4">
                                 <label>Selling Price</label>
-                                <input v-model="form.price" type="number" name="price" class="form-control":class="{'is-invalid': form.errors.has('price')}"/>
+                                <input v-model="form.price" type="number" name="price" class="form-control" :class="{'is-invalid': form.errors.has('price')}"/>
                                 <has-error :form="form" field="price"></has-error>
                             </div>
 
@@ -106,7 +106,7 @@
                             Add An Item
                         </b-button>
 
-                        <b-button size="sm" variant="outline-info"class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
+                        <b-button size="sm" variant="outline-info" class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
 
                         <!--<b-button size="sm" variant="outline-danger"class="pull-right m-2" @click="onReset"> <i class="fa fa-refresh"></i> Reset All Store</b-button>-->
 

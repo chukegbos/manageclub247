@@ -40,6 +40,14 @@
                                 <input v-model="form.amount" type="number" name="amount" class="form-control":class="{'is-invalid': form.errors.has('amount')}"/>
                                 <has-error :form="form" field="amount"></has-error>
                             </div>
+
+                            <!--<div class="form-group">
+                                <label>Duration of Wait(Min)</label>
+                                <input v-model="form.period" type="number" name="period" class="form-control":class="{'is-invalid': form.errors.has('period')}"/>
+                                <has-error :form="form" field="period"></has-error>
+                            </div>-->
+
+
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-danger" data-dismiss="modal">
@@ -64,7 +72,7 @@
                 </div>
 
                 <div class="col-md-9">
-                    <span v-if="admin.role==1 || admin.role==9 || admin.role==11">
+                    <span v-if="admin.role==1 || admin.role==11 || admin.role==14">
                         <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2">
                             Add Food
                         </b-button>
@@ -91,27 +99,30 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==9 || admin.role==11">
+                                <th v-if="admin.role==1 || admin.role==11 || admin.role==13">
                                     <span  v-if="unprintable==false">
                                         <input type="checkbox" v-model="selectAll">
                                     </span>
                                 </th>
                                 <th>Name</th>
                                 <th>Amount</th>
-                                <th v-if="admin.role==1 || admin.role==9 || admin.role==11"><span v-if="unprintable==false">Action</span></th>
+                                <!--<th>Waiting Period</th>-->
+                                <th v-if="admin.role==1 || admin.role==11 || admin.role==13"><span v-if="unprintable==false">Action</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr  v-for="(food, index) in foods.data">
-                                <td v-if="admin.role==1 || admin.role==9 || admin.role==11">
+                                <td v-if="admin.role==1 || admin.role==11 || admin.role==13">
                                     <span  v-if="unprintable==false">
                                         <input type="checkbox" v-model="action.selected" :value="food.id" number>
                                     </span>
                                 </td>
                                
                                 <td>{{ food.name }}</td>
+
                                 <td><span v-html="nairaSign"></span>{{ formatPrice(food.amount) }}</td>
-                                <td v-if="admin.role==1 || admin.role==9 || admin.role==11">
+                                <!--<td>{{ food.period }} Mins</td>-->
+                                <td v-if="admin.role==1 || admin.role==11 || admin.role==13">
                                     <span v-if="unprintable==false">
                                         <b-dropdown id="dropdown-right" text="Action" variant="info">
                                             <b-dropdown-item href="javascript:void(0)" @click="editModal(food)">Edit</b-dropdown-item>
@@ -171,6 +182,7 @@
                     id: "",
                     name: "",
                     amount: "0",
+                    period: 20,
                 }),
 
                 site: '', 

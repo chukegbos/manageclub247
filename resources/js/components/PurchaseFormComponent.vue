@@ -42,12 +42,13 @@
                         <table class="table table-responsive-md ">
                             <thead>
                                 <tr>
-                                    <th width="300px">Product</th>
-                                    <th width="100px">Pack</th>
+                                    <th width="150px">Product</th>
+                                    <th>Pack</th>
                                     <th>Quantity</th>
-                                    <th>Total Cost Price (<span v-html="nairaSign"></span>)</th>
-                                    <th width="150px">Unit Cost Price (<span v-html="nairaSign"></span>)</th>
-                                    <th>Unit Selling Price (<span v-html="nairaSign"></span>)</th>
+                                    <th>Unit Cost Price (<span v-html="nairaSign"></span>/Crate)</th>
+                                    <th>Total Cost Price (<span v-html="nairaSign"></span>/Crate)</th>
+                                    <th width="150px">Unit Cost Price (<span v-html="nairaSign"></span>/Bottle)</th>
+                                    <th>Unit Selling Price (<span v-html="nairaSign"></span>/Bottle)</th>
                                     <th width="20px"></th>
                                 </tr>
                             </thead>
@@ -61,18 +62,24 @@
                                     </td>
 
                                     <td>
-                                        <b-form-input v-model="item.quantity" type="number" class="form-control" step=".01" @change="onPut(item)"></b-form-input></td>
+                                        <b-form-input v-model="item.quantity" type="number" class="form-control" step=".01"></b-form-input></td>
 
                                     <td>
                                         <span class="btn btn-secondary">{{ item.quantity * item.number_per_crate }}</span>
                                     </td>
 
+
                                     <td>
-                                        <b-form-input v-model="item.amount" type="number" class="form-control" step=".01"></b-form-input>
+                                        <b-form-input v-model="item.unit_amount" type="number" class="form-control" step=".01"></b-form-input>
                                     </td>
 
                                     <td>
-                                        <span class="btn btn-secondary">{{ formatPrice(item.amount/(item.quantity * item.number_per_crate)) }}</span>
+                                        <span class="btn btn-secondary">{{ item.unit_amount * item.quantity }}</span>
+                                    </td>
+
+
+                                    <td>
+                                        <span class="btn btn-secondary">{{ formatPrice(item.unit_amount/item.number_per_crate) }}</span>
                                     </td>
 
                                     
@@ -812,7 +819,10 @@
                 model.product_name = newModel !== undefined ? newModel.product_name: '';
                 model.quantity = model.quantity !== undefined ? model.quantity : 1;
                 model.number_per_crate = model.number_per_crate !== undefined ? newModel.number_per_crate : 12;
-                model.amount = model.amount !== undefined ? (model.number_per_crate * model.quantity * newModel.cost_price) : 1;
+                model.amount = model.amount !== undefined ? (model.unit_amount * model.quantity) : 1;
+
+                model.unit_amount = model.unit_amount !== undefined ? (model.number_per_crate * model.quantity * newModel.cost_price) : 1;
+
                 model.price = newModel !== undefined ? newModel.price: 0;
                 return model;
             },
