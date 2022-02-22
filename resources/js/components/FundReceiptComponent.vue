@@ -46,7 +46,7 @@
                                         <div class="table-responsive advance-table">
                                             <table class="table table-bordered">
                                                 <tr>
-                                                    <th><h4>Outlet</h4></th>
+                                                    <th><h4>Club</h4></th>
                                                     <td><h4>{{ site.sitename }}</h4></td>
                                                 </tr>
 
@@ -93,83 +93,42 @@
 
             <div class="card">
                 <div class="card-body" id="printMe">
-                    <div class="border p-2">
-                        <div class="row">
-                            <div class="col-12 col-md-12 text-center">
-                                <h1><strong>PAYMENT RECEIPT</strong></h1>
-                                <h2><strong>{{ site.sitename }}</strong></h2>
-                            </div>
-                          
+                    <h1><strong>PAYMENT RECEIPT</strong></h1>
+                    <h2><strong>{{ site.sitename }}</strong></h2>
+                   
+                    
 
-                            <div class="col-6 col-md-6">
-                                <p><strong>Paid by</strong></p>
-                                <div class="table-responsive advance-table">
-                                    <table class="table table-bordered">
-                                       <tr>
-                                            <th><h4>Name</h4></th>
-                                            <td><h4>{{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }} {{ fund.customer_id.middle_name }} ({{ fund.customer_id.membership_id }})</h4></td>
-                                        </tr>
+                    <br><br>
+                    <h3><strong>Paid by</strong></h3>
+                    <h4>
+                        <b>Name:</b> {{ fund.customer_id.last_name }} {{ fund.customer_id.first_name }} {{ fund.customer_id.middle_name }} ({{ fund.customer_id.membership_id }})
+                    </h4>
 
-                                        <tr>
-                                            <th><h4>Phone Number</h4></th>
-                                            <td><h4>{{ fund.customer_id.phone_1 }}</h4></td>
-                                        </tr> 
+                    <h4><b>Phone Number: </b>{{ fund.customer_id.phone_1 }}</h4>
+                    <h4><b>Email: </b>{{ fund.customer_id.email }}</h4>
+                    <h4><b>Address: </b>{{ fund.customer_id.address }}</h4>
+                            
 
-                                        <tr>
-                                            <th><h4>Email</h4></th>
-                                            <td><h4>{{ fund.customer_id.email }}</h4></td>
-                                        </tr>
-                                        
-                                        <tr>
-                                            <th><h4>Address</h4></th>
-                                            <td><h4>{{ fund.customer_id.address }}</h4></td>
-                                        </tr>
-                                    </table> 
-                                </div>
-                            </div>
+                    <br><br>
+                    <h3><strong>Received by</strong></h3>
 
-                            <div class="col-6 col-md-6">
-                                <p><strong>Received by </strong></p>
-                                <div class="table-responsive advance-table">
-                                    <table class="table table-bordered">
-                                        <tr>
-                                            <th><h4>Outlet</h4></th>
-                                            <td><h4>{{ site.sitename }}</h4></td>
-                                        </tr>
-
-                                        <tr>
-                                            <th><h4>From</h4></th>
-                                            <td><h4>{{ fund.user_id }}</h4></td>
-                                        </tr>
-
-                                        <tr>
-                                            <th><h4>Phone</h4></th>
-                                            <td><h4>{{ site.phone }}</h4></td>
-                                        </tr>
-                                        
-                                        <tr>
-                                            <th><h4>Address</h4></th>
-                                            <td><h4>{{ site.address}}</h4></td>
-                                        </tr>
-                                    </table> 
-                                </div>
-                            </div>
-
-                            <div class="col-3 col-md-3"></div>
-                            <div class="col-6 col-md-6">
-                                <h4>
-                                    <b>Date Received:</b> {{ fund.created_at | myDate }}<br><br>
-                                    <b>Payment Method:</b> {{ fund.mop }} 
-                                    <span v-if="fund.tran_type">({{ fund.tran_type }})</span>
-                                    <br><br>
-                                    
-                                    <b>Amount:</b> <span v-html="nairaSign"></span>{{ formatPrice(fund.amount) }}
-                                </h4>
-                            </div>
-                        </div>
-                    </div>
+                    <h4><b>Club: </b>{{ site.sitename }}</h4>
+                    <h4><b>From: </b>{{ fund.user_id }}</h4>
+                    <h4><b>Phone: </b>{{ site.phone }}</h4>
+                    <h4><b>Address: </b>{{ site.address }}</h4> 
+                   
+               
+                    <h4>
+                        <b>Date Received:</b> {{ fund.created_at | myDate }}<br><br>
+                        <b>Payment Method:</b> {{ fund.mop }} 
+                        <span v-if="fund.tran_type">({{ fund.tran_type }})</span>
+                        <br><br>
+                        
+                        <b>Amount:</b> <span v-html="nairaSign"></span>{{ formatPrice(fund.amount) }}
+                    </h4>
                 </div>
             </div>
+            <button id="btnPrint" class="hidden-print btn btn-success p-1 m-2 text-center">Print</button>
         </div>
     </b-overlay>
 </template>
@@ -191,8 +150,8 @@
               
                 customer: '',
                 fund: '',
-                customer: {
-                    id: '',
+                fund: {
+                    customer_id: '',
                 },
                 nairaSign: "&#x20A6;",
             };

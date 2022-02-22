@@ -89,9 +89,9 @@
                                 <b-dropdown id="dropdown-right" text="Action" variant="info">
                                     <b-dropdown-item href="javascript:void(0)"  @click=viewItems(order)>View</b-dropdown-item>
 
-                                    <!--<b-dropdown-item href="javascript:void(0)" @click="viewRec(order)">Receipt</b-dropdown-item>-->
+                                    <!--<b-dropdown-item href="javascript:void(0)" @click="viewRec(order)">Receipt</b-dropdown-item>
 
-                                    <b-dropdown-item href="javascript:void(0)" @click=cancel(order) v-if="user.invoice==1 && order.status=='concluded'">Return Items</b-dropdown-item>
+                                    <b-dropdown-item href="javascript:void(0)" @click=cancel(order) v-if="user.invoice==1 && order.status=='concluded'">Return Items</b-dropdown-item>-->
                                 </b-dropdown>
                             </td>
                         </tr>
@@ -107,6 +107,7 @@
                             <b>Show <select v-model="filterForm.selected" @change="onChange($event)">
                                     <option value="5">5</option>
                                     <option value="10">10</option>
+                                     <option value="15">15</option>
                                     <option value="20">20</option>
                                     <option value="50">50</option>
                                     <option value="0">All</option>
@@ -116,7 +117,7 @@
                         </div>
 
                         <div class="col-md-10" v-if="this.filterForm.selected!=0">
-                            <pagination :data="report_items" @pagination-change-page="getResults"></pagination>
+                            <pagination :data="report_items" @pagination-change-page="getResults" :limit="-1"></pagination>
                         </div>
                     </div>
                 </div>
@@ -142,7 +143,7 @@
                     end_date: '',
                     customer: '',
                     store: '',
-                    selected: '5',
+                    selected: '15',
                 },
                 action: {
                     selected: []

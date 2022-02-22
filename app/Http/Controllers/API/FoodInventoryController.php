@@ -171,7 +171,7 @@ class FoodInventoryController extends Controller
     }
 
 
-    public function requestinitiate(Request $request, $id)
+    public function requestinitiate(Request $request, $kitchen_id)
     {
         $ref_id = rand(1, 888888);
 
@@ -181,7 +181,7 @@ class FoodInventoryController extends Controller
             if ($product) {
                 $movement = new StockMovement ();
                 $movement->ref_id = $ref_id;
-                $movement->kitchen_id = $id;
+                $movement->kitchen_id = $kitchen_id;
                 $movement->user_id = auth('api')->user()->id;
                 $movement->product_id = $kitchen->item;
                 $movement->save(); 
@@ -282,7 +282,7 @@ class FoodInventoryController extends Controller
 
         return $params;
     }
-
+    
 
     public function outletacceptall(Request $request)
     {

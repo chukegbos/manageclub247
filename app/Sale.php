@@ -29,7 +29,7 @@ class Sale extends Model
         'deleted_at', 'main_date',
     ];
 
-     public function getStoreIdAttribute()
+    public function getStoreIdAttribute()
     {
         $store_id = $this->attributes['store_id'];
         if ($store_id) {
@@ -46,11 +46,29 @@ class Sale extends Model
         }
     }
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
+    public function getBuyerAttribute()
+    {
+        $id = $this->attributes['buyer'];
+        if ($id) {
+            $user = User::where('deleted_at', NULL)->find($id);
+            if ($user) {
+                return $user->name;
+            }
+            else {
+               return '---';
+            }
+        }
+        else {
+            $guest = $this->attributes['guest'];
+            if ($guest) {
+                return $guest;
+            }
+            else {
+                return '---';
+            }
+            
+        }
+    }
     protected $hidden = [
       'remember_token', 'deleted_at'
     ];

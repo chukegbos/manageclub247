@@ -45,6 +45,19 @@
                                         </b-form-datepicker>
                                     </b-form-group>
                                 </div>
+
+
+                                <div class="col-lg-6">
+                                    <b-form-group label="Minimum Amount:" label-for="Minimum Amount">
+                                        <b-form-input id="min_amount" v-model="filterForm.min_amount" type="number"></b-form-input>
+                                    </b-form-group>
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <b-form-group label="Maximum Amount:" label-for="Maximum Amount">
+                                        <b-form-input id="max_amount" v-model="filterForm.max_amount" type="number"></b-form-input>
+                                    </b-form-group>
+                                </div>
                             </div>
 
 
@@ -155,6 +168,8 @@
                     selected: '10',
                     start_date: '',
                     end_date: moment().format("YYYY-MM-DD"),
+                    max_amount: '',
+                    min_amount: 0,
                 },
 
                 form: new Form({

@@ -383,123 +383,126 @@ class CartController extends Controller
         $items = Item::where('deleted_at', NULL)->where('code', $request->sale_id)->get();
         
         //$ledger_id = $this->ledgerID();
-        $buyer_id = $sale->buyer;
-        $member = Member::find($buyer_id);
-        $buyer = User::where('unique_id', $member->membership_id)->first();
-        $the_member = $buyer;
+        if ($sale->getOriginal('buyer')) {
+            $buyer_id = $sale->buyer;
+            $member = Member::find($buyer_id);
+            $buyer = User::where('unique_id', $member->membership_id)->first();
+            $the_member = $buyer;
 
-        if ($sale->mop == 1) {
-            if ($request->channel==7){
-                if ($buyer->bar_wallet >= $sale->totalPrice) {
-                    $buyer->bar_wallet = $buyer->bar_wallet - $sale->totalPrice;
-                    $buyer->update();
-                }
-                else
-                {
-                    $error = 'This member ('. $buyer->name.') do not have enough money in his bar wallet account.';
-                    return ['error' => $error];
-                }
-            }
-        }
-        else{
-            $msg = Message::create([
-                'user_id' => auth('api')->user()->id,
-                'sender_name' => 'ESPORTSCLUB',
-                'message' => 'Bar Payment Debit Notice',
-                'page_count' => 1,
-            ]);
-
-            $message = 'Memb ID: '. $the_member->unique_id . '; Debit for unpaid drinks; Order ID: ' . $sale->sale_id . '; Amount: N'. $sale->totalPrice . '; Amount Paid: N'. $request->part_payment. '; Amount Indebted: N' . ($sale->totalPrice-$request->part_payment);
-
-            $payment_debit = PaymentDebit::create([
-                'description' => $message,
-                'member_id' => $member->id,
-                'amount' => $sale->totalPrice-$request->part_payment,
-                'grace_period' => $request['grace_period'],
-                'debit_type' => 0,
-                'start_date' => Carbon::today(),
-                'date_entered' => Carbon::today(),
-                'created_by' => auth('api')->user()->id,
-            ]);
-            if($payment_debit){
-                if($member->phone_1 || $member->phone_2 || $the_member->phone){
-                    if ($the_member->phone) {
-                        $phone = $the_member->phone;
+            if ($sale->mop == 1) {
+                if ($request->channel==7){
+                    if ($buyer->bar_wallet >= $sale->totalPrice) {
+                        $buyer->bar_wallet = $buyer->bar_wallet - $sale->totalPrice;
+                        $buyer->update();
                     }
-                    elseif ($member->phone_1) {
-                        $phone = $member->phone_1;
+                    else
+                    {
+                        $error = 'This member ('. $buyer->name.') do not have enough money in his bar wallet account.';
+                        return ['error' => $error];
                     }
-                    else {
-                        $phone = $member->phone_2;
-                    }
-
-                    $data1 = [
-                        'from' => 'ESPORTSCLUB',
-                        'to' => $this->prep_number($phone),
-                        'text' => $message,
-                    ];
-
-                    $curl = curl_init();
-
-                    curl_setopt_array($curl, array(
-                        CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_ENCODING => "",
-                        CURLOPT_MAXREDIRS => 10,
-                        CURLOPT_TIMEOUT => 30000,
-                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                        CURLOPT_CUSTOMREQUEST => "POST",
-                        CURLOPT_POSTFIELDS => json_encode($data1),
-                        CURLOPT_HTTPHEADER => array(
-                            // Set here requred headers
-                            "accept: */*",
-                            "accept-language: en-US,en;q=0.8",
-                            "content-type: application/json",
-                            "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
-                        ),
-                    ));
-
-                    $response = curl_exec($curl);
-                    $err = curl_error($curl);
-                    curl_close($curl);
-
-                    MessageLog::create([
-                        'message_id' => $msg->id,
-                        'member_id' => $the_member->unique_id,
-                        'phone' => $phone,
-                    ]);
                 }
             }
-            /*$set_debt = new Debtor();
-            $set_debt->trans_id = $request->sale_id;
-            $set_debt->amount = $sale->totalPrice;
-            $set_debt->user_id = $buyer_id;
-            $set_debt->processed_by = auth('api')->user()->id;
-            $set_debt->store_id = auth('api')->user()->store;
-            $set_debt->repayment_date = $request->date;
-            $set_debt->status = 0;
-            $set_debt->type = 1;
-            $set_debt->save();
+            else{
+                $msg = Message::create([
+                    'user_id' => auth('api')->user()->id,
+                    'sender_name' => 'ESPORTSCLUB',
+                    'message' => 'Bar Payment Debit Notice',
+                    'page_count' => 1,
+                ]);
 
-            $account = Account::find($setting->credit_account);
-            Ledger::create([
-                'ledger_id' => $ledger_id,
-                'ledger_date' => Carbon::now(),
-                'user_id' => $user->id,
-                'outlet_id' => $sale->getOriginal('store_id'),
-                'amount' => $sale->totalPrice,
-                'debit' => $account->id,
-                'credit' => $account->balancing_account->id,
-                'trans_id' => $request->sale_id,
-                'description' => 'Sales of product with sale ID '.$request->sale_id,
-            ]);*/
+                $message = 'Memb ID: '. $the_member->unique_id . '; Debit for unpaid drinks; Order ID: ' . $sale->sale_id . '; Amount: N'. $sale->totalPrice . '; Amount Paid: N'. $request->part_payment. '; Amount Indebted: N' . ($sale->totalPrice-$request->part_payment);
+
+                $payment_debit = PaymentDebit::create([
+                    'description' => $message,
+                    'member_id' => $member->id,
+                    'amount' => $sale->totalPrice-$request->part_payment,
+                    'grace_period' => $request['grace_period'],
+                    'debit_type' => 0,
+                    'start_date' => Carbon::today(),
+                    'date_entered' => Carbon::today(),
+                    'created_by' => auth('api')->user()->id,
+                ]);
+                if($payment_debit){
+                    if($member->phone_1 || $member->phone_2 || $the_member->phone){
+                        if ($the_member->phone) {
+                            $phone = $the_member->phone;
+                        }
+                        elseif ($member->phone_1) {
+                            $phone = $member->phone_1;
+                        }
+                        else {
+                            $phone = $member->phone_2;
+                        }
+
+                        $data1 = [
+                            'from' => 'ESPORTSCLUB',
+                            'to' => $this->prep_number($phone),
+                            'text' => $message,
+                        ];
+
+                        $curl = curl_init();
+
+                        curl_setopt_array($curl, array(
+                            CURLOPT_URL => "https://api.silversands.com.ng/sms/1/text/single",
+                            CURLOPT_RETURNTRANSFER => true,
+                            CURLOPT_ENCODING => "",
+                            CURLOPT_MAXREDIRS => 10,
+                            CURLOPT_TIMEOUT => 30000,
+                            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                            CURLOPT_CUSTOMREQUEST => "POST",
+                            CURLOPT_POSTFIELDS => json_encode($data1),
+                            CURLOPT_HTTPHEADER => array(
+                                // Set here requred headers
+                                "accept: */*",
+                                "accept-language: en-US,en;q=0.8",
+                                "content-type: application/json",
+                                "Authorization: Basic ZW51Z3VzcG9ydHM6Q3VARW51MjAyMQ==",
+                            ),
+                        ));
+
+                        $response = curl_exec($curl);
+                        $err = curl_error($curl);
+                        curl_close($curl);
+
+                        MessageLog::create([
+                            'message_id' => $msg->id,
+                            'member_id' => $the_member->unique_id,
+                            'phone' => $phone,
+                        ]);
+                    }
+                }
+                /*$set_debt = new Debtor();
+                $set_debt->trans_id = $request->sale_id;
+                $set_debt->amount = $sale->totalPrice;
+                $set_debt->user_id = $buyer_id;
+                $set_debt->processed_by = auth('api')->user()->id;
+                $set_debt->store_id = auth('api')->user()->store;
+                $set_debt->repayment_date = $request->date;
+                $set_debt->status = 0;
+                $set_debt->type = 1;
+                $set_debt->save();
+
+                $account = Account::find($setting->credit_account);
+                Ledger::create([
+                    'ledger_id' => $ledger_id,
+                    'ledger_date' => Carbon::now(),
+                    'user_id' => $user->id,
+                    'outlet_id' => $sale->getOriginal('store_id'),
+                    'amount' => $sale->totalPrice,
+                    'debit' => $account->id,
+                    'credit' => $account->balancing_account->id,
+                    'trans_id' => $request->sale_id,
+                    'description' => 'Sales of product with sale ID '.$request->sale_id,
+                ]);*/
+            }
         }
-
         foreach ($items as $item) {
             $product = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->product_id)->where('store_id', $user->getOriginal('store'))->first();
             $product->number = $product->number - $item->qty;
             $product->update();
         }
+        
+
 
         $sale->market_id = $request->steward_id;
         $sale->cashier_id = $user->id;

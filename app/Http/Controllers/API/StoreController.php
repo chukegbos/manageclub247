@@ -9,6 +9,8 @@ use App\StoreRequest;
 use App\InventoryStore;
 use App\Sale;
 use App\Debtor;
+use App\PaymentDebit;
+use App\Member;
 use App\DebtorHistory;
 use Carbon\Carbon;
 use App\User;
@@ -1101,12 +1103,11 @@ class StoreController extends Controller
             $query->where('users.name', 'like', '%' . $request->customer . '%');
         }
 
-        $query->where('sales.status', '=', 'pending')->where('sales.approved', '=', 0)->orderBy('sales.main_date', 'Desc')
-            ->join('users', 'sales.buyer', '=', 'users.id')
+        $query->where('sales.status', '=', 'pending')->orderBy('sales.main_date', 'Desc')
             ->select(
                 'sales.id as id',
                 'sales.sale_id as sale_id',
-                'users.name as user_name',
+                
                 'sales.initialPrice as initialPrice',
                 'sales.totalPrice as totalPrice',
                 'sales.discount as discount',
@@ -1122,34 +1123,7 @@ class StoreController extends Controller
                 $params['report_data']  =  $query->paginate($request->selected);
             }
          
-        $query1 = Sale::where('sales.deleted_at', NULL);
-
-        //Optional where
-        if ($request->start_date) {
-            $query1->where('sales.main_date', '>=', $request->start_date);
-        }
-        if ($request->end_date) {
-            $query1->where('sales.main_date', '<=', $request->end_date . ' 23:59');
-        }
-
-        if ($request->staff) {
-            $query1->where('sales.user_id', $request->staff);
-        }
-
-        if ($request->buyer) {
-            $query1->where('sales.buyer', $request->buyer);
-        }
-
-        if ($request->customer) {
-            $query1->where('users.name', 'like', '%' . $request->customer . '%');
-        }
-
-        $params['all'] = $query1->where('sales.status', '=', 'pending')
-            ->where('sales.approved', '=', 0)
-            ->orderBy('sales.main_date', 'Desc')
-            ->join('users', 'sales.buyer', '=', 'users.id')
-            ->count();
-
+        $params['all'] = $query->count();
         $params['users'] = User::where('deleted_at', NULL)->where('role', '!=', 0)->get();
 
         return $params;
@@ -1239,7 +1213,21 @@ class StoreController extends Controller
     {
         $params = [];
         set_time_limit(0);
- 
+        $get_people = User::where('deleted_at', NULL)->where('role', 0)->get();
+        foreach ($get_people as $people) {
+            $person = User::find($people->id);
+            $unique_id = $person->unique_id;
+            if ($unique_id) {
+                $member = Member::where('membership_id', $unique_id)->first();
+                if ($member) {
+                    $debt = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('status', 0)->sum('amount');
+                    $person->debt = $debt;
+                    $person->update();
+                }
+
+            }
+        }
+
         $query = User::where('users.deleted_at', NULL)
             ->where('default_esc_members.deleted_at', NULL)
             ->where('users.role', 0)
@@ -1252,6 +1240,15 @@ class StoreController extends Controller
         if ($request->end_date) {
             $query->where('default_esc_payment_debits.date_entered', '<=', $request->end_date);
         }
+
+        if ($request->min_amount) {
+            $query->where('users.debt', '>=', $request->min_amount);
+        }
+
+        if ($request->max_amount) {
+            $query->where('users.debt', '<=', $request->max_amount);
+        }
+        //$query->whereBetween('users.debt', [$request->min_amount, $request->max_amount]);
 
         $query->select(
             'users.id as id',

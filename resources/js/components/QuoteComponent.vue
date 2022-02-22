@@ -80,7 +80,7 @@
                         <tr v-for="order in report_items.data" :key="order.id">
                             <td>{{ order.created_at | myDate }}</td>
                             <td>{{ order.sale_id }}</td>
-                            <td>{{ order.user_name }}</td>
+                            <td>{{ order.buyer }}</td>
                             <!--<td>{{ formatPrice(order.initialPrice)  }}</td>
                             <td>{{ formatPrice(order.discount)  }}</td>
                             <td>By {{ order.mop }}</td>
@@ -116,7 +116,7 @@
                         </div>
 
                         <div class="col-md-10" v-if="this.filterForm.selected!=0">
-                            <pagination :data="report_items" @pagination-change-page="getResults"></pagination>
+                            <pagination :data="report_items" @pagination-change-page="getResults" :limit="-1"></pagination>
                         </div>
                     </div>
                 </div>
@@ -141,7 +141,7 @@
                     start_date: '',
                     end_date: '',
                     customer: '',
-                    selected: '5',
+                    selected: '15',
                 },
                 action: {
                     selected: []

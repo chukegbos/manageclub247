@@ -118,7 +118,7 @@
                                     <!--<option value="0">All</option>-->
                                 </select>
                             Entries</b>
-                           
+                            <br> Total: <b>{{ count_all }} Purchases</b>
                         </div>
 
                         <div class="col-md-8" v-if="this.filterForm.selected!=0">
@@ -187,7 +187,7 @@
 
             onChange(event) {
                 this.filterForm.selected = event.target.value;
-                this.loadUsers();
+                this.loadPurchase();
                 this.getUser();
             },
 

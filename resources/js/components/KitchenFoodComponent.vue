@@ -99,7 +99,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==11 || admin.role==13">
+                                <th v-if="admin.role==1 || admin.role==11 || admin.role==14">
                                     <span  v-if="unprintable==false">
                                         <input type="checkbox" v-model="selectAll">
                                     </span>
@@ -107,12 +107,12 @@
                                 <th>Name</th>
                                 <th>Amount</th>
                                 <!--<th>Waiting Period</th>-->
-                                <th v-if="admin.role==1 || admin.role==11 || admin.role==13"><span v-if="unprintable==false">Action</span></th>
+                                <th v-if="admin.role==1 || admin.role==11 || admin.role==14"><span v-if="unprintable==false">Action</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr  v-for="(food, index) in foods.data">
-                                <td v-if="admin.role==1 || admin.role==11 || admin.role==13">
+                                <td v-if="admin.role==1 || admin.role==11 || admin.role==14">
                                     <span  v-if="unprintable==false">
                                         <input type="checkbox" v-model="action.selected" :value="food.id" number>
                                     </span>
@@ -122,7 +122,7 @@
 
                                 <td><span v-html="nairaSign"></span>{{ formatPrice(food.amount) }}</td>
                                 <!--<td>{{ food.period }} Mins</td>-->
-                                <td v-if="admin.role==1 || admin.role==11 || admin.role==13">
+                                <td v-if="admin.role==1 || admin.role==11 || admin.role==14">
                                     <span v-if="unprintable==false">
                                         <b-dropdown id="dropdown-right" text="Action" variant="info">
                                             <b-dropdown-item href="javascript:void(0)" @click="editModal(food)">Edit</b-dropdown-item>

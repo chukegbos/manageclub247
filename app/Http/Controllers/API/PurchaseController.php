@@ -248,7 +248,7 @@ class PurchaseController extends Controller
             $InventoryStore = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item['id'])->where('store_id', 1)->first();
 
             if ($InventoryStore) {
-                $InventoryStore->number = $inventory->number + ($item['quantity'] * $item['number_per_crate']);
+                $InventoryStore->number = $InventoryStore->number + ($item['quantity'] * $item['number_per_crate']);
                 $InventoryStore->update();
             }
         }

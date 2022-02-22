@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <span v-if="user.invoice==1">
+                    <span v-if="admin.role==1 || admin.role==6 || admin.role==11">
                         <b-button variant="outline-danger" size="sm" v-if="action.selected.length" class="pull-right m-2" @click="reject"><i class="fa fa-trash"></i> Reject</b-button> 
 
                         <b-button disabled size="sm" variant="outline-danger" v-else class="pull-right m-2"> <i class="fa fa-trash"></i> Reject</b-button>
@@ -137,7 +137,7 @@
                 },
                 unprintable: false,
                 count_all: '',
-                user: '',
+                admin: '',
             };
         },
 
@@ -155,7 +155,7 @@
                 axios.get("/api/user")
                 .then(({ data }) => {
                     this.stores = data.stores;
-                    this.user = data.user;
+                    this.admin = data.user;
                 });
             },
 
@@ -195,7 +195,7 @@
 
             accept() {
                 Swal.fire({
-                    title: "Are you sure you want to accept?",
+                    title: "Are you sure you want to approve?",
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,

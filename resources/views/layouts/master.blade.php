@@ -43,11 +43,13 @@
           </li>
         </ul>
 
+        @if(Auth::user()->role==1)
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
               <a class="btn btn-info btn-sm text-white" href="{{ url('/sync') }}">Sync App</a>
             </li>
         </ul>
+        @endif
       </nav>
       <!-- /.navbar -->
 
@@ -474,6 +476,12 @@
                     <li class="nav-item">
                       <router-link to="/admin/customers/fund-history" class="nav-link ml-3">
                         Funding History
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/debtors" class="nav-link ml-3">
+                        Customer Balance Details
                       </router-link>
                     </li>
                   </ul>
@@ -1586,6 +1594,288 @@
                     <p>Food Production</p>
                   </router-link>
                 </li>
+              @elseif(Auth::user()->role==11)
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-user"></i>
+                    <p>
+                      Members
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/admin/customers" class="nav-link ml-3">
+                        List of Members
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/members/types" class="nav-link ml-3">
+                        Member Type
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/members/sections" class="nav-link ml-3">
+                        Member Sections
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment" class="nav-link ml-3">
+                        Payment History
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment/products" class="nav-link ml-3">
+                        Payment Products
+                      </router-link>
+                    </li>
+                    
+                    <li class="nav-item">
+                      <router-link to="/payment/debits" class="nav-link ml-3">
+                        Payment Debits
+                      </router-link>
+                    </li>
+                    
+                    <li class="nav-item">
+                      <router-link to="/payment/channels" class="nav-link ml-3">
+                        Payment Channels
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment/banks" class="nav-link ml-3">
+                        Payment Banks
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/payment/pos" class="nav-link ml-3">
+                        Payment POS
+                      </router-link>
+                    </li>
+                    <li class="nav-item">
+                      <router-link to="/admin/customers/fund-history" class="nav-link ml-3">
+                        Funding History
+                      </router-link>
+                    </li>
+                    <li class="nav-item">
+                      <router-link to="/admin/customers/fund" class="nav-link ml-3">
+                        Fund Member's Account
+                      </router-link>
+                    </li>
+                  </ul>
+                </li>
+
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-users"></i>
+                    <p>
+                      Users
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/admin/staff" class="nav-link ml-3">
+                        List of User
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/admin/logins" class="nav-link ml-3">
+                        Login Histories
+                      </router-link>
+                    </li>
+                  </ul>
+                </li>
+                
+                <li class="nav-item">
+                  <router-link to="/outlets" class="nav-link">
+                    <i class="nav-icon fa fa-home"></i>
+                    <p>Bars</p>
+                  </router-link>
+                </li>
+
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-product-hunt"></i>
+                    <p>
+                      Bar Store House
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/admin/inventory/category" class="nav-link ml-3">
+                        Item Category
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/admin/inventory" class="nav-link ml-3">
+                        Inventory List
+                      </router-link>
+                    </li>
+                    
+                    <li class="nav-item">
+                      <router-link to="/admin/purchase/create" class="nav-link ml-3">
+                      Create Purchase Order
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/suppliers" class="nav-link ml-3">
+                        Supplier
+                      </router-link>
+                    </li>
+
+                      <li class="nav-item">
+                        <router-link to="/admin/purchases" class="nav-link ml-3">
+                          Purchases Orders
+                        </router-link>
+                      </li>
+
+                      <li class="nav-item">
+                          <router-link to="/movements/myoutlet" class="nav-link ml-3">
+                           My Item Movements
+                          </router-link>
+                      </li> 
+                  </ul>
+                </li> 
+                
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-shopping-cart"></i>
+                    <p>
+                      Transactions
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/sale/shopping-cart" class="nav-link ml-3">
+                        Generate Invoice
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/sale/quote" class="nav-link ml-3">
+                        All Invoices
+                      </router-link>
+                    </li>
+
+                    <!--<li class="nav-item">
+                      <router-link to="/sale/invoice" class="nav-link ml-3">
+                        All Invoices
+                      </router-link>
+                    </li>-->
+
+                    <li class="nav-item">
+                      <router-link to="/sale/orders" class="nav-link ml-3">
+                        All Sales
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/debtors" class="nav-link ml-3">
+                        Customer Balance Details
+                      </router-link>
+                    </li>
+                  </ul>
+                </li>
+
+                <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link">
+                    <i class="nav-icon fa fa-shopping-cart"></i>
+                    <p>
+                      Kitchen and Grill
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/kitchen/store" class="nav-link">
+                        <i class="nav-icon fa fa-circle"></i>
+                        <p>Foods Store</p>
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/kitchen" class="nav-link">
+                        <i class="nav-icon fa fa-circle"></i>
+                        <p>List of Kitchen</p>
+                      </router-link>
+                    </li>
+                  
+                    <li class="nav-item">
+                      <router-link to="/kitchen/market" class="nav-link">
+                        <i class="nav-icon fa fa-circle"></i>
+                        <p>Market Purchase</p>
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/kitchen/request" class="nav-link">
+                        <i class="nav-icon fa fa-circle"></i>
+                        <p>Kitchen Request</p>
+                      </router-link>
+                    </li>
+                    <li class="nav-item">
+                      <router-link to="/kitchen/transactions" class="nav-link">
+                        <i class="nav-icon fa fa-circle"></i>
+                        <p>Menu Request</p>
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/kitchen/transactions/pending" class="nav-link">
+                        <i class="nav-icon fa fa-circle"></i>
+                        <p>Pending Menu Request</p>
+                      </router-link>
+                    </li>
+                    <li class="nav-item">
+                      <router-link to="/food/production" class="nav-link">
+                        <i class="nav-icon fa fa-circle"></i>
+                        <p>Food Production</p>
+                      </router-link>
+                    </li>
+
+                    
+                  </ul>
+                </li>
+                <li class="nav-item has-treeview">
+                    <a href="#" class="nav-link">
+                      <i class="nav-icon fa fa-cogs"></i>
+                      <p>
+                        Administration
+                        <i class="right fa fa-angle-left"></i>
+                      </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                      @if(Auth::user()->role=='Admin')
+                      <li class="nav-item">
+                        <router-link to="/admin/setting" class="nav-link ml-3">
+                          Site Settings
+                        </router-link>
+                      </li>
+                      @endif
+                      <li class="nav-item">
+                        <router-link to="/password" class="nav-link ml-3">
+                         Change Password
+                        </router-link>
+                      </li>
+
+                      <!--<li class="nav-item">
+                        <router-link to="/pin" class="nav-link ml-3">
+                         Change PIN
+                        </router-link>
+                      </li>-->
+                    </ul>
+                </li> 
               @elseif(Auth::user()->role==13)
                 <li class="nav-item">
                   <router-link to="/kitchen/store" class="nav-link">
@@ -1626,6 +1916,18 @@
                     <router-link to="/kitchen/{{ $my_kitchen->code }}" class="nav-link">
                       <i class="nav-icon fa fa-circle"></i>
                       <p>My Kitchen</p>
+                    </router-link>
+                  </li>
+
+                  <li class="nav-item">
+                    <!--<router-link to="/kitchen" class="nav-link">
+                      <i class="nav-icon fa fa-circle"></i>
+                      <p>List of Kitchen</p>
+                    </router-link>-->
+
+                    <router-link to="/kitchen/stock/{{ $my_kitchen->code }}" class="nav-link">
+                      <i class="nav-icon fa fa-circle"></i>
+                      <p>My Food Stocks</p>
                     </router-link>
                   </li>
                 
@@ -1880,7 +2182,7 @@
                   </ul>
                 </li>
                
-                <li class="nav-item has-treeview">
+                <!--<li class="nav-item has-treeview">
                   <a href="#" class="nav-link">
                     <i class="nav-icon fa fa-book"></i>
                     <p>
@@ -1895,11 +2197,7 @@
                       </router-link>
                     </li>
 
-                    <!--<li class="nav-item">
-                      <router-link to="/account/tax" class="nav-link">
-                        <p class="ml-2">Tax Line</p>
-                      </router-link>
-                    </li>-->
+               
 
                     <li class="nav-item">
                       <router-link to="/account/chart-of-account" class="nav-link">
@@ -1907,41 +2205,14 @@
                       </router-link>
                     </li>
 
-                    <!--<li class="nav-item">
-                      <router-link to="/account/journal" class="nav-link">
-                        <p class="ml-2">Journal</p>
-                      </router-link>
-                    </li>
-
-                    <li class="nav-item">
-                      <router-link to="/account/ledger" class="nav-link">
-                        <p class="ml-2">Ledger</p>
-                      </router-link>
-                    </li>
-
-                     <li class="nav-item">
-                      <router-link to="/account/company-fund" class="nav-link">
-                        <p class="ml-2">Inject Capital</p>
-                      </router-link>
-                    </li>
-                   
-                    <li class="nav-item">
-                      <router-link to="/account/trial-balance" class="nav-link">
-                        <p class="ml-2">Trial Balance</p>
-                      </router-link>
-                    </li>-->
-
                     <li class="nav-item">
                       <router-link to="/account/reports" class="nav-link">
                        
                         <p class="ml-2">Account Reports</p>
                       </router-link>
                     </li>
-                   
-                      
-                  
                   </ul>
-                </li> 
+                </li> -->
             
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">
@@ -2005,16 +2276,32 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
       $(document).ready(function () {
-      $('.nav-item').click(function () {
-        $('.sidebar-mini').removeClass('sidebar-open');
-        $('.sidebar-mini').addClass('sidebar-closed sidebar-collapse');
+        $('.nav-item').click(function () {
+          $('.sidebar-mini').removeClass('sidebar-open');
+          $('.sidebar-mini').addClass('sidebar-closed sidebar-collapse');
+        });
+
+
+        const $btnPrint = document.querySelector("#btnPrint");
+        $btnPrint.addEventListener("click", () => {
+            window.print();
+        });
+
       });
-    });
+
+
     </script>
     <style type="text/css">
       body{
         font-size: 13px !important;
       }
+
+      @media print {
+        .hidden-print,
+        .hidden-print * {
+            display: none !important;
+        }
+    }
     </style>
   </body>
 </html>

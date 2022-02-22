@@ -150,7 +150,7 @@ class DashboardController extends Controller
         if ($params['sale'] ) {
             //$params['word_price'] = $this->numberTowords($params['sale']->totalPrice);
             if ($params['sale']->buyer) {
-                $params['customer'] = Member::where('deleted_at', NULL)->find($params['sale']->buyer);
+                $params['customer'] = Member::where('deleted_at', NULL)->find($params['sale']->getOriginal('buyer'));
             }
             else {
                 $params['customer'] = $params['sale']->guest;

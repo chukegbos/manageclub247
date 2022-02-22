@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Auth;
 use App\Inventory;
+use App\InventoryStore;
 use App\Notification;
 use App\User;
 use App\Sale;
@@ -15,6 +16,11 @@ use App\Room;
 use App\Death;
 use App\PaymentDebit;
 use App\Payment;
+use App\Item;
+use App\ServiceItem;
+use App\Purchase;
+use App\ItemPurchase;
+
 use App\PaymentProduct;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -114,7 +120,6 @@ class HomeController extends Controller
             ]);
         }
 
-        $members = Member::where('deleted_at', NULL)->get();
         foreach ($members as $user) {
             $the_user = User::where('deleted_at', NULL)->where('unique_id', $user->membership_id)->first();
 
@@ -160,34 +165,50 @@ class HomeController extends Controller
     public function sync()
     {
         set_time_limit(0);
+
+        /*$sales = Sale::where('deleted_at', NULL)->where('status', 'concluded')->get();
+        foreach ($sales as $sale) {
+            $items = Item::where('deleted_at', NULL)->where('code', $sale->sale_id)->get();
+            foreach ($items as $item) {
+                $product = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->product_id)->where('store_id', $sale->getOriginal('store_id'))->first();
+
+                if ($product) {
+                    $product->number = $product->number - $item->qty;
+                    $product->update();
+                }
+            }
+        }
         $inventories = Inventory::where('deleted_at', NULL)->get();
         $stores = Store::where('deleted_at', NULL)->get();
 
         foreach ($inventories as $inventory) {
             foreach ($stores as $store) {
-                $product = DB::table('inventory_store')
-                    ->where('deleted_at', NULL)
+                $product = InventoryStore::where('deleted_at', NULL)
                     ->where('store_id', $store->id)
                     ->where('inventory_id', $inventory->id)
                     ->first();
                 if (!$product) {
-                    $store->inventory()->attach($inventory->id);
+                    InventoryStore::create([
+                        'inventory_id' =>$inventory->id,
+                        'store_id' => $store->id,
+                        'number' => 0,
+                    ]);
                 }
 
-                $room = Room::where('deleted_at', NULL)
-                    ->where('store_id', $store->id)
-                    ->where('inventory_id', $inventory->id)
-                    ->first();
-                if (!$room) {
-                    $get_room = new Room();
-                    $get_room->inventory_id = $inventory->id;
-                    $get_room->store_id = $store->id;
-                    $get_room->number = 0;
-                    $get_room->save();
-                }
             }
         }
 
+        $purchases = Purchase::where('deleted_at', NULL)->get();
+        foreach ($purchases as $purchase) {
+            $items = ItemPurchase::where('deleted_at', NULL)->where('purchase_id', $purchase->purchase_id)->get();
+            foreach ($items as $item) {
+                $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->product_id)->where('store_id', 1)->first();
+                $inventory->number = $inventory->number + $item->qty;
+                $inventory->update();
+            }
+        }
+
+      
         $pays = Payment::get();
         foreach ($pays as $pay) {
             $the_pay = Payment::find($pay->id);
@@ -195,7 +216,7 @@ class HomeController extends Controller
             $the_pay->update();
         }
         //sync payment with debit
-        /*$allpayment = Payment::get();
+        $allpayment = Payment::get();
         foreach ($allpayment as $pay) {
             $getdebt = PaymentDebit::where('deleted_at', NULL)->find($pay->debit_id);
             if (($getdebt) && (($getdebt->status==0) || ($getdebt->status==NULL))) {
@@ -205,7 +226,7 @@ class HomeController extends Controller
         }*/
 
 
-        $suspends = Suspend::where('deleted_at', NULL)->where('status', 0)->where('end_date', '<=', Carbon::today())->get();
+        /*$suspends = Suspend::where('deleted_at', NULL)->where('status', 0)->where('end_date', '<=', Carbon::today())->get();
         foreach ($suspends as $suspend) {
             $getSus = Suspend::find($suspend->id);
             $getSus->status = 1;
@@ -225,7 +246,7 @@ class HomeController extends Controller
             ]);
         }
 
-        /*$pproducts = PaymentProduct::where('type', 1)->where('deleted_at', NULL)->get();
+        $pproducts = PaymentProduct::where('type', 1)->where('deleted_at', NULL)->get();
         $dt = Carbon::today();
 
         switch ($dt->month) {

@@ -30,7 +30,7 @@
                                 <th>Logout</th>
                                 <th>Status</th>
                                 <th>Verified</th>
-                                <th v-if="admin.role==1 && admin.role==7">Action</th>
+                                <th v-if="admin.role==1 || admin.role==11">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -45,9 +45,14 @@
                                     <span v-else class="btn btn-danger btn-sm">Not Verified</span>
                                 </td>
                                 <td>{{ login.verified_by }}</td>
-                                <td v-if="admin.role==1 && admin.role==7">
+                                <td v-if="admin.role==1 || admin.role==11">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
-                                        <b-dropdown-item href="javascript:void(0)" @click="onApprove(login.id)">Sign-off</b-dropdown-item>
+                                        <span v-if="login.verified_by">
+                                        </span>
+
+                                        <span v-else>
+                                            <b-dropdown-item href="javascript:void(0)" @click="onApprove(login.id)" v-if="login.login && login.logout">Sign-off</b-dropdown-item>
+                                        </span>
                                     </b-dropdown>
                                 </td>
                             </tr>

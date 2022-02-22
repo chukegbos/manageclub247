@@ -500,7 +500,7 @@ let routes = [
     { path: '/kitchen/request', component: require('./components/KitchenRequestComponent.vue').default },
     { path: '/kitchen/storerequest/:ref_id', component: require('./components/StockCompleteRequestComponent.vue').default },
     { path: '/kitchen/stock/:code', component: require('./components/KitchenStockComponent.vue').default },
-    { path: '/kitchen/movements/myrequest', name: 'myrequest', component: require('./components/MyKitchenRequestMovementComponent.vue').default },
+    { path: '/kitchen/movements/myrequest', name: 'kitchen_myrequest', component: require('./components/MyKitchenRequestMovementComponent.vue').default },
     { path: '/kitchen/:code', component: require('./components/KitchenViewComponent.vue').default },
     { path: '/food/production', component: require('./components/ViewProductionComponent.vue').default },
 ];

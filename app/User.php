@@ -87,26 +87,7 @@ class User extends Authenticatable
         }
     }
 
-    public function getDebtAttribute()
-    {
-        $id = $this->attributes['unique_id'];
-        if ($id) {
-            $member = Member::where('membership_id', $id)->first();
-            if ($member) {
-                $debt = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('status', 0)->sum('amount');
-                return $debt;
-            }
-            else 
-            {
-                return null;
-            }
 
-        }
-        else 
-        {
-            return null;
-        }
-    }
 
     public function getMemberTypeAttribute()
     {

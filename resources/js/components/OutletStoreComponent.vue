@@ -136,7 +136,7 @@
                         </div>
 
                         <div class="col-md-10" v-if="this.filterForm.selected!=0">
-                            <pagination :data="inventories" @pagination-change-page="getResults"></pagination>
+                            <pagination :data="inventories" @pagination-change-page="getResults" :limit="-1"></pagination>
                         </div>
                     </div>
                 </div>

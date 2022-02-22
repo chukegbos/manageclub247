@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <div class="row mb-2 p-2">
                 <div class="col-md-7">
-                    <h2><strong>Create Quote</strong></h2>
+                    <h2><strong>Make Order</strong></h2>
                 </div>
                 <div class="col-md-5">
                     <b-button type="button" variant="primary" @click="onAddNewProduct" size="sm" class="float-right m-2">
@@ -384,7 +384,7 @@
                 }
                 else{
                     this.form.productItems.push(this.setItemModel({}));
-                    this.form.serviceItems.push(this.setServiceModel({}));
+                    //this.form.serviceItems.push(this.setServiceModel({}));
                 }  
             },
 
