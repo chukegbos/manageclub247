@@ -23,16 +23,6 @@
                                         <td>This lists Member details. </td> 
                                     </tr>
 
-                                    <!--<tr>
-                                        <td><router-link to="/customer/statement">Members' Statement</router-link></td>
-                                        <td>This lists Member details. </td> 
-                                    </tr>-->
-
-                                    <tr>
-                                        <td><router-link to="/customer/sales">Item Sales</router-link></td>
-                                        <td>This lists Member details of item purchased. </td> 
-                                    </tr>
-
                                     <tr>
                                         <td><router-link to="/sale/orders">Sale Transactions</router-link></td>
                                         <td>This lists Member successful transaction. </td> 
@@ -44,18 +34,8 @@
                                     </tr>
 
                                     <tr>
-                                        <td><router-link to="/sale/invoice">Members' Invoice</router-link></td>
-                                        <td>This lists Members' pending transactions. </td> 
-                                    </tr>
-
-                                    <tr>
                                         <td><router-link to="/admin/purchases">Item Purchases</router-link></td>
                                         <td>This lists the company's purchase reports. </td> 
-                                    </tr>
-
-                                    <tr>
-                                        <td><router-link to="/suppliers/debt">Vendors Debtors' Report</router-link></td>
-                                        <td>This is the lists of vendors the company is owing. </td> 
                                     </tr>
 
                                     <tr>
@@ -64,15 +44,15 @@
                                     </tr>
 
                                     <tr>
-                                        <td><router-link to="/movements/outlets">Product Movement' Report</router-link></td>
-                                        <td>This is the lists of product movements from one outlet to another. </td> 
+                                        <td><router-link to="/cleared">Undebted Member Report</router-link></td>
+                                        <td>This is the lists of Members without indebtedness. </td> 
                                     </tr>
 
                                 </table>
                             </div>
                         </b-col>
 
-                        <b-col cols="12" md="6">
+                        <!--<b-col cols="12" md="6">
                             <h4>Financial Statement Reports</h4>
                             <div class="table-responsive">
                                 <table class="table table-hover">
@@ -109,14 +89,9 @@
                                         <td><router-link to="/company/opening-balance">Operating Balance</router-link></td>
                                         <td>This presents the funding report of the working capital</td> 
                                     </tr>
-
-                                    <!--<tr>
-                                        <td><router-link to="/company/creditunit">Credit Unit Adjustment Report</router-link></td>
-                                        <td>This presents the company adjustments of a Member's credit unit.</td> 
-                                    </tr>-->
                                 </table>
                             </div>
-                        </b-col>
+                        </b-col>-->
                     </b-row>
                 </div>
             </div>

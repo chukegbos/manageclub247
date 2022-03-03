@@ -132,7 +132,7 @@
             </div>
             
             <div class="modal fade" id="addNewstore" tabindex="-1" role="dialog" aria-labelledby="addNewstoreLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5
@@ -160,7 +160,7 @@
                         </div>
                         <form @submit.prevent="editMode ? updateStore() : createStore()">
                             <div class="modal-body row">
-                                <div class="form-group col-md-12">
+                                <div class="form-group col-md-6">
                                     <label>Product Name <span class="text-danger pulll-right">*</span></label>
                                     <input
                                         v-model="form.payment_name"
@@ -224,7 +224,6 @@
                                     <input
                                         v-model="form.grace_period"
                                         type="number"
-                                        max="28"
                                         name="grace_period"
                                         class="form-control"
                                         :class="{
@@ -259,7 +258,7 @@
                                     </b-form-select>
                                 </b-form-group>
 
-                                <div class="form-group col-md-12" v-if="form.type==1">
+                                <div class="form-group col-md-6" v-if="form.type==1">
                                     <label>Reoccuring Day</label>
                                     <input
                                         v-model="form.reoccuring_day"
@@ -493,7 +492,7 @@
                     type: 1,
                     category: 0,
                     door_access: 0,
-                    reoccuring_day: 27,
+                    reoccuring_day: 28,
                     grace_period: 10,
                     member_type: [],
                     wallet: 1,

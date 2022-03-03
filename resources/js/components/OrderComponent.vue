@@ -69,6 +69,7 @@
                             <th>Date</th>
                             <th>Ref ID</th>
                             <th>Bar</th>
+                            <th>Steward</th>
                             <th>Payment Type</th>
                             <th>Amount (<span v-html="nairaSign"></span>)</th>
                             <th>Status</th>
@@ -79,6 +80,7 @@
                             <td>{{ order.created_at | myDate }}</td>
                             <td>{{ order.sale_id }}</td>
                             <td>{{ order.store_id }}</td>
+                            <td>{{ order.marketer }}</td>
                             <td>
                                 <span v-if="order.mop==1">Cash Sale</span>
                                 <span v-else>Credit Sale</span>

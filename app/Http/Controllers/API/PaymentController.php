@@ -178,7 +178,7 @@ class PaymentController extends Controller
                     $phone = $member->phone_2;
                 }
 
-                $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount;
+                $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount.' Enugu Sports Club (FCMB ACCT NO) 1685653012';
 
                 $data1 = [
                     'from' => 'ESPORTSCLUB',
@@ -604,7 +604,7 @@ class PaymentController extends Controller
                                 $phone = $member->phone_2;
                             }
 
-                            $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount;
+                            $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount.' Enugu Sports Club (FCMB ACCT NO) 1685653012';
 
                             $data1 = [
                                 'from' => 'ESPORTSCLUB',
@@ -714,7 +714,7 @@ class PaymentController extends Controller
                                 $phone = $member->phone_2;
                             }
 
-                            $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount;
+                            $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount.' Enugu Sports Club (FCMB ACCT NO) 1685653012';
 
                             $data1 = [
                                 'from' => 'ESPORTSCLUB',

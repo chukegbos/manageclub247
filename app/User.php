@@ -169,12 +169,23 @@ class User extends Authenticatable
     {
         $door_access = $this->attributes['door_access'];
         $unique_id = $this->attributes['unique_id'];
+        $member = Member::where('deleted_at', NULL)->where('membership_id', $unique_id)->first();
+
         if ($door_access==0) {
             $approved = User::where('deleted_at', NULL)->where('role', 0)->where('approved', 0)->where('unique_id', $unique_id)->first();
-            $phone = User::where('deleted_at', NULL)->where('role', 0)->where('phone', NULL)->where('unique_id', $unique_id)->first();
-            $suspend = Suspend::where('deleted_at', NULL)->where('status', 0)->where('membership_id', $unique_id)->first();
+        
+            $image = User::where('deleted_at', NULL)->where('role', 0)->where('image', NULL)->where('unique_id', $unique_id)->first();
+     
+
             $death = Death::where('deleted_at', NULL)->where('member_id', $unique_id)->first();
-            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $unique_id)->where('period', 0)->first();
+      
+
+            $suspend = Suspend::where('deleted_at', NULL)->where('status', 0)->where('membership_id', $unique_id)->first();
+        
+            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->member_id)->where('period', 0)->where('door_access', 1)->first();
+         
+
+
 
             if ($death) {
                 return 'Deceased';
@@ -182,20 +193,21 @@ class User extends Authenticatable
             elseif ($approved) {
                 return 'Pending Approval';
             }
-            elseif ($phone) {
-                return 'No phone number';
-            }
-            
+
             elseif ($suspend) {
                 return 'Suspended';
             }
 
-             elseif ($phone) {
-                return 'No phone number';
+             elseif ($image) {
+                return 'No photo';
             }
             
             elseif ($debit) {
                 return 'In Debt';
+            }
+
+            elseif (!$member->phone_1) {
+                return 'No phone number';
             }
         }
     }

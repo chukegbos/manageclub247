@@ -285,7 +285,7 @@ class CartController extends Controller
            
             $sold = ServiceItem::create([
                 'code' => $trans_id,
-                'qty' => $item['qty'],
+                'qty' => (int)$item['qty'],
                 'amount' => $item['amount'],
                 'food' => $item['food_id'],
                 'kitchen' => $item['kitchen'],

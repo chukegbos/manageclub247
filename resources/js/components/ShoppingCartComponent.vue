@@ -464,17 +464,20 @@
             },
 
             setProduct(product, index){
+                this.setItemModel(index, product);
+
                 if((product.number <= 0) || (product.number == null)){
                     Swal.fire(
                         'Failed!',
                         'You do not have enough product!',
                         'error'
-                    )                 
+                    ) 
+
+                    let item_no = this.form.productItems.indexOf(index);
+                    this.form.productItems.splice(item_no,1);                
                 }
-                else{
-                    this.setItemModel(index, product);
-                    this.getTotal();
-                }
+
+                this.getTotal();
             },
 
             setService(food, index){
@@ -491,7 +494,7 @@
                 model.product_id = newModel !== undefined ? newModel.product_id: '';
                 model.number = newModel !== undefined ? newModel.number: 0;
                 model.discount = model.discount !== undefined ? model.discount: 0;
-                model.qty = model.qty !== undefined ? model.qty : 1;
+                model.qty = model.qty !== undefined ? model.qty : 0;
                 return model;
             },
 

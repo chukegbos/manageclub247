@@ -20,8 +20,8 @@ use App\Item;
 use App\ServiceItem;
 use App\Purchase;
 use App\ItemPurchase;
-
-use App\PaymentProduct;
+use App\Fill;
+use App\Product;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use DB;
@@ -165,7 +165,7 @@ class HomeController extends Controller
     public function sync()
     {
         set_time_limit(0);
-
+        ini_set('memory_limit', '-1');
         /*$sales = Sale::where('deleted_at', NULL)->where('status', 'concluded')->get();
         foreach ($sales as $sale) {
             $items = Item::where('deleted_at', NULL)->where('code', $sale->sale_id)->get();
@@ -207,8 +207,7 @@ class HomeController extends Controller
                 $inventory->update();
             }
         }
-
-      
+   
         $pays = Payment::get();
         foreach ($pays as $pay) {
             $the_pay = Payment::find($pay->id);
@@ -225,8 +224,37 @@ class HomeController extends Controller
             }
         }*/
 
+        $debits = PaymentDebit::where('deleted_at', NULL)->get();
+        $today = Carbon::today();
+        foreach ($debits as $db) {
+           
+            $product = Product::where('deleted_at', NULL)->find($db->getOriginal('product'));
+            if ($product) {
+                $grace_period = $product->grace_period;
+                $door_access = $product->door_access;
+            }
+            else {
+                $grace_period = 30;
+                $door_access = 0;
 
-        /*$suspends = Suspend::where('deleted_at', NULL)->where('status', 0)->where('end_date', '<=', Carbon::today())->get();
+            }
+            
+            if (($db->start_date) && ($today > Carbon::parse($db->start_date)->addDays($grace_period))) {
+                $period = 0;
+            }
+            else {
+                $period = 1;
+            }
+
+
+            $debt = PaymentDebit::where('deleted_at', NULL)->find($db->id);
+            $debt->grace_period = $grace_period;
+            $debt->door_access = $door_access;
+            $debt->period = $period;
+            $debt->update();
+        }
+
+        $suspends = Suspend::where('deleted_at', NULL)->where('status', 0)->where('end_date', '<=', Carbon::today())->get();
         foreach ($suspends as $suspend) {
             $getSus = Suspend::find($suspend->id);
             $getSus->status = 1;
@@ -246,7 +274,7 @@ class HomeController extends Controller
             ]);
         }
 
-        $pproducts = PaymentProduct::where('type', 1)->where('deleted_at', NULL)->get();
+        $pproducts = Product::where('type', 1)->where('deleted_at', NULL)->get();
         $dt = Carbon::today();
 
         switch ($dt->month) {
@@ -311,24 +339,9 @@ class HomeController extends Controller
                 break;
         }
 
-        //Phone Switch
-        $phoneusers = User::where('deleted_at', NULL)->where('role', 0)->where('phone', NULL)->get();
-        foreach ($phoneusers as $user) {
-            $user = User::find($user->id);
-            $user->door_access = 0;
-            $user->update();
-        }
-
-        $users = User::where('deleted_at', NULL)->where('role', 0)->get();
-        foreach ($users as $user) {
-            $member = Member::where('membership_id', $user->unique_id)->first();
-            $user = User::find($user->id);
-
-            if ($member->entrance_date && !$user->entrance_date) {
-                $user->entrance_date = date('Y/m/d', $member->entrance_date);
-            }
-
-            $member = Member::where('membership_id', $user->unique_id)->where('member_type', '!=', 14)->first();
+        //product check
+        $members = Member::where('member_type', '!=', 14)->get();
+        foreach ($members as $member) {
             foreach ($pproducts as $pp) {
                 $findPayment = PaymentDebit::where('member_id', $member->id)->where('product', $pp->id)->where('year', $dt->year)->where('month', $dt->month)->first();
 
@@ -339,7 +352,7 @@ class HomeController extends Controller
                         'amount' => $pp->amount,
                         'description' => ucwords($month.' '.$year. ' Monthly Payment for '.$pp->payment_name),
                         'debit_type' => 0,
-                        'grace_period' => $pp->grace_period,
+                        'grace_period' => ($pp->grace_period) ? $pp->grace_period : 30,
                         'month' => $dt->month,
                         'year' => $dt->year,
                         'date_entered' => Carbon::today(),
@@ -348,53 +361,30 @@ class HomeController extends Controller
                     ]);
                 }
             }
-            $user->update();
-        }*/
-
-        //Debt Switch
-        /*$members = Member::where('deleted_at', NULL)->get();
-
-        foreach ($members as $user) {
-            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $user->id)->where('period', 0)->first();
-            if ($debit) {
-                $user = User::find($user->id);
-                $user->door_access = 0;
-                $user->update();
-            }
-
-            $approved = User::where('deleted_at', NULL)->where('approved', 0)->where('unique_id', $user->membership_id)->first();
-            if ($approved) {
-                $approveduser = User::find($approved->id);
-                $approveduser->door_access = 0;
-                $approveduser->update();
-            }
         }
 
-        $sameUsers = User::where('deleted_at', NULL)->where('role', 0)->get();
-        foreach ($sameUsers as $user) {
-            $user = User::find($user->id);
-            $user->approved = 1;
-            $user->update();
+        $Users = User::where('deleted_at', NULL)->where('role', 0)->get();
+        foreach ($Users as $mem) {
+            $user = User::find($mem->id);
+            $member = Member::where('deleted_at', NULL)->where('membership_id', $user->unique_id)->first();
 
             $suspend = Suspend::where('deleted_at', NULL)->where('status', 0)->where('membership_id', $user->unique_id)->first();
             $death = Death::where('deleted_at', NULL)->where('member_id', $user->unique_id)->first();
-            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $user->unique_id)->where('period', 0)->first();
-            $approved = User::where('deleted_at', NULL)->where('approved', 0)->where('unique_id', $user->unique_id)->first();
-            if (!$suspend && !$death && !$debit && !$approved && $user->phone) {
-                $user = User::find($user->id);
+            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->member_id)->where('period', 0)->where('door_access', 1)->first();
+            $approved = User::where('deleted_at', NULL)->where('approved', 1)->where('unique_id', $user->unique_id)->first();
+
+            if (!$suspend && !$death && !$debit && $approved && $member->phone_1) {
                 $user->door_access = 1;
-                $user->update();
             }
+            else{
+                $user->door_access = 0;
+            }
+            $user->update();
         }
- 
-        $alldebits = PaymentDebit::where('deleted_at', NULL)->where('status', 0)->get();
-        foreach ($alldebits as $debt) {
-            if (!$debt->date_entered && $debt->date_added) {
-                $db = PaymentDebit::find($debt->id);
-                $db->date_entered = date('Y/m/d', $debt->date_added);
-                $db->update();
-            }
-        }*/
+
+        Fill::create([
+            'user_id' => auth()->user()->id,
+        ]);
         return redirect()->route('index');
     }
 }

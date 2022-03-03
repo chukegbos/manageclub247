@@ -1020,7 +1020,8 @@ class StoreController extends Controller
     {
         $params = [];
 
-        $query = Sale::where('sales.deleted_at', NULL);
+        $query = Sale::where('sales.deleted_at', NULL)
+        ->join('users', 'sales.market_id', '=', 'users.id');
 
         if (auth('api')->user()->role==7 || auth('api')->user()->role==8) {
             $query->where('sales.store_id', '>=', auth('api')->user()->getOriginal('store'));
@@ -1057,6 +1058,7 @@ class StoreController extends Controller
                 'sales.totalPrice as totalPrice',
                 'sales.discount as discount',
                 'sales.mop as mop',
+                'users.name as marketer',
                 'sales.store_id as store_id',
                 'sales.status as status',
                 'sales.main_date as created_at'  
@@ -1274,6 +1276,55 @@ class StoreController extends Controller
         return $params;
     }
 
+    public function notowing(Request $request)
+    {
+        $params = [];
+        set_time_limit(0);
+        $get_people = User::where('deleted_at', NULL)->where('role', 0)->get();
+        foreach ($get_people as $people) {
+            $person = User::find($people->id);
+            $unique_id = $person->unique_id;
+            if ($unique_id) {
+                $member = Member::where('membership_id', $unique_id)->first();
+                if ($member) {
+                    $debt = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('status', 0)->sum('amount');
+                    $person->debt = $debt;
+                    $person->update();
+                }
+
+            }
+        }
+
+        $query = User::where('users.deleted_at', NULL)
+            ->where('default_esc_members.deleted_at', NULL)
+            ->where('users.role', 0)
+            ->where('users.debt', 0)
+            ->join('default_esc_members', 'users.unique_id', '=', 'default_esc_members.membership_id');
+        
+
+        //$query->whereBetween('users.debt', [$request->min_amount, $request->max_amount]);
+
+        $query->select(
+            'users.id as id',
+            'users.unique_id as unique_id',
+            'users.name as name',
+            'users.email as email',
+            'users.debt as debt',
+            'default_esc_members.phone_1 as phone'
+        )->orderBy('users.name', 'asc');
+
+        $params['allusers'] = $query->get();
+        
+        if ($request->selected==0) {
+            $params['customers'] =  $query->get();
+        }
+        else{
+            $params['customers'] = $query->paginate($request->selected);
+        }
+        
+        $params['all'] = $query->count();
+        return $params;
+    }
     public function storedebtors(Request $request)
     {
         $debtor = Debtor::where('deleted_at', NULL)->where('trans_id', $request->trans_id)->first();

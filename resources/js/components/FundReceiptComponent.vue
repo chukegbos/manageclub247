@@ -11,8 +11,7 @@
                                     <div class="col-12 col-md-12 text-center">
                                         <h4><strong>PAYMENT RECEIPT</strong></h4>
                                         <h6><strong>{{ site.sitename }}</strong></h6>
-                                    </div>
-                                  
+                                    </div>                             
 
                                     <div class="col-6 col-md-6">
                                         <p><strong>Paid by</strong></p>
@@ -105,8 +104,8 @@
                     </h4>
 
                     <h4><b>Phone Number: </b>{{ fund.customer_id.phone_1 }}</h4>
-                    <h4><b>Email: </b>{{ fund.customer_id.email }}</h4>
-                    <h4><b>Address: </b>{{ fund.customer_id.address }}</h4>
+                    <!--<h4><b>Email: </b>{{ fund.customer_id.email }}</h4>
+                    <h4><b>Address: </b>{{ fund.customer_id.address }}</h4>-->
                             
 
                     <br><br>
@@ -115,7 +114,7 @@
                     <h4><b>Club: </b>{{ site.sitename }}</h4>
                     <h4><b>From: </b>{{ fund.user_id }}</h4>
                     <h4><b>Phone: </b>{{ site.phone }}</h4>
-                    <h4><b>Address: </b>{{ site.address }}</h4> 
+                    <!--<h4><b>Address: </b>{{ site.address }}</h4>--> 
                    
                
                     <h4>

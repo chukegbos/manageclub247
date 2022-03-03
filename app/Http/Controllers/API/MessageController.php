@@ -61,15 +61,13 @@ class MessageController extends Controller
     public function store(Request $request)
     {
         $members = User::where('users.deleted_at', NULL)
-            ->where('users.phone', '!=', NULL)
             ->join('default_esc_members', 'users.unique_id', 'default_esc_members.membership_id')
             ->where('default_esc_members.member_type', '!=', 14)
             ->get();
 
         if ($request->message_type==0) {
             $message = $request->message;
-            if ($request->people == 0) {
-               
+            if ($request->people == 0) {          
             }
             else {
                 $msg = Message::create([

@@ -1,183 +1,54 @@
 <template>
     <b-overlay :show="is_busy" rounded="sm">
         <div class="container mb-2">
-            <div class="row mt-2">
-                <div class="col-md-2"></div>
-                <div class="col-md-8" id="printMe">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="text-center">
-                                <h2><b>{{ store.name }}</b></h2>
+            <div class="card">
+                <div class="card-body">
+                    <h2><b>{{ store.name }}</b></h2>
+                    <p>
+                        <span v-if="sale.status=='concluded'">Sold to</span>
+                        <span v-else>Biiled To</span>:
+                        <b>
+                            <span v-if="customer">
+                                <span v-if="customer.first_name">
+                                    {{ customer.get_member }}
+                                </span>
+                                <span v-else>
+                                    {{ customer }}
+                                </span>
+                            </span>
+                        </b>
+                    </p>
 
-                                <u><h4 v-if="sale.status=='pending' && sale.approved==0">
-                                    <strong>
-                                        <span v-if="sale.mop==0"> Credit Sales</span>
-                                        <span v-else> Cash Sales</span>
-                                        Quote
-                                    </strong>
-                                </h4>
+                    <p>Date: <b>{{ sale.created_at | myDate }}</b></p>
+                    <p>
+                        <span v-if="sale.status=='pending' && sale.approved==1">Invoice No</span>
 
-                                <h4 v-else-if="sale.status=='pending' && sale.approved==1">
-                                    <strong>
-                                        <span v-if="sale.mop==0"> Credit Sale</span>
-                                        <span v-else> Cash Sale</span>
-                                        Invoice
-                                    </strong>
-                                </h4>
-                                
-                                <h4 v-else-if="sale.status=='concluded' && sale.approved==1">
-                                    <strong>
-                                        <span v-if="sale.mop==0"> Credit Sales</span>
-                                        <span v-else> Cash Sales</span>
-                                        Receipt
-                                    </strong>
-                                </h4>
+                        <span v-else-if="sale.status=='concluded'">Sale No</span>
 
-                                <h4 v-else>
-                                    <strong>
-                                        <span v-if="sale.mop==0"> Credit Sales</span>
-                                        <span v-else> Cash Sales</span>
-                                        Items
-                                    </strong>
-                                </h4></u>
-                            </div>
-                            
-                            <div class="table-responsive border">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>
-                                                <span v-if="sale.status=='concluded'">Sold to</span>
+                        <span v-else-if="sale.status=='returned'">Invoice No</span>
 
-                                                <span v-else>Biiled To</span>
-                                            </th>
+                        <span v-else>Quote No</span>:
+                        <b>{{ sale.sale_id }}</b>
+                    </p>
+                
+                    <h5>Drink List</h5>
+                    <span v-for="(item, index) in items">
+                        {{ item.product_name}} ({{ item.qty }}) - {{ formatPrice((item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))) }}<br>
+                    </span>                                 
+                    <br>
+                    <h5>Food List</h5>
+                    <p v-for="(item, index) in services">
+                        {{ item.food }} ({{ item.qty }}) - {{ formatPrice(item.qty * item.amount) }}
+                    </p>
 
-                                            <th>Date</th>
-
-                                            <th>
-                                                <span v-if="sale.status=='pending' && sale.approved==1">Invoice No</span>
-
-                                                <span v-else-if="sale.status=='concluded'">Sale No</span>
-
-                                                <span v-else-if="sale.status=='returned'">Invoice No</span>
-
-                                                <span v-else>Quote No</span>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-
-                                                <span v-if="customer">
-                                                    <span v-if="customer.first_name">
-                                                        {{ customer.get_member }}<br>
-                                                        {{ customer.phone_1 }}<br>
-                                                        {{ customer.address }}
-                                                    </span>
-                                                    <span v-else>
-                                                        {{ customer }}
-                                                    </span>
-                                                </span>
-                                                
-
-                                            </td>
-                                            <td>{{ sale.created_at | myDate }}</td>
-                                            <td>{{ sale.sale_id }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                    
-                            <div class="table-responsive border">
-                                <table class="table table-bordered">
-                                    <tr>
-                                        <th><h5>Drink List</h5></th>
-                                    </tr>
-                                </table>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Description</th>
-                                            <th>Qty</th>
-                                            <th>Price (<span v-html="nairaSign"></span>)</th>
-                                         
-                                            <th>Amount (<span v-html="nairaSign"></span>)</th>
-                                            <!--<th>Dis. Amount (<span v-html="nairaSign"></span>)</th>-->
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        <tr v-for="(item, index) in items">
-                                            <!--<td>{{ index + 1}}</td>-->
-                                            <td>{{ item.product_name}}</td>
-                                            <td>{{ item.qty }}</td>
-                                            <td>{{ formatPrice(item.price) }}</td>
-                                            <!--<td>{{ formatPrice(item.qty*item.price) }}</td>-->
-                                            <td>{{ formatPrice((item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))) }}</td>
-                                        </tr>                                 
-                                    </tbody>
-                                </table>
-
-                                <table class="table table-bordered">
-                                    <tr>
-                                        <th><h5>Food List</h5></th>
-                                    </tr>
-                                </table>
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Description</th>
-                                            <th>Qty</th>
-                                            <th>Unit Amount (<span v-html="nairaSign"></span>)</th>
-                                         
-                                            <th>Amount (<span v-html="nairaSign"></span>)</th>
-                                            
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        <tr v-for="(item, index) in services">
-                                            <!--<td>{{ index + 1}}</td>-->
-                                            <td>{{ item.food }}</td>
-                                            <td>{{ item.qty }}</td>
-                                            <td>{{ formatPrice(item.amount) }}</td>
-                                          
-                                            <td>{{ formatPrice(item.qty * item.amount) }}</td>
-                                        </tr>                                 
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div class="mt-4 row">
-                                <div class="col-md-6 text-center">
-                                    <i v-if="sale.status=='concluded'">Thanks and please call again</i><br><br>
-                                    <p>
-                                        .
-                                    </p>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="border p-2">
-                                        <h6><b>Total :  <span class="pull-right"><span v-html="nairaSign"></span>{{ formatPrice(this.sale.totalPrice) }}</span></b></h6>
-                                    </div>
-                                    <div class="border p-2" v-if="sale.status!='concluded'">
-                                        <h6><b>Bal Due :  <span class="pull-right"><span v-html="nairaSign"></span>{{ formatPrice(0) }}</span></b></h6>
-                                    </div>
-                                    <div class="border p-2" v-if="sale.status!='concluded'">
-                                        <p><b>Balance :  <span class="pull-right"><span v-html="nairaSign"></span>{{ formatPrice(0) }}</span></b></p>
-                                    </div>
-                                    <br>
-                                    <p class="text-center"><u>{{ sale.marketer }}</u></p>
-                                </div>
-                            </div>
-                            
-                        </div>
-                    </div>
+                    <h6>Total: <b><span v-html="nairaSign"></span>{{ formatPrice(this.sale.totalPrice) }}</b></h6>
+                  
+                    <p>Steward: <b>{{ sale.marketer }}</b></p>
+                    <i v-if="sale.status=='concluded'">Thanks and please call again</i>              
                 </div>
-            </div> 
+            </div>
 
-            <div class="row">
+            <div class="row hidden-print">
                 <div class="col-md-2"></div>
                 <div class="col-md-8">
                     <button v-if="sale.status=='pending'" class="btn btn-info btn-sm mb-2"  @click="newModal">Complete Transaction</button>
@@ -185,118 +56,118 @@
                    
                     <button v-if="sale.status=='pending'" class="btn btn-primary btn-sm mb-2"  @click="editInvoice">Edit</button>
 
-                    <button @click=onPrint class="btn btn-success btn-sm mb-2">Print</button>
+                    <button id="btnPrint" class="btn btn-success p-1 m-2 text-center">Print</button>
+
                 </div>
             </div>
         </div>
 
-        
-            <div class="modal fade" id="addNewUser" tabindex="-1" role="dialog" aria-labelledby="addNewUserLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="addNewUserLabel">
-                                Conclude Transaction
-                            </h5>
+        <div class="modal fade" id="addNewUser" tabindex="-1" role="dialog" aria-labelledby="addNewUserLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNewUserLabel">
+                            Conclude Transaction
+                        </h5>
 
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
 
-                        <form @submit.prevent="updateDeal()">
-                            <div class="modal-body">
+                    <form @submit.prevent="updateDeal()">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Amount</label>
+                                <input v-model="form.totalPrice" type="text" readonly="true" class="form-control"/>
+                                <input v-model="form.sale_id" type="hidden" readonly="true" class="form-control"/>
+                            </div>
+
+                            <!--<div class="form-group">
+                                <label>Customer Name</label>
+                                <span v-if="customer">
+                                    <span v-if="customer">
+                                    </span>
+                                    <input v-model="customer.name" type="text" readonly="true" class="form-control"/>
+                                </span>
+
+                                <span v-else>
+                                    <input v-model="customer" type="text" class="form-control"/>
+                                </span>
+                            </div>-->
+                            
+                            <span v-if="sale.mop == 0">
                                 <div class="form-group">
-                                    <label>Amount</label>
-                                    <input v-model="form.totalPrice" type="text" readonly="true" class="form-control"/>
-                                    <input v-model="form.sale_id" type="hidden" readonly="true" class="form-control"/>
+                                    <label>Part Payment</label>
+                                    <input v-model="form.part_payment" type="number" class="form-control"/>
                                 </div>
 
                                 <!--<div class="form-group">
-                                    <label>Customer Name</label>
-                                    <span v-if="customer">
-                                        <span v-if="customer">
-                                        </span>
-                                        <input v-model="customer.name" type="text" readonly="true" class="form-control"/>
-                                    </span>
-
-                                    <span v-else>
-                                        <input v-model="customer" type="text" class="form-control"/>
-                                    </span>
+                                    <label>Date of Repayment</label>
+                                    <input v-model="form.date" type="date" class="form-control" />
                                 </div>-->
-                                
-                                <span v-if="sale.mop == 0">
-                                    <div class="form-group">
-                                        <label>Part Payment</label>
-                                        <input v-model="form.part_payment" type="number" class="form-control"/>
-                                    </div>
-
-                                    <!--<div class="form-group">
-                                        <label>Date of Repayment</label>
-                                        <input v-model="form.date" type="date" class="form-control" />
-                                    </div>-->
-                                    <div class="form-group">
-                                        <label>Grace Period (Days)</label>
-                                        <input v-model="form.grace_period" type="number" value="1" class="form-control" />
-                                    </div>
-                                </span>   
-
-                                <span v-else>
-                                    <b-form-group label="Method of Fund:" label-for="payment_method">
-                                        <select v-model="form.channel" class="form-control">
-                                            <option v-for="option in payment_types" v-bind:value="option.id">
-                                                <span v-if="(option.id==1) || (option.id==7)">{{ option.title }}</span>
-                                            </option>
-                                        </select>
-                                    </b-form-group>
-
-                                    <b-form-group label="Select Bank:" v-if="form.channel==3">
-                                        <select v-model="form.link" class="form-control">
-                                            <option v-for="option in banks" v-bind:value="option.id">
-                                                {{ option.get_bank_name }} ({{ option.account_number }})
-                                            </option>
-                                        </select>
-                                    </b-form-group>
-
-                                    <b-form-group label="Select POS:" v-if="form.channel==2">
-                                        <select v-model="form.link" class="form-control">
-                                            <option v-for="option in pos" v-bind:value="option.id">
-                                                {{ option.name }} ({{ option.code }})
-                                            </option>
-                                        </select>
-                                    </b-form-group>
-
-                                    <div class="form-group" v-if="form.channel==4 || form.channel==5">
-                                        <label>Put ID</label>
-                                        <input v-model="form.draft_id" type="text" class="form-control" />
-                                    </div>
-
-                                    <div class="form-group" v-if="form.channel==6">
-                                        <label>Customer Account Balance</label>
-                                        <input v-model="customer.wallet_balance" type="text" readonly="true" class="form-control"/>
-                                        <small><a href="javascript:void(0)" @click="WalletModal(customer)" class="pull-right">Fund Account</a></small>
-                                    </div>
-                                </span> 
-
                                 <div class="form-group">
-                                    <label>Select Steward</label>
-                                    <v-select label="name" :options="stewards" @input="getUserID($event)"></v-select>
+                                    <label>Grace Period (Days)</label>
+                                    <input v-model="form.grace_period" type="number" value="1" class="form-control" />
                                 </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger" data-dismiss="modal">
-                                    Close
-                                </button>
+                            </span>   
 
-                                <button type="submit" class="btn btn-success">
-                                    Conclude
-                                </button>
+                            <span v-else>
+                                <b-form-group label="Method of Fund:" label-for="payment_method">
+                                    <select v-model="form.channel" class="form-control">
+                                        <option v-for="option in payment_types" v-bind:value="option.id">
+                                            <span v-if="(option.id==1) || (option.id==7)">{{ option.title }}</span>
+                                        </option>
+                                    </select>
+                                </b-form-group>
+
+                                <b-form-group label="Select Bank:" v-if="form.channel==3">
+                                    <select v-model="form.link" class="form-control">
+                                        <option v-for="option in banks" v-bind:value="option.id">
+                                            {{ option.get_bank_name }} ({{ option.account_number }})
+                                        </option>
+                                    </select>
+                                </b-form-group>
+
+                                <b-form-group label="Select POS:" v-if="form.channel==2">
+                                    <select v-model="form.link" class="form-control">
+                                        <option v-for="option in pos" v-bind:value="option.id">
+                                            {{ option.name }} ({{ option.code }})
+                                        </option>
+                                    </select>
+                                </b-form-group>
+
+                                <div class="form-group" v-if="form.channel==4 || form.channel==5">
+                                    <label>Put ID</label>
+                                    <input v-model="form.draft_id" type="text" class="form-control" />
+                                </div>
+
+                                <div class="form-group" v-if="form.channel==6">
+                                    <label>Customer Account Balance</label>
+                                    <input v-model="customer.wallet_balance" type="text" readonly="true" class="form-control"/>
+                                    <small><a href="javascript:void(0)" @click="WalletModal(customer)" class="pull-right">Fund Account</a></small>
+                                </div>
+                            </span> 
+
+                            <div class="form-group">
+                                <label>Select Steward</label>
+                                <v-select label="name" :options="stewards" @input="getUserID($event)"></v-select>
                             </div>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">
+                                Close
+                            </button>
+
+                            <button type="submit" class="btn btn-success">
+                                Conclude
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        
+        </div>
+    
         <span v-if="customer">
             <div class="modal fade" id="markUser" tabindex="-1" role="dialog" aria-labelledby="markUserLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
