@@ -24,7 +24,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th>Bar</th>
+                                <th>Bar/Kitchen</th>
                                 <th>Manager</th>
                                 <th>Login</th>
                                 <th>Logout</th>
@@ -35,7 +35,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="login in logins.data" :key="login.id">
-                                <td>{{ login.bar_name }}</td>
+                                <td>{{ login.store }}/{{ login.kitchen }}</td>
                                 <td>{{ login.manager }}</td>
                                 <td>{{ login.login }}</td>
                                 <td>{{ login.logout }}</td>

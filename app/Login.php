@@ -4,6 +4,8 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Kitchen;
+use App\Store;
 
 class Login extends Model
 {
@@ -15,7 +17,7 @@ class Login extends Model
      * @var array
      */
     protected $fillable = [
-        'store_id', 'logout', 'user_id', 'status', 'verified_by', 'kitchen_id'
+        'store_id', 'logout', 'user_id', 'status', 'verified_by', 'kitchen_id', 'store', 'kitchen'
     ];
 
     /**
@@ -38,6 +40,47 @@ class Login extends Model
         }
         else{
             return null;
+        }
+    }
+
+    public function getStoreAttribute()
+    {
+        if (isset($this->attributes['store_id'])) {
+
+            $id = $this->attributes['store_id'];
+            if ($id) {
+                $store = Store::where('deleted_at', NULL)->find($id);
+                if ($store) {
+                    return $store->name;
+                }
+                else{
+                    return "---";
+                }
+            }
+            else{
+                return "---";
+            }
+        }
+    }
+
+
+    public function getKitchenAttribute()
+    {
+        if (isset($this->attributes['kitchen_id'])) {
+
+            $id = $this->attributes['kitchen_id'];
+            if ($id) {
+                $kitchen = Kitchen::where('deleted_at', NULL)->find($id);
+                if ($kitchen) {
+                    return $kitchen->name;
+                }
+                else{
+                    return "---";
+                }
+            }
+            else{
+                return "---";
+            }
         }
     }
 }

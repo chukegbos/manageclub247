@@ -3,7 +3,30 @@
         <div class="container-fluid mb-2">
 
             <div class="pt-5" v-if="user.role==14 || user.role==15">
-                <div v-if="user.kitchen=='---'" class="row">
+               <div v-if="login" class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <tr>
+                                  <th>Login Time</th>
+                                  <td>{{ login.created_at }}</td>
+                                </tr>
+                                
+                                <tr>
+                                  <th>Logout Time</th>
+                                  <td>{{ login.logout }} <a href="javascript:void(0)" @click="rLogin()">Return Back</a></td>
+                                </tr>
+
+                                <tr>
+                                  <th>Verified?</th>
+                                  <td>Not Verified, contact the supervisior to verify and approve your logout</td>
+                                </tr>                   
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="user.kitchen=='---'" class="row">
                     <div class="col-md-3"></div>
                     <div class="col-md-6">
                         <div class="card">
@@ -84,7 +107,37 @@
             </div>
 
             <div class="pt-5" v-else-if="user.role==8">
-                <div v-if="user.store=='---'" class="row">
+                <div v-if="login" class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <tr>
+                                  <th>Login Time</th>
+                                  <td>{{ login.created_at }}</td>
+                                </tr>
+                                
+                                <tr>
+                                  <th>Logout Time</th>
+                                  <td>{{ login.logout }} <a href="javascript:void(0)" @click="rLogin()">Return Back</a></td>
+                                </tr>
+
+                                <tr>
+                                  <th>Verified?</th>
+                                  <td>Not Verified, contact the supervisior to verify and approve your logout</td>
+                                </tr>
+
+                                <tr>
+                                  <th>Bar Accessed</th>
+                                  <td>{{ store.name }} 
+                                    <a href="javascript:void(0)" @click="pview()">View Products</a>
+                                    </td>
+                                </tr>                   
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else-if="user.store=='---'" class="row">
                     <div class="col-md-3"></div>
                     <div class="col-md-6">
                         <div class="card">

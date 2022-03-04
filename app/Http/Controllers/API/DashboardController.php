@@ -237,15 +237,16 @@ class DashboardController extends Controller
         $query = Login::where('logins.deleted_at', NULL)
             ->join('users', 'logins.user_id', '=', 'users.id')
             ->where('users.deleted_at', NULL)
-            ->join('stores', 'logins.store_id', '=', 'stores.id')
-            ->where('stores.deleted_at', NULL)
             ->select(
                 'logins.id as id',
                 'logins.logout as logout',
                 'logins.status as status',
                 'logins.verified_by as verified_by',
                 'logins.created_at as login',
-                'stores.name as bar_name',
+                'logins.kitchen as kitchen',
+                'logins.store as store',
+                'logins.kitchen_id as kitchen_id',
+                'logins.store_id as store_id',
                 'users.name as manager'
             );
 

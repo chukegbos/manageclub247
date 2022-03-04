@@ -391,18 +391,29 @@ class UserController extends Controller
         $user = User::find(auth('api')->user()->id);
         if(auth('api')->user()->role!=8) {
             $login = Login::where('user_id', auth('api')->user()->id)->where('store_id', $user->getOriginal('store'))->where('logout', NULL)->first();
+
+            $login1 = Login::where('user_id', auth('api')->user()->id)->where('kitchen_id', $user->getOriginal('kitchen'))->where('logout', NULL)->first();
             if ($login) {
                 $login->update([
                     'logout' => Carbon::now(),
                 ]);
-                
                 $user->store = NULL;
+                $user->update();
+            }
+
+            if ($login1) {
+                $login1->update([
+                    'logout' => Carbon::now(),
+                ]);
+            
+                $user->kitchen = NULL;
                 $user->update();
             }
         }
 
         else{
             $user->store = NULL;
+            $user->kitchen = NULL;
             $user->update();
         }
         return 'ok';
@@ -417,6 +428,7 @@ class UserController extends Controller
 
             $user = User::find(auth('api')->user()->id);
             $user->store = $login->store_id;
+            $user->kitchen = $login->kitchen_id;
             $user->update();
         }
         return 'ok';

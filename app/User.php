@@ -24,7 +24,7 @@ class User extends Authenticatable
     use HasApiTokens, SoftDeletes, Notifiable;
 
     protected $fillable = [
-        'card_numbers', 'name', 'email', 'phone', 'password', 'role', 'address', 'store', 'sale_percent', 'next_of_kin_address', 'next_of_kin_phone', 'next_of_kin', 'state', 'city', 'image', 'unique_id', 'salary', 'credit_unit', 'wallet_balance', 'c_person', 'pin', 'invoice', 'entrance_date', 'dob', 'gender', 'door_access', 'access', 'approved_by', 'approved', 'member_type', 'get_role', 'debt', 'bar_wallet'
+        'card_numbers', 'name', 'email', 'phone', 'password', 'role', 'address', 'store', 'sale_percent', 'next_of_kin_address', 'next_of_kin_phone', 'next_of_kin', 'state', 'city', 'image', 'unique_id', 'salary', 'credit_unit', 'wallet_balance', 'c_person', 'pin', 'invoice', 'entrance_date', 'dob', 'gender', 'door_access', 'access', 'approved_by', 'approved', 'member_type', 'get_role', 'debt', 'bar_wallet', 'kitchen'
     ];
 
     /**
