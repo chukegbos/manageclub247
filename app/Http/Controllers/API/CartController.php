@@ -257,7 +257,6 @@ class CartController extends Controller
         $sale = Sale::create([
             'sale_id' => $trans_id,
             'totalPrice' => $request->amount,
-            'market_id' => $user->id,
             'store_id' => $user->getOriginal('store'),
             'main_date' => Carbon::now()->addHour(),
             'buyer' => $request->user_id,
@@ -310,7 +309,7 @@ class CartController extends Controller
             'market_id' => $user->id,
             'store_id' => auth('api')->user()->getOriginal('store'),
             'main_date' => Carbon::now()->addHour(),
-            'buyer' => $request->user_id,
+            'buyer' => $request->user_id ? $request->user_id : 0,
             'mop' => $request->mop,
             'approve' => 0,
             'user_type' => $request->user_type,
@@ -326,24 +325,32 @@ class CartController extends Controller
         foreach ($request->productItems as $item) {
             $sold = Item::create([
                 'code' => $sale->sale_id,
-                'product_id' => $item['product_id'],
+                'product_id' => $item['id'],
                 'product_name' => $item['product_name'],
-                'totalPrice' => ($item['qty'] * $item['price'] ) - (($item['discount']/100) * ($item['qty'] * $item['price'])) ,
+                'totalPrice' => ($item['qty'] * $item['price'] ) - (($item['discount']/100) * $item['price']) ,
                 'price' => $item['price'],
                 'discount' => $item['discount'],
                 'qty' => $item['qty'],
             ]);
         }
 
+     
+
         $service_items = ServiceItem::where('deleted_at', NULL)->where('code', $sale->sale_id)->get();
         foreach ($service_items as $item) {
             ServiceItem::destroy($item->id);
         }
+
         foreach ($request->serviceItems as $item) {
+            $kitchen = FoodKitchen::find($item['kitchen']);
+           
             $sold = ServiceItem::create([
                 'code' => $sale->sale_id,
-                'title' => $item['title'],
-                'price' => $item['price'],
+                'qty' => (int)$item['qty'],
+                'amount' => $item['amount'],
+                'food' => $item['food_id'],
+                'kitchen' => $item['kitchen'],
+                'main_kitchen' => $kitchen->kitchen_id,
             ]);
         }
 
@@ -368,23 +375,13 @@ class CartController extends Controller
         $setting = Setting::find(1);
         $user = auth('api')->user();
         $sale = Sale::where('sale_id', $request->sale_id)->where('deleted_at', NULL)->first();
-
-        /*if ($sale->mop == 1) {
-            $account = Account::find($setting->cash_account);
-        }
-        else{
-            $account = Account::find($setting->credit_account);
-        }
-
-        if (!$account->balancing_account) {
-            return ['error' => "Please go to chart of account and set the corresponding accounts"];
-        }*/
-
+       
         $items = Item::where('deleted_at', NULL)->where('code', $request->sale_id)->get();
-        
+        $serviceItems = ServiceItem::where('deleted_at', NULL)->where('code', $request->sale_id)->get();
+       
         //$ledger_id = $this->ledgerID();
-        if ($sale->getOriginal('buyer')) {
-            $buyer_id = $sale->buyer;
+        if ($sale->buyer != 0) {
+            $buyer_id = $sale->getOriginal('buyer');
             $member = Member::find($buyer_id);
             $buyer = User::where('unique_id', $member->membership_id)->first();
             $the_member = $buyer;
@@ -498,11 +495,17 @@ class CartController extends Controller
         }
         foreach ($items as $item) {
             $product = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->product_id)->where('store_id', $user->getOriginal('store'))->first();
-            $product->number = $product->number - $item->qty;
-            $product->update();
+            if ($product) {
+                $product->number = $product->number - $item->qty;
+                $product->update();
+            }
         }
         
-
+        foreach ($serviceItems as $item) {
+            $sold = ServiceItem::find($item->id);
+            $sold->paid = 1;
+            $sold->update();
+        }
 
         $sale->market_id = $request->steward_id;
         $sale->cashier_id = $user->id;

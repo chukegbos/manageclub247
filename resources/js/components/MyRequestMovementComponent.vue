@@ -156,6 +156,13 @@
                 });
             },
 
+            onChange(event) {
+                this.filterForm.selected = event.target.value;
+                this.loadInventory();
+                this.getUser();
+            },
+
+
             loadInventory() {
                 if (this.is_busy) return;
                 this.is_busy = true;

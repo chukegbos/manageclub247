@@ -46,13 +46,43 @@ class Sale extends Model
         }
     }
 
-    public function getBuyerAttribute()
+    public function getMarketIdAttribute()
     {
-        $id = $this->attributes['buyer'];
+        $id = $this->attributes['market_id'];
+       
+        $user = User::where('deleted_at', NULL)->find($id);
+        if ($user) {
+            return $user->name;
+        }
+        else {
+           return '---';
+        }
+    }
+
+    public function getCashierIdAttribute()
+    {
+        $id = $this->attributes['cashier_id'];
         if ($id) {
             $user = User::where('deleted_at', NULL)->find($id);
             if ($user) {
                 return $user->name;
+            }
+            else {
+               return '---';
+            }
+        }
+        else {
+           return '---';
+        }
+    }
+
+    public function getBuyerAttribute()
+    {
+        $id = $this->attributes['buyer'];
+        if ($id) {
+            $user = Member::where('deleted_at', NULL)->find($id);
+            if ($user) {
+                return $user->last_name. ' '. $user->first_name;
             }
             else {
                return '---';
@@ -69,6 +99,7 @@ class Sale extends Model
             
         }
     }
+
     protected $hidden = [
       'remember_token', 'deleted_at'
     ];

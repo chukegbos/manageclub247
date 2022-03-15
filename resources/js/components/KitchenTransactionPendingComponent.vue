@@ -17,6 +17,7 @@
                             <tr>
                                 <th>Description</th>
                                 <th>Qty</th>
+                                <th>Available</th>
                                 <th>Unit Price (<span v-html="nairaSign"></span>)</th>
                                 <th>Amount (<span v-html="nairaSign"></span>)</th>
                                
@@ -29,6 +30,7 @@
                             <tr v-for="item in services.data" :key="item.id">
                                 <td>{{ item.kitchen }}</td>
                                 <td>{{ item.qty }}</td>
+                                <td>{{ item.available }}</td>
                                 <td>{{ formatPrice(item.amount) }}</td>
                                 <td>{{ formatPrice(item.qty * item.amount) }}</td>
                                 <td v-if="admin.role==9">{{ item.created_at | setDate }}</td>
@@ -39,7 +41,8 @@
                                     </span>
                                     <span v-else>
                                         <span class="text-danger">Pending</span>
-                                        <span v-if="admin.role==14 || admin.role==15">
+
+                                        <span v-if="(admin.role==14 || admin.role==15) && (item.available >= item.qty)">
                                             <a href="javascript:void(0)" @click="mark(item)" class="btn btn-success btn-sm">Mark as Delivered</a>
                                         </span>
                                     </span>

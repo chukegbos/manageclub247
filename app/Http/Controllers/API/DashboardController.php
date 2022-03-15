@@ -127,25 +127,7 @@ class DashboardController extends Controller
     public function getorder($id)
     {
         $params = [];
-        $params['sale'] = Sale::where('sales.deleted_at', NULL)
-            ->where('sales.sale_id', $id)
-            ->join('users', 'sales.market_id', '=', 'users.id')
-            ->select(
-                'sales.id as id',
-                'sales.approved as approved',
-                'sales.status as status',
-                'sales.sale_id as sale_id',
-                'sales.store_id as store_id',
-                'sales.buyer as buyer',
-                'sales.mop as mop',
-                'users.name as marketer',
-                'sales.user_type as user_type',
-                'sales.guest as guest',
-                'sales.user_id as user_id',
-                'sales.totalPrice as totalPrice',
-                'sales.main_date as created_at'  
-            )
-            ->first();
+        $params['sale'] = Sale::where('deleted_at', NULL)->where('sale_id', $id)->first();
 
         if ($params['sale'] ) {
             //$params['word_price'] = $this->numberTowords($params['sale']->totalPrice);

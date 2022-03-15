@@ -128,7 +128,7 @@ class KitchenController extends Controller
 
     public function service(Request $request)
     {
-        $query = ServiceItem::where('deleted_at', NULL);
+        $query = ServiceItem::where('deleted_at', NULL)->where('paid', 1);
 
         if (auth('api')->user()->role==14 || auth('api')->user()->role==15) {
             $kitchen_id = auth('api')->user()->getOriginal('kitchen');
@@ -150,7 +150,7 @@ class KitchenController extends Controller
 
     public function pendingservice(Request $request)
     {
-        $query = ServiceItem::where('deleted_at', NULL)->where('status', 0);
+        $query = ServiceItem::where('deleted_at', NULL)->where('status', 0)->where('paid', 1);
 
         if (auth('api')->user()->role==14 || auth('api')->user()->role==15) {
             $kitchen_id = auth('api')->user()->getOriginal('kitchen');
@@ -174,6 +174,13 @@ class KitchenController extends Controller
     {
         $food = ServiceItem::where('deleted_at', NULL)->find($id);
         if ($food) {
+            $kitchen_id = $food->getOriginal('kitchen');
+            $kitchen = FoodKitchen::find($kitchen_id);
+            if ($kitchen) {
+                $kitchen->number = $kitchen->number - $food->qty;
+                $kitchen->update();        
+            }
+
             $food->status = 1;
             $food->update();
         }

@@ -15,7 +15,7 @@
                             <thead>
                                 <tr>
                                     <th width="400px">Product</th>
-                                    <th>Quantity(Pack)</th>
+                                    <th>Quantity(Pack/Crate)</th>
                                     <th>Bottles</th>
                                     <!--<th>Request from</th>-->
                                 </tr>
@@ -27,7 +27,7 @@
                                     <td>
                                         <b-form-input v-model="item.qty" type="number" class="form-control qty-input"></b-form-input>
                                     </td>
-
+                                    <td>{{ item.crate * item.qty }}</td>
                                     <!--<td>
                                         <b-form-select
                                             v-model="item.store"

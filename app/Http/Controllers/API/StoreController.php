@@ -1020,58 +1020,41 @@ class StoreController extends Controller
     {
         $params = [];
 
-        $query = Sale::where('sales.deleted_at', NULL)
-        ->join('users', 'sales.market_id', '=', 'users.id');
+        $query = Sale::where('deleted_at', NULL)->where('status', '!=', 'pending')->latest();
 
         if (auth('api')->user()->role==7 || auth('api')->user()->role==8) {
-            $query->where('sales.store_id', '>=', auth('api')->user()->getOriginal('store'));
+            $query->where('store_id', '>=', auth('api')->user()->getOriginal('store'));
         }
         //Optional where
         if ($request->start_date) {
-            $query->where('sales.main_date', '>=', $request->start_date);
+            $query->where('main_date', '>=', $request->start_date);
         }
         if ($request->end_date) {
-            $query->where('sales.main_date', '<=', $request->end_date . ' 23:59');
+            $query->where('main_date', '<=', $request->end_date . ' 23:59');
         }
 
         if ($request->staff) {
-            $query->where('sales.user_id', $request->staff);
+            $query->where('user_id', $request->staff);
         }
 
         if ($request->buyer) {
-            $query->where('sales.buyer', $request->buyer);
+            $query->where('buyer', $request->buyer);
         }
 
         if ($request->store) {
-            $query->where('sales.store_id', $request->store);
+            $query->where('store_id', $request->store);
         }
 
         if ($request->customer) {
-            $query->where('users.name', 'like', '%' . $request->customer . '%');
+            $query->where('name', 'like', '%' . $request->customer . '%');
         }
 
-        $query->where('sales.status', '!=', 'pending')->orderBy('sales.main_date', 'Desc')
-            ->select(
-                'sales.id as id',
-                'sales.sale_id as sale_id',
-                'sales.initialPrice as initialPrice',
-                'sales.totalPrice as totalPrice',
-                'sales.discount as discount',
-                'sales.mop as mop',
-                'users.name as marketer',
-                'sales.store_id as store_id',
-                'sales.status as status',
-                'sales.main_date as created_at'  
-            );
-
-            if ($request->selected==0) {
-                $params['report_data'] =  $query->get();
-            }
-            else{
-                $params['report_data']  =  $query->paginate($request->selected);
-            }
-         
-        $query1 = Sale::where('sales.deleted_at', NULL);
+        if ($request->selected==0) {
+            $params['report_data'] =  $query->get();
+        }
+        else{
+            $params['report_data']  =  $query->paginate($request->selected);
+        }
 
         $params['all'] = $query->count();
         $params['users'] = User::where('deleted_at', NULL)->where('role', '!=', 0)->get();

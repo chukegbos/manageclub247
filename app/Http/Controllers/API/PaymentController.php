@@ -386,7 +386,7 @@ class PaymentController extends Controller
         else{
             $params['channels'] =  $query->paginate($request->selected);
         }
-        $params['selected_channel'] = $query->where('id', 1)->orWhere('id', 7)->get();
+        $params['selected_channel'] = $query->where('id', 2)->orWhere('id', 1)->orWhere('id', 7)->get();
         $params['all'] = $query->count();
         $params['banks'] = PaymentBank::where('deleted_at', NULL)->get();
         $params['pos'] = PaymentPos::where('deleted_at', NULL)->get();

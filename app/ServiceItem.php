@@ -16,7 +16,7 @@ class ServiceItem extends Model
     protected $table = 'service_items';
 
     protected $fillable = [
-        'code', 'amount', 'qty', 'food', 'kitchen', 'status', 'main_kitchen'
+        'code', 'amount', 'qty', 'food', 'kitchen', 'status', 'main_kitchen', 'paid', 'available'
     ];
 
     protected $dates = [
@@ -42,6 +42,19 @@ class ServiceItem extends Model
         $kitchen = FoodKitchen::find($kitchen_id);
         if ($kitchen) {
             return $kitchen->status;        
+        }
+
+        else{
+            return '---';
+        }
+    }
+
+    public function getAvailableAttribute()
+    {
+        $kitchen_id = $this->attributes['kitchen'];
+        $kitchen = FoodKitchen::find($kitchen_id);
+        if ($kitchen) {
+            return $kitchen->number;        
         }
 
         else{

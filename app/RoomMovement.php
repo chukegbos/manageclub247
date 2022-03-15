@@ -177,4 +177,24 @@ class RoomMovement extends Model
             return '---';
         }
     }
+
+    public function getCrateAttribute()
+    {
+        $product_id = $this->attributes['product_id'];
+        $owner = InventoryStore::where('deleted_at', NULL)->find($product_id);
+        if ($owner) {
+            $product = Inventory::where('deleted_at', NULL)->find($owner->inventory_id);
+            if ($product) {
+                $id = $product->id; 
+                return $product->number_per_crate;            
+            }
+            else{
+                return '0';
+            }
+        }
+        else{
+            return '0';
+        }
+    }
+
 }

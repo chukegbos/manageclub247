@@ -43,7 +43,8 @@
 
                     <h6>Total: <b><span v-html="nairaSign"></span>{{ formatPrice(this.sale.totalPrice) }}</b></h6>
                   
-                    <p>Steward: <b>{{ sale.marketer }}</b></p>
+                    <p>Steward: <b>{{ sale.market_id }}</b><br>
+                    Desk Officer: <b>{{ sale.cashier_id}}</b></p>
                     <i v-if="sale.status=='concluded'">Thanks and please call again</i>              
                 </div>
             </div>
@@ -54,7 +55,7 @@
                     <button v-if="sale.status=='pending'" class="btn btn-info btn-sm mb-2"  @click="newModal">Complete Transaction</button>
 
                    
-                    <button v-if="sale.status=='pending'" class="btn btn-primary btn-sm mb-2"  @click="editInvoice">Edit</button>
+                    <!--<button v-if="sale.status=='pending'" class="btn btn-primary btn-sm mb-2"  @click="editInvoice">Edit</button>-->
 
                     <button id="btnPrint" class="btn btn-success p-1 m-2 text-center">Print</button>
 
@@ -116,7 +117,7 @@
                                 <b-form-group label="Method of Fund:" label-for="payment_method">
                                     <select v-model="form.channel" class="form-control">
                                         <option v-for="option in payment_types" v-bind:value="option.id">
-                                            <span v-if="(option.id==1) || (option.id==7)">{{ option.title }}</span>
+                                            <span v-if="(option.id==1) || (option.id==2) || (option.id==7)">{{ option.title }}</span>
                                         </option>
                                     </select>
                                 </b-form-group>

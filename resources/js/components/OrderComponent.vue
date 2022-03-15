@@ -69,6 +69,7 @@
                             <th>Date</th>
                             <th>Ref ID</th>
                             <th>Bar</th>
+                            <th>Front Desk</th>
                             <th>Steward</th>
                             <th>Payment Type</th>
                             <th>Amount (<span v-html="nairaSign"></span>)</th>
@@ -80,7 +81,8 @@
                             <td>{{ order.created_at | myDate }}</td>
                             <td>{{ order.sale_id }}</td>
                             <td>{{ order.store_id }}</td>
-                            <td>{{ order.marketer }}</td>
+                            <td>{{ order.cashier_id }}</td>
+                            <td>{{ order.market_id }}</td>
                             <td>
                                 <span v-if="order.mop==1">Cash Sale</span>
                                 <span v-else>Credit Sale</span>
@@ -145,7 +147,7 @@
                     end_date: '',
                     customer: '',
                     store: '',
-                    selected: '15',
+                    selected: '20',
                 },
                 action: {
                     selected: []
@@ -173,7 +175,7 @@
                 });
             },
 
-             onChange(event) {
+            onChange(event) {
                 this.filterForm.selected = event.target.value;
                 this.loadSales();
                 this.getUser();
