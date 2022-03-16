@@ -1025,7 +1025,16 @@ class StoreController extends Controller
         if (auth('api')->user()->role==7 || auth('api')->user()->role==8) {
             $query->where('store_id', '>=', auth('api')->user()->getOriginal('store'));
         }
+
         //Optional where
+        if ($request->frontdesk_id) {
+            $query->where('cashier_id', $request->frontdesk_id);
+        }
+
+        if ($request->steward_id) {
+            $query->where('market_id', $request->steward_id);
+        }
+
         if ($request->start_date) {
             $query->where('main_date', '>=', $request->start_date);
         }
@@ -1057,6 +1066,7 @@ class StoreController extends Controller
         }
 
         $params['all'] = $query->count();
+        $params['total_amount'] = $query->sum('totalPrice');
         $params['users'] = User::where('deleted_at', NULL)->where('role', '!=', 0)->get();
 
         return $params;

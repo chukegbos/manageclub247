@@ -32,17 +32,25 @@
                                 </div>
                             </div>
 
-                            <b-form-group label="Customer:" label-for="keyword">
-                                <b-form-input id="name" v-model="filterForm.customer" type="text"></b-form-input>
-                            </b-form-group>
-
-                            <b-form-group label="Store:">
-                                <v-select label="name" :options="stores" @input="setSelected" ></v-select>
-                            </b-form-group>
-
-                            <!--<b-form-group label="Marketer:" label-for="staff">
+                             <div class="form-group">
+                                <label>Front Desk</label>
                                 <b-form-select
-                                    v-model="filterForm.staff"
+                                    v-model="filterForm.frontdesk_id"
+                                    :options="staff"
+                                    value-field="id"
+                                    text-field="name"
+                                >
+                                <template v-slot:first>
+                                    <b-form-select-option :value="0">
+                                        All
+                                    </b-form-select-option>
+                                </template>
+                                </b-form-select>
+                            </div>
+
+                            <b-form-group label="Select Steward:" label-for="staff">
+                                <b-form-select
+                                    v-model="filterForm.steward_id"
                                     :options="staff"
                                     value-field="id"
                                     text-field="name">
@@ -53,7 +61,12 @@
                                         </b-form-select-option>
                                     </template>
                                 </b-form-select>
-                            </b-form-group>-->
+                            </b-form-group>
+
+                            <b-form-group label="Store:">
+                                <v-select label="name" :options="stores" @input="setSelected"></v-select>
+                            </b-form-group>
+
 
                             <b-button type="submit" variant="primary">Filter</b-button>
                         </b-form>
@@ -62,6 +75,30 @@
             </div>
 
             <div class="card">
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <b>Show <select v-model="filterForm.selected" @change="onChange($event)">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                     <option value="15">15</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="0">All</option>
+                                </select>
+                            Entries</b>
+                            <br> Total Sale: <b>{{ count_all }} Items</b>
+                        </div>
+
+                        <div class="col-md-2">
+                            <br> Total Amount: <b><span v-html="nairaSign"></span>{{ formatPrice(total_amount) }}</b>
+                        </div>
+
+                        <div class="col-md-8" v-if="this.filterForm.selected!=0">
+                            <pagination :data="report_items" @pagination-change-page="getResults" :limit="-1"></pagination>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="card-body table-responsive p-0" v-if="report_items.data.length>0" id="printMe">
                     <table class="table table-hover">
@@ -105,26 +142,7 @@
                 <div class="card-body" v-else>
                     <div class="alert alert-info text-center"><h3><strong>No Transaction Found.</strong></h3></div>
                 </div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-md-2">
-                            <b>Show <select v-model="filterForm.selected" @change="onChange($event)">
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                     <option value="15">15</option>
-                                    <option value="20">20</option>
-                                    <option value="50">50</option>
-                                    <option value="0">All</option>
-                                </select>
-                            Entries</b>
-                            <br> Total: <b>{{ count_all }} Items</b>
-                        </div>
-
-                        <div class="col-md-10" v-if="this.filterForm.selected!=0">
-                            <pagination :data="report_items" @pagination-change-page="getResults" :limit="-1"></pagination>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </b-overlay>
@@ -148,6 +166,8 @@
                     customer: '',
                     store: '',
                     selected: '20',
+                    steward_id: 0,
+                    frontdesk_id: 0,
                 },
                 action: {
                     selected: []
@@ -163,6 +183,7 @@
                 report_items: {
                     data: '',
                 },
+                total_amount: '',
             };
         },
 
@@ -173,6 +194,15 @@
                     this.user = data.user;
                     this.stores = data.stores;
                 });
+            },
+
+            getSdID(data){
+                console.log(data)
+                this.filterForm.steward_id = data.id;
+            },
+
+            getFdID(data){
+                this.filterForm.frontdesk_id = data.id;
             },
 
             onChange(event) {
@@ -220,6 +250,7 @@
                     }
                     this.count_all = data.data.all;
                     this.staff = data.data.users;
+                    this.total_amount = data.data.total_amount;
                 })
 
                 .catch((err) => {
