@@ -6,10 +6,10 @@
                     <h2><strong>Make Order</strong></h2>
                 </div>
                 <div class="col-md-5">
-                    <b-button type="button" variant="primary" @click="onAddNewProduct" size="sm" class="float-right m-2">
+                    <b-button type="button" variant="primary" @click="onAddNewProduct" size="sm" class="float-right m-2" v-if="user.role==7">
                         Add Drink
                     </b-button>
-                    <b-button type="button" variant="primary" @click="onAddNewService" size="sm" class="float-right m-2">
+                    <b-button type="button" variant="primary" @click="onAddNewService" size="sm" class="float-right m-2" v-if="user.role==14">
                         Add Food
                     </b-button>
                 </div>
@@ -18,8 +18,8 @@
             <div class="card">
                 <div class="card-body">
                     <b-form @submit.stop.prevent="is_edit ? updateForm() : onFormSubmit()">
-                        <h4 class="p-2"><b>Drink List</b></h4>
-                        <table class="table table-striped table-responsive-md text-center">
+                        <h4 class="p-2" v-if="user.role==7"><b>Drink List</b></h4>
+                        <table class="table table-striped table-responsive-md text-center" v-if="user.role==7">
                             <thead>
                                 <tr>
                                     <th>Product</th>
@@ -74,9 +74,9 @@
                             </tbody>
                         </table>
                         
-                        <h4 class="p-2"><b>Food List</b></h4>
+                        <h4 class="p-2" v-if="user.role==14"><b>Food List</b></h4>
 
-                        <table class="table table-striped table-responsive-md text-center">
+                        <table class="table table-striped table-responsive-md text-center" v-if="user.role==14">
                             <thead>
                                 <tr>
                                     <th width="600px">Food</th>
@@ -114,6 +114,7 @@
                                     <th>User Type</th>
                                     <th>Name</th>
                                     <th v-if="form.user_type==1">Type of sale</th>
+                                    <th>Date of Sale</th>
                                     <th>Total Amount</th>
                                 </tr>
                             </thead>
@@ -141,6 +142,9 @@
                                                 {{ option.text }}
                                             </option>
                                         </select>
+                                    </th>
+                                    <th>
+                                        <b-form-input v-model="form.main_date" type="date" class="form-control"></b-form-input>
                                     </th>
                                     <th><h4><b><span v-html="nairaSign"></span>{{ formatPrice(form.amount) }}</b></h4></th>
                                 </tr>
@@ -184,6 +188,7 @@
                     mop: 1,
                     user_type: 0,
                     guest: '',
+                    main_date: '',
                 }),
 
                 applied_discount: {

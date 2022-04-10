@@ -5,9 +5,11 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Store;
+use App\Kitchen;
 use App\StoreRequest;
 use App\InventoryStore;
 use App\Sale;
+use App\Item;
 use App\Debtor;
 use App\PaymentDebit;
 use App\Member;
@@ -210,6 +212,16 @@ class StoreController extends Controller
         return $params;
     }
 
+    public function updatedrink(Request $request, $id)
+    {
+        $drink = InventoryStore::where('deleted_at', NULL)->find($id);
+        if ($drink) {
+            $drink->number = $request->quantity;
+            $drink->update();
+        }
+
+        return 'Ok';
+    }
     public function showroom(Request $request, $code, $id)
     {        
         $params = [];
@@ -1022,9 +1034,16 @@ class StoreController extends Controller
 
         $query = Sale::where('deleted_at', NULL)->where('status', '!=', 'pending')->latest();
 
-        if (auth('api')->user()->role==7 || auth('api')->user()->role==8) {
-            $query->where('store_id', '>=', auth('api')->user()->getOriginal('store'));
+         if (auth('api')->user()->role==14) {
+            $query->where('sec_id', '!=', NULL);
         }
+        else{
+            $query->where('store_id', '!=', NULL);
+        }
+
+        /*if (auth('api')->user()->role==7 || auth('api')->user()->role==8) {
+            $query->where('store_id',  auth('api')->user()->getOriginal('store'));
+        }*/
 
         //Optional where
         if ($request->frontdesk_id) {
@@ -1050,6 +1069,10 @@ class StoreController extends Controller
             $query->where('buyer', $request->buyer);
         }
 
+        if ($request->kitchen) {
+            $query->where('sec_id', $request->kitchen);
+        }
+
         if ($request->store) {
             $query->where('store_id', $request->store);
         }
@@ -1072,12 +1095,126 @@ class StoreController extends Controller
         return $params;
     }
 
+    public function item(Request $request)
+    {
+        $params = [];
+
+        $query = Item::where('items.deleted_at', NULL)
+        ->join('sales', 'items.code', '=', 'sales.sale_id')
+        ->where('sales.status', 'concluded')
+        ->where('sales.deleted_at', NULL)
+        ->orderBy('items.qty', 'desc');
+
+        //Optional where
+            
+        if ($request->frontdesk_id==0) {
+            $params['frontdesk'] = "All";
+        }
+        else{
+            $query->where('sales.cashier_id', $request->frontdesk_id);
+            $fdo = User::where('deleted_at', NULL)->find($request->frontdesk_id);
+            $params['frontdesk'] = $fdo->name;
+        }
+    
+        if ($request->steward_id==0) {
+            $params['steward'] = "All";
+        }
+        else{
+            $query->where('sales.market_id', $request->steward_id);
+            $stw = User::where('deleted_at', NULL)->find($request->steward_id);
+            $params['steward'] = $stw->name;
+        }
+        
+        if ($request->kitchen_id==0) {
+            $params['kitchen'] = "All";
+        }
+        else {
+            $query->where('sales.sec_id', $request->kitchen_id);
+            $kitchen = Kitchen::where('deleted_at', NULL)->find($request->kitchen_id);
+            $params['kitchen'] = $kitchen->name;
+        }
+        
+        if ($request->store_id==0) {
+            $params['store'] = "All";
+        }
+        else {
+            $query->where('sales.store_id', $request->store_id);
+            $store = Store::where('deleted_at', NULL)->find($request->store_id);
+            $params['store'] = $store->name;
+        }
+
+        if ($request->start_date) {
+            $query->where('sales.main_date', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->where('sales.main_date', '<=', $request->end_date . ' 23:59');
+        }
+
+        if ($request->staff) {
+            $query->where('sales.user_id', $request->staff);
+        }
+
+        if ($request->buyer) {
+            $query->where('sales.buyer', $request->buyer);
+        }
+
+        
+
+        if ($request->customer) {
+            $query->where('sales.name', 'like', '%' . $request->customer . '%');
+        }
+
+        $query->select(DB::raw("
+            sales.cashier_id as cashier_id, 
+            sales.market_id as market_id, 
+            sales.main_date as main_date, 
+            sales.user_id as user_id, 
+            sales.buyer as buyer, 
+            sales.sec_id as sec_id,
+            sales.store_id as store_id,  
+            items.price as price, 
+            items.qty as qty, 
+            SUM(items.qty) As qty, 
+            SUM(items.price * items.qty) As totalPrice, 
+            items.product_id as product_id, 
+            items.product_name as product_name"
+        ));
+
+        /*if (auth('api')->user()->role==14) ->groupBy('product_id'){
+            $query->where('sec_id', '!=', NULL);
+        }
+        else{
+            $query->where('store_id', '!=', NULL);
+        }
+
+        if (auth('api')->user()->role==7 || auth('api')->user()->role==8) {
+            $query->where('store_id',  auth('api')->user()->getOriginal('store'));
+        }*/
+
+        
+        if ($request->selected==0) {
+            $params['report_data'] = $query->groupBy('items.product_id')->get();
+        }
+        else{
+            $params['report_data'] = $query->groupBy('items.product_id')->paginate($request->selected);
+        }
+        $params['stores'] = Store::where('deleted_at', NULL)->where('id', '!=', 1)->get();
+        $params['kitchens'] = Kitchen::where('deleted_at', NULL)->get();
+        $params['users'] = User::where('deleted_at', NULL)->where('role', '!=', 0)->get();
+        return $params;
+    }
+
     public function quotes(Request $request)
     {
         $params = [];
 
         $query = Sale::where('sales.deleted_at', NULL);
-
+        if (auth('api')->user()->role==14) {
+            $query->where('sec_id', '!=', NULL);
+        }
+        else{
+            $query->where('store_id', '!=', NULL);
+        }
         //Optional where
         if ($request->start_date) {
             $query->where('sales.main_date', '>=', $request->start_date);

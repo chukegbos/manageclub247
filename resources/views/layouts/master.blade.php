@@ -1906,13 +1906,36 @@
                 </li>
               @elseif(Auth::user()->role==14)
                 @if(Auth::user()->kitchen!='---')
+                  <li class="nav-item has-treeview">
+                  <a href="#" class="nav-link menu">
+                    <i class="nav-icon fa fa-shopping-cart"></i>
+                    <p>
+                      Transactions
+                      <i class="right fa fa-angle-left"></i>
+                    </p>
+                  </a>
+                  <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                      <router-link to="/sale/shopping-cart" class="nav-link menu ml-3">
+                        Generate Invoice
+                      </router-link>
+                    </li>
 
+                    <li class="nav-item">
+                      <router-link to="/sale/quote" class="nav-link menu ml-3">
+                        All Invoices
+                      </router-link>
+                    </li>
+
+                    <li class="nav-item">
+                      <router-link to="/sale/orders" class="nav-link menu ml-3">
+                        All Sales
+                      </router-link>
+                    </li>
+
+                  </ul>
+                </li>
                   <li class="nav-item">
-                    <!--<router-link to="/kitchen" class="nav-link menu">
-                      <i class="nav-icon fa fa-circle"></i>
-                      <p>List of Kitchen</p>
-                    </router-link>-->
-
                     <router-link to="/kitchen/{{ $my_kitchen->code }}" class="nav-link menu">
                       <i class="nav-icon fa fa-circle"></i>
                       <p>My Kitchen</p>

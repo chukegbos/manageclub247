@@ -3,7 +3,10 @@
         <div class="container mb-2">
             <div class="card">
                 <div class="card-body">
-                    <h2><b>{{ store.name }}</b></h2>
+                    <h2><b>
+                        <span v-if="store">{{ store.name }}</span>
+                        <span v-else>{{ kitchen.name }}</span>
+                    </b></h2>
                     <p>
                         <span v-if="sale.status=='concluded'">Sold to</span>
                         <span v-else>Biiled To</span>:
@@ -30,17 +33,19 @@
                         <span v-else>Quote No</span>:
                         <b>{{ sale.sale_id }}</b>
                     </p>
-                
-                    <h5>Drink List</h5>
-                    <span v-for="(item, index) in items">
-                        {{ item.product_name}} ({{ item.qty }}) - {{ formatPrice((item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))) }}<br>
-                    </span>                                 
-                    <br>
-                    <h5>Food List</h5>
-                    <p v-for="(item, index) in services">
-                        {{ item.food }} ({{ item.qty }}) - {{ formatPrice(item.qty * item.amount) }}
-                    </p>
-
+                    <span v-if="items.length!=0">
+                        <h5>Drink List</h5>
+                        <span v-for="(item, index) in items">
+                            {{ item.product_name}} ({{ item.qty }}) - {{ formatPrice((item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))) }}<br>
+                        </span> 
+                    </span>  
+                    <span v-if="services.length!=0">                              
+                        <br>
+                        <h5>Food List</h5>
+                        <p v-for="(item, index) in services">
+                            {{ item.food }} ({{ item.qty }}) - {{ formatPrice(item.qty * item.amount) }}
+                        </p>
+                    </span> 
                     <h6>Total: <b><span v-html="nairaSign"></span>{{ formatPrice(this.sale.totalPrice) }}</b></h6>
                   
                     <p>Steward: <b>{{ sale.market_id }}</b><br>
@@ -345,6 +350,7 @@
             site: "",
             user: "",
             store: "",
+            kitchen: "",
             mainprice: "",
             customer: '',
             services: {},
@@ -468,6 +474,7 @@
                 this.items = response.data.items;
                 this.services = response.data.services;
                 this.store = response.data.store;
+                this.kitchen = response.data.kitchen;
             })
 
             .catch((err) => {

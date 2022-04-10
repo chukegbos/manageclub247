@@ -504,7 +504,9 @@ let routes = [
     { path: '/kitchen/:code', component: require('./components/KitchenViewComponent.vue').default },
     { path: '/food/production', component: require('./components/ViewProductionComponent.vue').default },
     { path: '/cleared', component: require('./components/ClearedComponent.vue').default },
+    { path: '/items', component: require('./components/ItemComponent.vue').default },
 ];
+
 
 const router = new VueRouter({
 	mode: 'history',

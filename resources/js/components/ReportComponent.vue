@@ -29,12 +29,17 @@
                                     </tr>
 
                                     <tr>
+                                        <td><router-link to="/items">Item Sales Report</router-link></td>
+                                        <td>This lists sales report of drinks in the bar. </td> 
+                                    </tr>
+
+                                    <tr>
                                         <td><router-link to="/sale/quote">Company Quotes</router-link></td>
                                         <td>This lists Members' unattended invoice. </td> 
                                     </tr>
 
                                     <tr>
-                                        <td><router-link to="/admin/purchases">Item Purchases</router-link></td>
+                                        <td><router-link to="/admin/purchases">Store Purchases</router-link></td>
                                         <td>This lists the company's purchase reports. </td> 
                                     </tr>
 

@@ -171,7 +171,7 @@ class User extends Authenticatable
         $unique_id = $this->attributes['unique_id'];
         $member = Member::where('deleted_at', NULL)->where('membership_id', $unique_id)->first();
 
-        if ($door_access==0) {
+        if ($member && $door_access==0) {
             $approved = User::where('deleted_at', NULL)->where('role', 0)->where('approved', 0)->where('unique_id', $unique_id)->first();
         
             $image = User::where('deleted_at', NULL)->where('role', 0)->where('image', NULL)->where('unique_id', $unique_id)->first();

@@ -345,7 +345,7 @@
                 this.form.put("/api/store/" + this.form.id)
                 .then(() => {
                    
-                    Swal.fire("Updated!", "store Updated Successfully.", "success");
+                    Swal.fire("Updated!", "Store Updated Successfully.", "success");
                                 
                 })
 

@@ -100,6 +100,7 @@ Route::group(['prefix' => 'store'], function(){
 	Route::get('delete', 'API\StoreController@destroy');
 	Route::get('loadinventory', 'API\StoreController@loadinventory');
 	Route::delete('request/{id}', 'API\StoreRequestController@destroy');
+	Route::put('inv/{id}', 'API\StoreController@updatedrink');
 	Route::put('request/{id}', 'API\StoreRequestController@edit');
 	Route::post('/accept', 'API\StoreController@acceptall');
 	Route::get('/accept/{id}', 'API\StoreController@accept');
@@ -109,6 +110,7 @@ Route::group(['prefix' => 'store'], function(){
 	Route::get('/allinventory', 'API\StoreController@allInventory');
 	Route::get('/reports', 'API\StoreController@reports');
 	Route::get('/orders', 'API\StoreController@orders');
+	Route::get('/item', 'API\StoreController@item');
 	Route::get('/quotes', 'API\StoreController@quotes');
 	Route::get('/invoice', 'API\StoreController@invoice');
 	Route::get('/debtors', 'API\StoreController@debtors');

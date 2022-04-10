@@ -11,6 +11,7 @@ use App\Item;
 use App\Fund;
 use App\Member;
 use App\Category;
+use App\Kitchen;
 use App\Login;
 use DB;
 use App\RoomMovement;
@@ -139,6 +140,7 @@ class DashboardController extends Controller
 
             }
             $params['store'] = Store::where('deleted_at', NULL)->find($params['sale']->getOriginal('store_id'));
+            $params['kitchen'] = Kitchen::where('deleted_at', NULL)->find($params['sale']->getOriginal('sec_id'));
             
             $params['items'] = Item::where('items.code', $id)
                 

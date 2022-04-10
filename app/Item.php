@@ -3,6 +3,7 @@
 namespace App;
 
 use App\User;
+use App\Inventory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
@@ -37,4 +38,15 @@ class Item extends Model
       'remember_token', 'deleted_at'
     ];
 
+    public function getProductNameAttribute()
+    {
+        $id = $this->attributes['product_id'];
+        $inventory = Inventory::where('deleted_at', NULL)->find($id);
+        if($inventory){
+            return $inventory->product_name;
+        }
+        else{
+            return NULL;
+        }
+    }
   }

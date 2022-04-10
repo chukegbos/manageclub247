@@ -4,6 +4,7 @@ namespace App;
 
 use App\User;
 use App\Store;
+use App\Kitchen;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
@@ -43,6 +44,23 @@ class Sale extends Model
         }
         else {
            return '---';
+        }
+    }
+
+    public function getSecIdAttribute()
+    {
+        $id = $this->attributes['sec_id'];
+        if ($id) {
+            $kitchen = Kitchen::where('deleted_at', NULL)->find($id);
+            if ($kitchen) {
+                return $kitchen->name;
+            }
+            else{
+                return "---";
+            }
+        }
+        else{
+            return "---";
         }
     }
 

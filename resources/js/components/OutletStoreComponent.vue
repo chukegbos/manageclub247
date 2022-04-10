@@ -91,8 +91,8 @@
                                             <i class="fa fa-caret-down" aria-hidden="true"></i>
                                         </a>
                                     </div>
-                                </th>
-                                <th v-if="unprintable==false">Action</th>-->
+                                </th>-->
+                                <th v-if="unprintable==false">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -109,6 +109,12 @@
                                 </td>
                                 <!--<td>{{ inventory.threshold }}</td>
                                 <td>{{ inventory.updated_at }}</td>-->
+                                <td>
+                                    <b-dropdown id="dropdown-right" text="Action" variant="info">
+                                        <b-dropdown-item href="javascript:void(0)" @click="editModal(inventory)">Edit</b-dropdown-item>
+
+                                    </b-dropdown>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -142,6 +148,57 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="editQty" tabindex="-1" role="dialog" aria-labelledby="editQtyLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            Edit Item
+                        </h5>
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form @submit.prevent="updateItem()">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Quantity <span class="text-danger pulll-right">*</span></label>
+                                <input
+                                    v-model="formInv.quantity"
+                                    type="number"
+                                    name="quantity"
+                                    required
+                                    class="form-control"
+                                    :class="{
+                                        'is-invalid': formInv.errors.has(
+                                            'quantity'
+                                        )
+                                    }"
+                                />
+                                <has-error
+                                    :form="formInv"
+                                    field="quantity"
+                                ></has-error>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">
+                                Close
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                Update
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </b-overlay>
 </template>
 
@@ -168,6 +225,12 @@
                     price: "0",
                     category: 1,
                 }),
+
+                formInv: new Form({
+                    room_id: "",
+                    quantity: "",
+                }),
+
 
                 site: '', 
                 store: '',
@@ -208,6 +271,37 @@
                 this.getUser();
                 this.loadInventory();
                 
+            },
+
+            editModal(inventory) {
+                (this.editMode = true), this.formInv.reset();
+                $("#editQty").modal("show");
+                this.formInv.fill(inventory);
+            },
+
+            updateItem() {
+                if (this.is_busy) return;
+                this.is_busy = true;
+                $("#editQty").modal("hide");
+                this.formInv.put("/api/store/inv/" + this.formInv.room_id)
+                .then(() => {
+                   
+                    Swal.fire("Updated!", "Item Updated Successfully.", "success");
+                                
+                })
+
+                .catch(() => {
+                    Swal.fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.getUser();
+                    this.loadInventory();
+                });
             },
 
             getUser() {

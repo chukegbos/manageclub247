@@ -31,6 +31,7 @@
                             <tr>
                                 <th><input type="checkbox" v-model="selectAll"></th>
                                 <th>Name</th>
+                                <th>No of Members</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -38,9 +39,14 @@
                             <tr v-for="type in types.data" :key="type.id">
                                 <td> <input type="checkbox" v-model="action.selected" :value="type.id" number></td>
                                 <td>{{ type.title }}</td>
+                                <td>
+                                    {{ type.members }}<br>
+                                </td>
                                 <td v-if="unprintable==false">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(type)">Edit</b-dropdown-item>
+
+                                        <b-dropdown-item href="javascript:void(0)" @click="viewMembers(type)">Edit</b-dropdown-item>
 
                                         <b-dropdown-item href="javascript:void(0)" @click="onDeleteAll(type.id)">Delete</b-dropdown-item>
                                     </b-dropdown>
