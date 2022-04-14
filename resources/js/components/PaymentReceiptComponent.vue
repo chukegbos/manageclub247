@@ -1,55 +1,21 @@
 <template>
     <b-overlay :show="is_busy" rounded="sm">
         <div class="container-fluid pt-2">
-            <!--<div class="row">
-                <div class="col-md-2"></div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body" id="printMe">
-                            <div class="border p-2 text-center">
-                                <div class="mb-3">
-                                    <h4><strong>PAYMENT RECEIPT</strong></h4>
-                                    <h6><strong>{{ site.sitename }}</strong></h6>
-                                </div>
-                                <div class="mb-3">
-                                    <p>
-                                        <b>Receipt No: </b> {{ payment.rec_id }}<br><br>
-                                        <b>Name: </b> {{ payment.get_member.get_member }}<br><br>
-                                        <b>Description: </b> {{ payment.get_product.description }}<br><br>
-                                        <b>Amount: </b> <span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}<br><br>
-                                        <b>Date: </b> {{ payment.created_at | myDate }}<br> <br>
-                                        <b>Front Desk: </b> {{ payment.created_by }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card-footer">
-                            <button @click="print" class="btn btn-success btn-lg btn-block mb-2">Print</button>
-                        </div>
-                    </div>
-                </div>
-            </div>-->
-
-
             <div class="card">
-                <div class="card-body" id="printMe">
-                    <div class="border p-2 text-center">
-                        <div class="mb-3">
-                            <h1><strong>PAYMENT RECEIPT</strong></h1>
-                            <h2><strong>{{ site.sitename }}</strong></h2>
-                        </div>
-                        <div class="mb-3">
-                            <h4>
-                                <b>Receipt No: </b> {{ payment.rec_id }}<br><br
-                                <b>Name: </b> {{ payment.get_member.get_member }}<br><br>
-                                <b>Description: </b> {{ payment.get_product.description }}<br><br>
-                                <b>Amount: </b> <span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}<br><br>
-                                <b>Date: </b> {{ payment.created_at | myDate }}<br> <br>
-                                <b>Front Desk: </b> {{ payment.created_by }}
-                            </h4>
-                        </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5><strong>PAYMENT RECEIPT</strong></h5>
+                        <h6><strong>{{ site.sitename }}</strong></h6>
                     </div>
+    
+                    <p>
+                        <b>Receipt No: </b> {{ payment.rec_id }}<br>
+                        <b>Name: </b> {{ payment.get_member.get_member }}<br>
+                        <b>Description: </b> {{ payment.get_product.description }}<br>
+                        <b>Amount: </b> <span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}<br><br>
+                        <b>Date: </b> {{ payment.created_at | myDate }}<br>
+                        <b>Front Desk: </b> {{ payment.created_by }}
+                    </p>
                 </div>
             </div>
         </div>

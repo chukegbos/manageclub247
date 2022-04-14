@@ -39,6 +39,22 @@ class PaymentController extends Controller
             $query->where('rec_id', 'like', '%' . $request->name . '%');
         }
 
+        if ($request->frontdesk_id==0) {
+            $params['frontdesk'] = "All Front Desk";
+        }
+        else{
+            $query->where('created_by', $request->frontdesk_id);
+            $fdo = User::where('deleted_at', NULL)->find($request->frontdesk_id);
+            $params['frontdesk'] = $fdo->name;
+        }
+        $params['users'] = User::where('deleted_at', NULL)->where('role', 5)->get();
+        if ($request->start_date) {
+            $query->where('created_at', '>=', $request->start_date);
+        }
+        if ($request->end_date) {
+            $query->where('created_at', '<=', $request->end_date . ' 23:59');
+        }
+
         if ($request->selected==0) {
             $params['payments'] =  $query->get();
         }

@@ -1200,7 +1200,7 @@ class StoreController extends Controller
         }
         $params['stores'] = Store::where('deleted_at', NULL)->where('id', '!=', 1)->get();
         $params['kitchens'] = Kitchen::where('deleted_at', NULL)->get();
-        $params['users'] = User::where('deleted_at', NULL)->where('role', '!=', 0)->get();
+        $params['users'] = User::where('deleted_at', NULL)->where('role', 7)->orWhere('role', 8)->get();
         return $params;
     }
 

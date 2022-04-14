@@ -72,7 +72,6 @@ class CustomerController extends Controller
         return ['Message' => 'Updated'];
     }
 
-
     public function updatemembertype(Request $request, $id)
     {
         $memberType = Type::findOrFail($id);
@@ -94,7 +93,6 @@ class CustomerController extends Controller
         }
         return 'ok';  
     }
-
 
     public function membersection(Request $request)
     {
@@ -129,7 +127,6 @@ class CustomerController extends Controller
         return ['Message' => 'Updated'];
     }
 
-
     public function updatemembersection(Request $request, $id)
     {
         $memberSection = Section::findOrFail($id);
@@ -152,43 +149,11 @@ class CustomerController extends Controller
         return 'ok';  
     }
 
-
     public function index(Request $request)
     {
         $params = [];
         set_time_limit(0);
         $setting = Setting::findOrFail(1);
-        //$members = DB::table('default_esc_members')->get();
-
-        /*foreach ($members as $member) {
-            $user = User::where('deleted_at', NULL)->where('users.role', 0)->where('unique_id', $member->membership_id)->first();
-            if (!$user) {
-                $date = date("Y-m-d H:i:s", $member->entrance_date);
-                if ($date) {
-                    $mydate = Carbon::parse($date)->format('Y-m-d');
-                }
-                $mydate = NULL;
-
-                $dob = date("Y-m-d H:i:s", $member->entrance_date);
-                if ($date) {
-                    $mydate = Carbon::parse($date)->format('Y-m-d');
-                }
-                $mydate = NULL;
-
-                User::create([
-                    'name' => $member->last_name.' '.$member->first_name.' '.$member->middle_name,
-                    'email' => ($member->email) ? $member->email : $member->membership_id.'@enugusportsclub.org',
-                    'phone' => $member->phone_1,
-                    'c_person' => $member->last_name.' '.$member->first_name.' '.$member->middle_name,
-                    'unique_id' => $member->membership_id,
-                    'credit_unit' => 0,
-                    'role' => 0,
-                    'password' => Hash::make('Father@1989'),
-                    'entrance_date' => $mydate,
-                    'dob' => $dob,
-                ]);
-            }
-        }*/
 
         $query = User::where('users.deleted_at', NULL)
             ->where('default_esc_members.deleted_at', NULL)
@@ -228,10 +193,10 @@ class CustomerController extends Controller
         
         $params['totalusers'] =  $query->where('default_esc_members.member_type', '!=', 14)->get();
         if ($request->selected==0) {
-            $params['customers'] =  $query->get();
+            $params['customers'] = $query->get();
         }
         else{
-            $params['customers'] =  $query->paginate($request->selected);
+            $params['customers'] = $query->paginate($request->selected);
         }
       
         $params['all'] = $query->count();

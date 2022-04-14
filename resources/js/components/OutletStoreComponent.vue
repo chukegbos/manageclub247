@@ -92,11 +92,11 @@
                                         </a>
                                     </div>
                                 </th>-->
-                                <th v-if="unprintable==false">Action</th>
+                                <th v-if="admin.role==1">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr  v-for="(inventory, index) in inventories.data">
+                            <tr v-for="(inventory, index) in inventories.data">
                                 <td v-if="(admin.role==1 || admin.role==7) && admin.store!=1"> 
                                     <input type="checkbox" v-model="action.selected" :value="inventory.room_id"  number>
                                 </td>
@@ -109,7 +109,7 @@
                                 </td>
                                 <!--<td>{{ inventory.threshold }}</td>
                                 <td>{{ inventory.updated_at }}</td>-->
-                                <td>
+                                <td v-if="admin.role==1">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(inventory)">Edit</b-dropdown-item>
 

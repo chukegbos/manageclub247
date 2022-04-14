@@ -2,24 +2,82 @@
     <b-overlay :show="is_busy" rounded="sm">
         <div class="container-fluid">  
             <div class="row mb-2 p-2">
-                <div class="col-md-6">
-                    <h2><strong>Payment History</strong></h2>
-                </div>
-
-                <div class="col-md-6">
-                    <b-form @submit.stop.prevent="onFilterSubmit" class="pull-right m-2" size="sm">
-                        <b-input-group>
-                            <b-form-input id="name" v-model="filterForm.name" type="text" placeholder="Search"></b-form-input>
-
-                            <b-input-group-append>
-                                <b-button variant="outline-primary" type="submit"><i class="fa fa-search"></i></b-button>
-                            </b-input-group-append>
-                        </b-input-group>
-                    </b-form>                        
+                <div class="col-md-12">
+                    <h4 class="text-center"><strong>Payment history as at {{ filterForm.start_date | myDate }} to {{ filterForm.end_date | myDate }} as recorded by {{ frontdesk }}</strong></h4>
                 </div>
             </div>
 
             <div class="card">
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <b>Show <select v-model="filterForm.selected" @change="onChange($event)">
+                                    <option value="5">5</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <!--<option value="0">All</option>-->
+                                </select>
+                            Entries</b>
+                        </div>
+                        <div class="col-md-3">
+                             Total: <b>{{ count_all }} Payment Debits</b>
+                        </div>
+                        <div class="col-md-3">
+                            Total Amount: <b><span v-html="nairaSign"></span>{{ formatPrice(this.totalPrice) }}</b>
+                        </div>
+
+                        <div class="col-md-3">
+                            Front Desk: <b>{{ frontdesk }}</b>
+                        </div>
+                        <div class="col-md-6">
+                            <pagination :data="debits" @pagination-change-page="getResults" :limit="-1"></pagination>
+                        </div>
+
+                        <div class="col-md-6">
+                            <b-button variant="outline-primary" class="pull-right m-2" size="sm" v-b-modal.filter-modal><i class="fa fa-filter"></i> Filter</b-button>
+
+                            <b-modal id="filter-modal" ref="filter" title="Report Filter" hide-footer>
+                                <b-form @submit.stop.prevent="onFilterSubmit">
+                                    <b-form-group label="Start Date:" label-for="Start Date">
+                                        <b-form-datepicker v-model="filterForm.start_date" placeholder="Start date"
+                                            :date-format-options="{ year: 'numeric', month: 'short', day: '2-digit', weekday: 'short' }">
+                                        </b-form-datepicker>
+                                    </b-form-group>
+                                    
+                                    <b-form-group label="End Date:" label-for="End Date">
+                                        <b-form-datepicker v-model="filterForm.end_date" placeholder="End date"
+                                            :date-format-options="{ year: 'numeric', month: 'short', day: '2-digit', weekday: 'short' }">
+                                        </b-form-datepicker>
+                                    </b-form-group>
+
+                                    <div class="form-group">
+                                        <label>Front Desk</label>
+                                        <b-form-select
+                                            v-model="filterForm.frontdesk_id"
+                                            :options="staff"
+                                            value-field="id"
+                                            text-field="name"
+                                        >
+                                        <template v-slot:first>
+                                            <b-form-select-option :value="0">
+                                                All
+                                            </b-form-select-option>
+                                        </template>
+                                        </b-form-select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Random Search</label>
+                                        <b-form-input id="name" v-model="filterForm.name" type="text" placeholder="Search"></b-form-input>
+                                    </div>
+                                    <b-button type="submit" variant="primary">Filter</b-button>
+                                </b-form>
+                            </b-modal>                
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card-body table-responsive p-0" v-if="debits.data.length>0" id="printMe">
                     <table class="table table-hover">
                         <thead>
@@ -52,25 +110,7 @@
                 <div class="card-body" v-else>
                     <div class="alert alert-info text-center"><h3><strong>No Payment History Found.</strong></h3></div>
                 </div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <b>Show <select v-model="filterForm.selected" @change="onChange($event)">
-                                    <option value="5">5</option>
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="50">50</option>
-                                    <!--<option value="0">All</option>-->
-                                </select>
-                            Entries</b>
-                            <br> Total: <b>{{ count_all }} Payment Debits</b>
-                        </div>
-
-                        <div class="col-md-4" v-if="this.filterForm.selected!=0">
-                            <pagination :data="debits" @pagination-change-page="getResults" :limit="-1"></pagination>
-                        </div>
-                    </div>
-                </div>
+                
             </div>
         </div>
     </b-overlay>
@@ -91,6 +131,9 @@
                 model: {},
                 debits: {},
                 debit: "",
+                frontdesk: '',
+                staff: {},
+                totalPrice: '',
                 form: new Form({
                     id: "",
                     title: "",
@@ -98,7 +141,10 @@
                 nairaSign: "&#x20A6;",
                 filterForm: {
                     name: '',
-                    selected: '10',
+                    selected: 50,
+                    frontdesk_id: 0,
+                    start_date: moment().subtract(130, 'days').format("YYYY-MM-DD"),
+                    end_date: moment().format("YYYY-MM-DD"),
                 },
                 action: {
                     selected: []
@@ -136,7 +182,9 @@
                     else{
                         this.debits = data.payments;
                     }
-                    console.log(this.debits)
+                    this.totalPrice = this.debits.data.reduce((acc, item) => acc + item.amount, 0);
+                    this.frontdesk = data.frontdesk;
+                    this.staff = data.users;
                     this.count_all = data.all;
                 })
                 .catch(() => {
@@ -199,6 +247,7 @@
             onFilterSubmit()
             {
                 this.loadDebits();
+                this.$refs.filter.hide();
             },
 
             createdebit() {

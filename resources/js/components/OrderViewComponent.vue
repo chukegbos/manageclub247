@@ -35,14 +35,14 @@
                     </p>
                     <span v-if="items.length!=0">
                         <h5>Drink List</h5>
-                        <span v-for="(item, index) in items">
+                        <span v-for="(item) in items">
                             {{ item.product_name}} ({{ item.qty }}) - {{ formatPrice((item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))) }}<br>
                         </span> 
                     </span>  
                     <span v-if="services.length!=0">                              
                         <br>
                         <h5>Food List</h5>
-                        <p v-for="(item, index) in services">
+                        <p v-for="(item) in services">
                             {{ item.food }} ({{ item.qty }}) - {{ formatPrice(item.qty * item.amount) }}
                         </p>
                     </span> 
