@@ -13,6 +13,7 @@ use App\Item;
 use App\Debtor;
 use App\PaymentDebit;
 use App\Member;
+use App\MemberSection;
 use App\DebtorHistory;
 use Carbon\Carbon;
 use App\User;
@@ -21,6 +22,7 @@ use App\Ledger;
 use App\Inventory;
 use App\RoomMovement;
 use App\StoreUser;
+use App\Section;
 use App\Account;
 use App\AccountType;
 use Illuminate\Support\Facades\Hash;
@@ -1341,6 +1343,49 @@ class StoreController extends Controller
         return $params;
     }
 
+    public function sectionDebtors(Request $request)
+    {
+        $params = [];
+        set_time_limit(0);
+        $get_people = User::where('deleted_at', NULL)->where('role', 0)->get();
+        foreach ($get_people as $people) {
+            $person = User::find($people->id);
+            $unique_id = $person->unique_id;
+            if ($unique_id) {
+                $member = Member::where('membership_id', $unique_id)->first();
+                if ($member) {
+                    $debt = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('status', 0)->sum('amount');
+                    $person->debt = $debt;
+                    $person->update();
+                }
+
+            }
+        }
+        if ($request->section_id!=0) {
+            $params['section'] = Section::find($request->section_id);
+            $query = MemberSection::where('section_id', $request->section_id)->orderBy('member_id', 'desc')->groupBy('member_id');
+        }
+
+        else{
+            $query = MemberSection::orderBy('member_id', 'desc')->groupBy('member_id');
+        }
+
+        $params['allusers'] = $query->get();
+        
+        if ($request->selected==0) {
+            $params['customers'] =  $query->get();
+        }
+        else{
+            $params['customers'] = $query->paginate($request->selected);
+        }
+
+        $params['sections'] = Section::get();
+        
+        
+        $params['all'] = $query->count();
+        return $params;
+    }
+
     public function debtors(Request $request)
     {
         $params = [];
@@ -1380,8 +1425,7 @@ class StoreController extends Controller
         if ($request->max_amount) {
             $query->where('users.debt', '<=', $request->max_amount);
         }
-        //$query->whereBetween('users.debt', [$request->min_amount, $request->max_amount]);
-
+       
         $query->select(
             'users.id as id',
             'users.unique_id as unique_id',
@@ -1405,7 +1449,6 @@ class StoreController extends Controller
         $params['all'] = $query->count();
         return $params;
     }
-
     public function notowing(Request $request)
     {
         $params = [];

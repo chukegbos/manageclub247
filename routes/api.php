@@ -114,6 +114,7 @@ Route::group(['prefix' => 'store'], function(){
 	Route::get('/quotes', 'API\StoreController@quotes');
 	Route::get('/invoice', 'API\StoreController@invoice');
 	Route::get('/debtors', 'API\StoreController@debtors');
+	Route::get('/sectiondebtors', 'API\StoreController@sectionDebtors');
 	Route::get('/notowing', 'API\StoreController@notowing');
 	Route::post('/debt', 'API\StoreController@addDebt');
 	Route::get('/debtors/{sale_id}', 'API\StoreController@debtorview');

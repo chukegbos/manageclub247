@@ -505,6 +505,7 @@ let routes = [
     { path: '/food/production', component: require('./components/ViewProductionComponent.vue').default },
     { path: '/cleared', component: require('./components/ClearedComponent.vue').default },
     { path: '/items', component: require('./components/ItemComponent.vue').default },
+    { path: '/section/debtors', component: require('./components/SectionDebtorsComponent.vue').default },
 ];
 
 

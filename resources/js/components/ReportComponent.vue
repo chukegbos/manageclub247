@@ -45,7 +45,12 @@
 
                                     <tr>
                                         <td><router-link to="/debtors">Member Debtors' Report</router-link></td>
-                                        <td>This is the lists of Members owing the company. </td> 
+                                        <td>This is the lists of Members owing the club. </td> 
+                                    </tr>
+
+                                    <tr>
+                                        <td><router-link to="/section/debtors">Section Debtors' Report</router-link></td>
+                                        <td>This is the lists of Members owing the club in a section. </td> 
                                     </tr>
 
                                     <tr>
