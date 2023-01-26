@@ -16,6 +16,7 @@ use App\Room;
 use App\Death;
 use App\PaymentDebit;
 use App\Payment;
+use App\Fund;
 use App\Item;
 use App\ServiceItem;
 use App\Purchase;
@@ -62,9 +63,38 @@ class HomeController extends Controller
     {
         set_time_limit(0);
 
-        /*$all_debits = array();
-
         $members = Member::where('deleted_at', NULL)->get();
+        foreach ($members as $member) {
+            $the_member = User::where('unique_id', $member->membership_id)->first();
+            $dt = PaymentDebit::where('member_id', $member->id)->where('product', '347')->latest()->first();
+
+            if ($dt->status==1) {
+                $payment = Payment::where('debit_id', $dt->id)->first();
+                $fund = Fund::create([
+                    'user_id' => auth()->user()->id,
+                    'approved_by' => auth()->user()->id,
+                    'status' => 2,
+                    'store_id' => auth()->user()->getOriginal('store'),
+                    'ref_id' => rand(2,99999).'FT',
+                    'customer_id' => $member->id,
+                    'amount' => $payment->amount,
+                    'mop' => 'Returned',
+                    'account' => 4,
+                    'wallet' => 1,
+                ]);
+
+                $the_member->wallet_balance = $the_member->wallet_balance + $payment->amount;
+                $the_member->update();
+
+                //Delete Payment
+                $payment->deleted_at = Carbon::today();
+                $payment->update();
+            }
+
+            $dt->deleted_at = Carbon::today();
+            $dt->update();
+        }
+        /*
         foreach ($members as $key => $member) {
             $get_debit = array();
             $each_debit = PaymentDebit::where('member_id', $member->id)->get();
@@ -164,6 +194,7 @@ class HomeController extends Controller
 
     public function sync()
     {
+       
         set_time_limit(0);
         ini_set('memory_limit', '-1');
         /*$sales = Sale::where('deleted_at', NULL)->where('status', 'concluded')->get();
@@ -341,7 +372,7 @@ class HomeController extends Controller
 
         //product check
         $members = Member::where('member_type', '!=', 14)->get();
-        foreach ($members as $member) {
+        /*foreach ($members as $member) {
             foreach ($pproducts as $pp) {
                 $findPayment = PaymentDebit::where('member_id', $member->id)->where('product', $pp->id)->where('year', $dt->year)->where('month', $dt->month)->first();
 
@@ -361,8 +392,7 @@ class HomeController extends Controller
                     ]);
                 }
             }
-        }
-
+        }*/
         $Users = User::where('deleted_at', NULL)->where('role', 0)->get();
         foreach ($Users as $mem) {
             $user = User::find($mem->id);
@@ -370,15 +400,21 @@ class HomeController extends Controller
 
             $suspend = Suspend::where('deleted_at', NULL)->where('status', 0)->where('membership_id', $user->unique_id)->first();
             $death = Death::where('deleted_at', NULL)->where('member_id', $user->unique_id)->first();
-            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->member_id)->where('period', 0)->where('door_access', 1)->first();
-            $approved = User::where('deleted_at', NULL)->where('approved', 1)->where('unique_id', $user->unique_id)->first();
+            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('period', 0)->where('status', 0)->where('door_access', 1)->first();
+            $approved = User::where('deleted_at', NULL)->where('approved', 0)->where('unique_id', $user->unique_id)->first();
 
-            if (!$suspend && !$death && !$debit && $approved && $member->phone_1) {
+            if ($suspend || $death || $approved || $debit || !$member->phone_1) {
+                $user->door_access = 0;
+            }
+            else{
+               $user->door_access = 1; 
+            }
+            /*if (!$suspend && !$death && !$debit && $approved && $member->phone_1) {
                 $user->door_access = 1;
             }
             else{
                 $user->door_access = 0;
-            }
+            }*/
             $user->update();
         }
 

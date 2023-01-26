@@ -322,7 +322,7 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="payment in payments" :key="payment.id">
-                                            <td>{{ payment.get_product.description }}</td>
+                                            <td><span v-if="payment.get_product">{{ payment.get_product.description }}</span></td>
                                             <td><span v-html="nairaSign"></span>{{ formatPrice(payment.amount)  }}</td>
                                             <td>{{ payment.created_at | myDate }}</td> 
                                             <td>{{ payment.created_by }}</td>

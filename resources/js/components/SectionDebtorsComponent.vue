@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button size="sm" variant="outline-info" class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
+                    <!--<b-button size="sm" variant="outline-info" class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>-->
                   
                     <download-csv :data="all_data" :name="dataFile" :labels="labels" :fields="fields">
                         <b-button size="sm" variant="outline-info" class="pull-right m-2"><i class="fa fa-file text-blue"></i> Download</b-button>

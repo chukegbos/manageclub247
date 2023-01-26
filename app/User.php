@@ -182,7 +182,7 @@ class User extends Authenticatable
 
             $suspend = Suspend::where('deleted_at', NULL)->where('status', 0)->where('membership_id', $unique_id)->first();
         
-            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->member_id)->where('period', 0)->where('door_access', 1)->first();
+            $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('period', 0)->where('status', 0)->where('door_access', 1)->first();
          
 
 
