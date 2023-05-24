@@ -23,6 +23,7 @@ Route::get('allusers', 'API\UserController@allusers');
 Route::get('loadLGA/{id}', 'API\UserController@loadLGA');
 Route::get('members', 'LiveController@members');
 Route::get('ips', 'LiveController@apis');
+Route::get('calcDebt', 'API\CustomerController@calculateDebt');
 
 Route::group(['prefix' => 'user'], function(){
 	Route::group(['prefix' => 'dashboard'], function(){
@@ -38,6 +39,7 @@ Route::group(['prefix' => 'user'], function(){
     Route::post('fetchbank', 'API\UserController@fetchbank');
     Route::put('password', 'API\UserController@password');
     Route::get('/', 'API\UserController@getUser');
+	Route::get('admin', 'API\UserController@adminUser');
     Route::get('{id}', 'API\UserController@viewUser');
 
     Route::post('credituser', 'API\UserController@credituser');
@@ -155,6 +157,7 @@ Route::group(['prefix' => 'cashier'], function(){
 Route::group(['prefix' => 'customer'], function(){
     Route::get('/', 'API\CustomerController@index');
     Route::get('/details', 'API\CustomerController@details');
+	Route::get('/all', 'API\CustomerController@all');
     Route::get('/delete', 'API\CustomerController@delete');
     Route::get('/edit/{id}', 'API\CustomerController@edit');
     Route::get('/late/{unique_id}', 'API\CustomerController@late');

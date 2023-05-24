@@ -7,11 +7,11 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5  || admin.role==11">
+                    <!-- <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5  || admin.role==11">
                         Add Member
-                    </b-button>
-
-                    <b-button size="sm" variant="outline-info"class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
+                    </b-button> -->
+                    <b-button size="sm" variant="outline-info" class="pull-right m-2" @click="calcDebt"> <i class="fa fa-print"></i> Recalculate Debt</b-button>
+                    <b-button size="sm" variant="outline-info" class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
 
                     <b-button variant="outline-primary" size="sm" class="pull-right m-2" v-b-modal.filter-modal><i class="fa fa-filter"></i> Filter</b-button>
 
@@ -27,7 +27,7 @@
                                     <label>Member's Types</label>
                                     <select v-model="filterForm.member_type" class="form-control">
                                         <option value=null> -- Select Type-- </option>
-                                        <option v-for="option in member_types" v-bind:value="option.id">
+                                        <option v-for="option in member_types" :key="option.id" v-bind:value="option.id">
                                             {{ option.title }}
                                         </option>
                                     </select>
@@ -37,7 +37,7 @@
                                     <label>State of Residence</label>
                                     <select v-model="filterForm.state" class="form-control">
                                         <option value=null> -- Select State-- </option>
-                                        <option v-for="option in states" v-bind:value="option.id">
+                                        <option v-for="option in states" :key="option.id" v-bind:value="option.id">
                                             {{ option.title }}
                                         </option>
                                     </select>
@@ -315,7 +315,6 @@
                                 <button type="submit" class="btn btn-success">
                                     Suspend
                                 </button>
-                                </button>
                             </div>
                         </form>
                     </div>
@@ -413,7 +412,6 @@
                                 <button type="submit" class="btn btn-success">
                                     Suspend
                                 </button>
-                                </button>
                             </div>
                         </form>
                     </div>
@@ -429,7 +427,7 @@
                     </div>
 
                     <div class="card-body table-responsive p-0">
-                        <table class="table table-hover">
+                        <table class="table table-hover table-bordered">
                             <thead>
                                 <tr>
                                     <th width="200px">Name</th>
@@ -478,7 +476,6 @@
 <script>
 export default {
     created() {
-        this.getUser();
         this.loadOther();
         this.loadUsers();
     },
@@ -551,37 +548,39 @@ export default {
         onChange(event) {
             this.filterForm.selected = event.target.value;
             this.loadUsers();
-            this.getUser();
+            
             this.loadOther();
         },
 
         loadOther(){
-                axios.get('/api/customer/details')
-                .then((response) => {
-                    this.member_types = response.data.member_types;
-                    this.sections = response.data.sections;
-                    this.states = response.data.states;
-                    this.products = response.data.products;
-                })
-            },
+            axios.get('/api/customer/details')
+            .then((response) => {
+                this.member_types = response.data.member_types;
+                this.sections = response.data.sections;
+                this.states = response.data.states;
+                this.products = response.data.products;
+            })
+        },
 
         onPrint() {
             if (this.is_busy) return;
             this.is_busy = true;
-            this.unprintable = true;
-            console.log(this.unprintable)
-            this.$htmlToPaper('printMe');
-            this.unprintable = false;
-            this.is_busy = false;
-            this.loadUsers();
-            this.getUser();
-            this.loadOther();
-        },
 
-        getUser() {
-            axios.get("/api/user").then(({ data }) => {
-                this.admin = data.user;
+            axios.get("/api/customer/all")
+            .then(({ data }) => {
+                this.totalusers = data.totalusers;
+                if(this.totalusers.length > 0){
+                    this.unprintable = true;
+                    this.$htmlToPaper('printMe');
+                    this.unprintable = false;
+                }
+            })
+            .finally(() => {
+                this.is_busy = false;
             });
+            // this.loadUsers();
+            
+            // this.loadOther();
         },
 
         getResults(page = 1) {
@@ -596,13 +595,33 @@ export default {
         },
 
         newModal() {
-            this.$router.push({ path: "/admin/customers/create"});
+            
+            // this.$router.push({ path: "/admin/customers/create"});
+        },
+
+        calcDebt(){
+            if (this.is_busy) return;
+            this.is_busy = true;
+       
+            axios.get("/api/calcDebt")
+            .then(() => {
+                Swal.fire(
+                    "Success!",
+                    "Debt Generated Successfully.",
+                    "success"
+                );
+                this.loadUsers();
+                 this.loadOther();
+            })
+            .finally(() => {
+                this.is_busy = false;
+            });
         },
 
         loadUsers() {
             if (this.is_busy) return;
             this.is_busy = true;
-            console.log(this.unprintable)
+       
             axios.get("/api/customer", { params: this.filterForm })
             .then(({ data }) => {
                 if(this.filterForm.selected==0)
@@ -613,7 +632,8 @@ export default {
                     this.users = data.customers;
                 }
                 this.count_all = data.all;
-                this.totalusers = data.totalusers;
+                // this.totalusers = data.totalusers;
+                this.admin = data.user;
             })
             .finally(() => {
                 this.is_busy = false;
@@ -623,7 +643,7 @@ export default {
         onFilterSubmit()
         {
             this.loadUsers();
-            this.getUser();
+            
             this.loadOther();
             this.$refs.filter.hide();
         },
@@ -639,7 +659,7 @@ export default {
                     "success"
                 );
                 this.loadUsers();
-                this.getUser();
+                
                 this.loadOther();
             })
             .catch(() => {
@@ -660,7 +680,7 @@ export default {
                 Swal.fire("Updated!", "Member Updated Successfully.", "success");
                 this.$Progress.finish();
                 this.loadUsers();
-                this.getUser();
+                
                 this.loadOther();
             })
 
@@ -689,7 +709,7 @@ export default {
                         );
                         this.$Progress.finish();
                         this.loadUsers();
-                        this.getUser();
+                        
                         this.loadOther();
                     })
 
@@ -746,7 +766,7 @@ export default {
                         );
                         this.is_busy = false;
                         this.loadUsers();
-                        this.getUser();
+                        
                         this.loadOther();
                     })
 
@@ -773,7 +793,7 @@ export default {
             this.filterForm.orderEmail = 2;
             this.filterForm.orderPerson = 2; 
             this.loadUsers();
-            this.getUser();
+            
             this.loadOther();
         },
 
@@ -788,7 +808,7 @@ export default {
             this.filterForm.orderPerson = 2;
             this.filterForm.orderName = 2; 
             this.loadUsers();
-            this.getUser();
+            
             this.loadOther();
         },
 
@@ -803,7 +823,7 @@ export default {
             this.filterForm.orderEmail = 2;
             this.filterForm.orderName = 2; 
             this.loadUsers();
-            this.getUser();
+            
             this.loadOther();
         },
 
@@ -872,7 +892,7 @@ export default {
                         );
                         this.is_busy = false;
                         this.loadUsers();
-                        this.getUser();
+                        
                         this.loadOther();
                     })
 
@@ -912,7 +932,7 @@ export default {
                         );
                         this.is_busy = false;
                         this.loadUsers();
-                        this.getUser();
+                        
                         this.loadOther();
                     })
 
@@ -951,7 +971,7 @@ export default {
                         );
                         this.is_busy = false;
                         this.loadUsers();
-                        this.getUser();
+                        
                         this.loadOther();
                     })
 
@@ -981,7 +1001,7 @@ export default {
                 );
                 this.is_busy = false;
                 this.loadUsers();
-                this.getUser();
+                
                 this.loadOther();
             })
 
@@ -1010,7 +1030,7 @@ export default {
                 );
                 this.is_busy = false;
                 this.loadUsers();
-                this.getUser();
+                
                 this.loadOther();
             })
 

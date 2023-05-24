@@ -44,6 +44,7 @@
         "vue-json-csv": "^1.2.12",
         "vue-multi-select": "^4.5.0",
         "vue-multiselect": "^2.1.6",
+        "vue-print-nb": "^1.7.5",
         "vue-progressbar": "^0.7.5",
         "vue-router": "^3.4.3",
         "vue-select": "^3.11.2",

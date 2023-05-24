@@ -100,6 +100,13 @@
                     </li>
 
                     <li class="nav-item">
+                      <router-link to="/admin/member/filter" class="nav-link menu ml-3">
+                        Members Custom Filter
+                      </router-link>
+                    </li>
+
+
+                    <li class="nav-item">
                       <router-link to="/members/types" class="nav-link menu ml-3">
                         Member Type
                       </router-link>
@@ -438,6 +445,13 @@
                     </li>
 
                     <li class="nav-item">
+                      <router-link to="/admin/member/filter" class="nav-link menu ml-3">
+                        Members Custom Filter
+                      </router-link>
+                    </li>
+
+
+                    <li class="nav-item">
                       <router-link to="/payment" class="nav-link menu ml-3">
                         Payment History
                       </router-link>
@@ -623,6 +637,13 @@
                         List of Members
                       </router-link>
                     </li>
+
+                    <li class="nav-item">
+                      <router-link to="/admin/member/filter" class="nav-link menu ml-3">
+                        Members Custom Filter
+                      </router-link>
+                    </li>
+
 
                     <li class="nav-item">
                       <router-link to="/members/types" class="nav-link menu ml-3">
@@ -887,6 +908,13 @@
                     </li>
 
                     <li class="nav-item">
+                      <router-link to="/admin/member/filter" class="nav-link menu ml-3">
+                        Members Custom Filter
+                      </router-link>
+                    </li>
+
+
+                    <li class="nav-item">
                       <router-link to="/members/types" class="nav-link menu ml-3">
                         Member Type
                       </router-link>
@@ -1134,6 +1162,13 @@
                         List of Members
                       </router-link>
                     </li>
+
+                    <li class="nav-item">
+                      <router-link to="/admin/member/filter" class="nav-link menu ml-3">
+                        Members Custom Filter
+                      </router-link>
+                    </li>
+
 
                     <li class="nav-item">
                       <router-link to="/members/types" class="nav-link menu ml-3">
@@ -1610,6 +1645,13 @@
                       </router-link>
                     </li>
 
+<li class="nav-item">
+                      <router-link to="/admin/member/filter" class="nav-link menu ml-3">
+                        Members Custom Filter
+                      </router-link>
+                    </li>
+
+
                     <li class="nav-item">
                       <router-link to="/members/types" class="nav-link menu ml-3">
                         Member Type
@@ -2027,6 +2069,13 @@
                       </router-link>
                     </li>
 
+<li class="nav-item">
+                      <router-link to="/admin/member/filter" class="nav-link menu ml-3">
+                        Members Custom Filter
+                      </router-link>
+                    </li>
+
+
                     <li class="nav-item">
                       <router-link to="/members/types" class="nav-link menu ml-3">
                         Member Type
@@ -2305,11 +2354,11 @@
         });
       
 
-        const $btnPrint = document.querySelector("#btnPrint");
-        $btnPrint.addEventListener("click", () => {
-            window.print();
-        });
-        });
+        // const $btnPrint = document.querySelector("#btnPrint");
+        // $btnPrint.addEventListener("click", () => {
+        //     window.print();
+        // });
+      });
     </script>
     <style type="text/css">
       body{

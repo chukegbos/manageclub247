@@ -35,7 +35,7 @@
                             </thead>
 
                             <tbody>
-                                <tr v-for="(item, index) in form.productItems">
+                                <tr v-for="(item) in form.productItems"  :key="item.id"">
                                     <td>
                                         <!--<vue-typeahead-bootstrap
                                           v-model="item.product_name"
@@ -88,7 +88,7 @@
                             </thead>
 
                             <tbody>
-                                <tr v-for="(service, index) in form.serviceItems">
+                                <tr v-for="(service) in form.serviceItems"  :key="service.id">
                                     <td>
                                         <span v-if="service.food">{{ service.food }}</span>
                                       
@@ -122,7 +122,7 @@
                                 <tr>
                                     <th>
                                         <select v-model="form.user_type" class="form-control">
-                                            <option v-for="type in user_type" v-bind:value="type.value">
+                                            <option v-for="type in user_type" v-bind:value="type.value" :key="type.id">
                                                 {{ type.text }}
                                             </option>
                                         </select>
@@ -138,7 +138,7 @@
                                     </th>
                                     <th v-if="form.user_type==1">
                                         <select v-model="form.mop" class="form-control">
-                                            <option v-for="option in options" v-bind:value="option.value">
+                                            <option v-for="option in options" v-bind:value="option.value"  :key="option.id">
                                                 {{ option.text }}
                                             </option>
                                         </select>

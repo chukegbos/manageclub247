@@ -64,36 +64,36 @@ class HomeController extends Controller
         set_time_limit(0);
 
         $members = Member::where('deleted_at', NULL)->get();
-        foreach ($members as $member) {
-            $the_member = User::where('unique_id', $member->membership_id)->first();
-            $dt = PaymentDebit::where('member_id', $member->id)->where('product', '347')->latest()->first();
+        // foreach ($members as $member) {
+        //     $the_member = User::where('unique_id', $member->membership_id)->first();
+        //     $dt = PaymentDebit::where('member_id', $member->id)->where('product', '347')->latest()->first();
 
-            if ($dt->status==1) {
-                $payment = Payment::where('debit_id', $dt->id)->first();
-                $fund = Fund::create([
-                    'user_id' => auth()->user()->id,
-                    'approved_by' => auth()->user()->id,
-                    'status' => 2,
-                    'store_id' => auth()->user()->getOriginal('store'),
-                    'ref_id' => rand(2,99999).'FT',
-                    'customer_id' => $member->id,
-                    'amount' => $payment->amount,
-                    'mop' => 'Returned',
-                    'account' => 4,
-                    'wallet' => 1,
-                ]);
+        //     if ($dt->status==1) {
+        //         $payment = Payment::where('debit_id', $dt->id)->first();
+        //         $fund = Fund::create([
+        //             'user_id' => auth()->user()->id,
+        //             'approved_by' => auth()->user()->id,
+        //             'status' => 2,
+        //             'store_id' => auth()->user()->getOriginal('store'),
+        //             'ref_id' => rand(2,99999).'FT',
+        //             'customer_id' => $member->id,
+        //             'amount' => $payment->amount,
+        //             'mop' => 'Returned',
+        //             'account' => 4,
+        //             'wallet' => 1,
+        //         ]);
 
-                $the_member->wallet_balance = $the_member->wallet_balance + $payment->amount;
-                $the_member->update();
+        //         $the_member->wallet_balance = $the_member->wallet_balance + $payment->amount;
+        //         $the_member->update();
 
-                //Delete Payment
-                $payment->deleted_at = Carbon::today();
-                $payment->update();
-            }
+        //         //Delete Payment
+        //         $payment->deleted_at = Carbon::today();
+        //         $payment->update();
+        //     }
 
-            $dt->deleted_at = Carbon::today();
-            $dt->update();
-        }
+        //     $dt->deleted_at = Carbon::today();
+        //     $dt->update();
+        // }
         /*
         foreach ($members as $key => $member) {
             $get_debit = array();

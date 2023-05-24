@@ -80,13 +80,38 @@ class User extends Authenticatable
     {
         $id = $this->attributes['unique_id'];
         if ($id) {
-            return Member::where('membership_id', $id)->first();
+            return Member::where('membership_id', $id)->where('deleted_at', NULL)->first();
         }
         else {
             return null;
         }
     }
 
+
+    // public function getDebtAttribute()
+    // {
+    //     $unique_id = $this->attributes['unique_id'];
+    //     $member = Member::where('deleted_at', NULL)->where('membership_id', $unique_id)->first();
+    //     if ($member) {
+    //         return PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('status', 0)->sum('amount');
+    //     }
+    // }
+
+    public function getEntranceDateAttribute()
+    {
+        $entranceDate = $this->attributes['entrance_date'];
+        $id = $this->attributes['unique_id'];
+        if (!isset($entranceDate)) {
+            $member = Member::where('membership_id', $id)->where('deleted_at', NULL)->first();
+            if($member){
+                return date("Y-m-d", $member->entrance_date);
+            }
+            return NULL;
+        }
+        else {
+            return $entranceDate;
+        }
+    }
 
 
     public function getMemberTypeAttribute()
@@ -146,8 +171,7 @@ class User extends Authenticatable
             return "---";
         }
     }
-
-
+    
     public function getKitchenAttribute()
     {
         $id = $this->attributes['kitchen'];

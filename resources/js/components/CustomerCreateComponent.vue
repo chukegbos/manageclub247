@@ -558,6 +558,9 @@
                         this.is_busy = false;
                     });
                 }
+                else{
+                    this.$router.push({ path: "/admin/customers"});
+                }
             },
 
             loadOther(){

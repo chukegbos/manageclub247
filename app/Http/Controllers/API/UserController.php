@@ -200,6 +200,14 @@ class UserController extends Controller
         return $params;
     }
 
+
+    public function adminUser()
+    {
+        $params = [];
+        $params['user'] = auth('api')->user();
+        return $params;
+    }
+
     public function viewUser($id)
     {
         $user = User::where('users.deleted_at', NULL)

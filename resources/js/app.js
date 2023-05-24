@@ -29,6 +29,11 @@ Vue.component('pagination', require('laravel-vue-pagination'));
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 
+import Print from 'vue-print-nb'
+// Global instruction 
+Vue.use(Print);
+
+
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -481,6 +486,8 @@ let routes = [
     { path: '/payment/pos', component: require('./components/PaymentPosComponent.vue').default },
     { path: '/payment/debits', component: require('./components/PaymentDebitComponent.vue').default },
     { path: '/payment/reciept/:id', component: require('./components/PaymentReceiptComponent.vue').default },
+    { path: '/admin/member/filter', component: require('./components/CustomFilterComponent.vue').default },
+    { path: '/admin/member/all', component: require('./components/CustomAllComponent.vue').default },
     { path: '/members/types', component: require('./components/MemberTypeComponent.vue').default },
     { path: '/members/sections', component: require('./components/MemberSectionComponent.vue').default },
     { path: '/admin/logins', component: require('./components/LoginComponent.vue').default },

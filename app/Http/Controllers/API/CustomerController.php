@@ -149,58 +149,373 @@ class CustomerController extends Controller
         return 'ok';  
     }
 
+    // public function index(Request $request)
+    // {
+    //     $params = [];
+    //     set_time_limit(0);
+
+    //     $query = User::where('deleted_at', NULL) ->where('role', 0)
+    
+    //     if ($request->state) {
+    //         $query->where('state', $request->state);
+    //     }
+
+    //     if ($request->picture) {
+    //         if ($request->picture==1) {
+    //             $query->where('users.image', '!=', NULL);
+    //         }
+    //         elseif ($request->picture==2) {
+    //             $query->where(function($qy) {
+    //                 $qy->where('users.image', '')->orWhere('users.image', NULL);
+    //             });
+    //         }
+    //     }
+
+    //     if ($request->before) {
+    //         $query->where('users.created_at', '<=', $request->before);
+    //     }
+
+    //     if($request->member_id) {
+    //         // $query->where('users.unique_id', '<=', (int)$request->member_id);
+    //         $query->where(function($qy) use($request) {
+    //             $qy->where('users.unique_id', '<=', (int)$request->member_id)
+    //             ->orWhere('default_esc_members.membership_id', '<=', (int)$request->member_id);
+    //         });
+    //     }
+
+    //     if ($request->member_type) {
+    //         $query->where('default_esc_members.member_type', $request->member_type);
+    //     }
+
+    //     if ($request->name) {
+    //         $query->where(function($qy)use($request) {
+    //             $qy->where('users.name', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.unique_id', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.phone', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.email', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.c_person', 'like', '%' . $request->name . '%');
+    //         });
+    //     }
+
+    //     if ($request->debt) {
+    //         if ($request->debt==1) {
+    //             $query->where('users.debt', '>', 0);
+    //         }
+    //         elseif ($request->debt==2) {
+    //             $query->where('users.debt', '<=', 0);
+    //             // $query->where(function($qy) {
+    //             //     $qy->where('users.debt', 0)->orWhere('users.debt', NULL);;
+    //             // });
+    //         }
+    //     }
+        
+    //     if($request->transactions_after){
+    //         $query->join('default_esc_payments', 'default_esc_members.id', '=', 'default_esc_payments.member_id')
+    //             ->where('default_esc_payments.lastedit', '>=', $request->transactions_after)
+    //             ->groupBy('default_esc_payments.member_id');
+    //     }
+
+    //     $query->select(
+    //         'users.id as id',
+    //         'users.unique_id as unique_id',
+    //         'users.name as name',
+    //         'users.state as state',
+    //         'users.city as city',
+    //         'users.email as email',
+    //         'users.entrance_date as entrance_date',
+    //         'users.created_at as created_at',
+    //         'users.image as image',
+    //         'users.access as access',
+    //         'users.phone as phone',
+    //         'users.debt as debt',
+    //         'users.c_person as c_person',
+    //         'users.approved as approved',
+    //         'users.approved_by as approved_by',
+    //         'users.door_access as door_access'
+    //     );
+        
+    //     $all = $query->get();
+    //     if ($request->selected==0) {
+    //         $params['customers'] = $query->get();
+    //     }
+    //     else{
+    //         $params['customers'] = $query->paginate($request->selected);
+    //     }
+        
+    //     $params['all'] = count($all);
+    //     $params['user'] = auth('api')->user();
+    //     return $params;
+    // }
+
+    public function calculateDebt() {
+        set_time_limit(0);
+        $all = User::where('deleted_at', NULL) ->where('role', 0)->get();
+        foreach ($all as $user) {
+            $unique_id = $user->unique_id;
+            $member = Member::where('deleted_at', NULL)->where('membership_id', $unique_id)->first();
+            if($member){
+                $amount = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('status', 0)->sum('amount');
+                $user = User::find($user->id);
+                $user->debt = $amount;
+                $user->update();
+            }
+        }
+        return 'ok';
+    }
     public function index(Request $request)
     {
         $params = [];
         set_time_limit(0);
-        $setting = Setting::findOrFail(1);
-
-        $query = User::where('users.deleted_at', NULL)
-            ->where('default_esc_members.deleted_at', NULL)
-            ->where('users.role', 0)
-            ->join('default_esc_members', 'users.unique_id', '=', 'default_esc_members.membership_id')
-            ->orderBy('users.created_at', 'desc');
-
+        // $this->calculateDebt();
+        $query = User::where('deleted_at', NULL) ->where('role', 0)->orderBy('name', 'asc');
+    
         if ($request->state) {
-            $query->where('users.state', $request->state);
+            $query->where('state', $request->state);
         }
 
-        if ($request->member_type) {
-            $query->where('default_esc_members.member_type', $request->member_type);
+        if ($request->picture) {
+            if ($request->picture==1) {
+                $query->where('image', '!=', NULL);
+            }
+            elseif ($request->picture==2) {
+                $query->where(function($qy) {
+                    $qy->where('image', '')->orWhere('image', NULL);
+                });
+            }
+        }
+
+        if ($request->before) {
+            $query->where('created_at', '<=', $request->before);
+        }
+
+        if($request->member_id) {
+            $query->where('unique_id', '<=', (int)$request->member_id);
         }
 
         if ($request->name) {
-            $query->where('users.name', 'like', '%' . $request->name . '%')->orWhere('default_esc_members.first_name', 'like', '%' . $request->name . '%')->orWhere('default_esc_members.last_name', 'like', '%' . $request->name . '%')->orWhere('default_esc_members.middle_name', 'like', '%' . $request->name . '%')->orWhere('users.unique_id', 'like', '%' . $request->name . '%')->orWhere('users.phone', 'like', '%' . $request->name . '%')->orWhere('users.email', 'like', '%' . $request->name . '%')->orWhere('users.c_person', 'like', '%' . $request->name . '%');
+            $query->where(function($qy)use($request) {
+                $qy->where('name', 'like', '%' . $request->name . '%')
+                ->orWhere('unique_id', 'like', '%' . $request->name . '%')
+                ->orWhere('phone', 'like', '%' . $request->name . '%')
+                ->orWhere('email', 'like', '%' . $request->name . '%')
+                ->orWhere('c_person', 'like', '%' . $request->name . '%');
+            });
         }
-        $query->select(
-            'users.id as id',
-            'users.unique_id as unique_id',
-            'users.name as name',
-            'users.state as state',
-            'users.city as city',
-            'users.email as email',
 
-            'users.entrance_date as entrance_date',
-            'users.created_at as created_at',
-            'users.image as image',
-            'users.access as access',
-            'users.phone as phone',
-            'users.c_person as c_person',
-            'users.approved as approved',
-            'users.approved_by as approved_by',
-            'users.door_access as door_access'
+        if ($request->debt) {
+            if ($request->debt==1) {
+                $query->where('debt', '>', 0);
+            }
+            elseif ($request->debt==2) {
+                $query->where('debt', '<=', 0);
+                // $query->where(function($qy) {
+                //     $qy->where('debt', 0)->orWhere('debt', NULL);;
+                // });
+            }
+        }
+        
+        // if($request->transactions_after){
+        //     $query->join('default_esc_payments', 'default_esc_members.id', '=', 'default_esc_payments.member_id')
+        //         ->where('default_esc_payments.lastedit', '>=', $request->transactions_after)
+        //         ->groupBy('default_esc_payments.member_id');
+        // }
+
+        $query->select(
+            'id as id',
+            'unique_id as unique_id',
+            'name as name',
+            'state as state',
+            'city as city',
+            'email as email',
+            'entrance_date as entrance_date',
+            'created_at as created_at',
+            'image as image',
+            'access as access',
+            'phone as phone',
+            'debt as debt',
+            'c_person as c_person',
+            'approved as approved',
+            'approved_by as approved_by',
+            'door_access as door_access'
         );
         
-        $params['totalusers'] =  $query->where('default_esc_members.member_type', '!=', 14)->get();
+        $all = $query->get();
         if ($request->selected==0) {
             $params['customers'] = $query->get();
         }
         else{
             $params['customers'] = $query->paginate($request->selected);
         }
-      
-        $params['all'] = $query->count();
+        
+        $params['all'] = count($all);
+        $params['user'] = auth('api')->user();
+        return $params;
+    }
 
+    // public function all(Request $request)
+    // {
+    //     $params = [];
+    //     set_time_limit(0);
+
+    //     $query = User::where('users.deleted_at', NULL)
+    //         ->where('default_esc_members.deleted_at', NULL)
+    //         ->where('users.role', 0)
+    //         ->join('default_esc_members', 'users.unique_id', '=', 'default_esc_members.membership_id')
+    //         ->where('default_esc_members.member_type', '!=', 14)
+    //         ->orderBy('default_esc_members.last_name', 'asc')
+    //         ->orderBy('default_esc_members.first_name', 'asc');
+
+    //     if($request->transactions_after){
+    //         $query->join('default_esc_payments', 'default_esc_members.id', '=', 'default_esc_payments.member_id')
+    //             ->where('default_esc_payments.lastedit', '>=', $request->transactions_after)
+    //             ->groupBy('default_esc_payments.member_id');
+    //     }
+
+    //     if($request->member_id) {
+    //         // $query->where('users.unique_id', '<=', (int)$request->member_id);
+    //         $query->where(function($qy) use($request) {
+    //             $qy->where('users.unique_id', '<=', (int)$request->member_id)
+    //             ->orWhere('default_esc_members.membership_id', '<=', (int)$request->member_id);
+    //         });
+    //     }
+
+    //     if ($request->state) {
+    //         $query->where('users.state', $request->state);
+    //     }
+
+    //     if ($request->picture) {
+    //         if ($request->picture==1) {
+    //             $query->where('users.image', '!=', NULL);
+    //         }
+    //         elseif ($request->picture==2) {
+    //             $query->where(function($qy) {
+    //                 $qy->where('users.image', '')->orWhere('users.image', NULL);
+    //             });
+    //         }
+    //     }
+
+    //     if ($request->debt) {
+    //         if ($request->debt==1) {
+    //             $query->where('users.debt', '>', 0);
+    //         }
+    //         elseif ($request->debt==2) {
+    //             $query->where('users.debt', '<=', 0);
+    //             // $query->where(function($qy) {
+    //             //     $qy->where('users.debt', 0)->orWhere('users.debt', NULL);;
+    //             // });
+    //         }
+    //     }
+
+    //     if ($request->debt) {
+    //         if ($request->debt==1) {
+    //             $query->where('users.debt', '>', 0);
+    //         }
+    //         elseif ($request->debt==2) {
+    //             $query->where('users.debt', '<=', 0);
+    //             // $query->where(function($qy) {
+    //             //     $qy->where('users.debt', 0)->orWhere('users.debt', NULL);;
+    //             // });
+    //         }
+    //     }
+
+    //     if ($request->before) {
+            
+    //         $query->where('users.created_at', '<=', $request->before);
+    //     }
+
+    //     if ($request->member_type) {
+    //         $query->where('default_esc_members.member_type', $request->member_type);
+    //     }
+
+    //     if ($request->name) {
+    //         $query->where(function($qy)use($request) {
+    //             $qy->where('users.name', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.unique_id', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.phone', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.email', 'like', '%' . $request->name . '%')
+    //             ->orWhere('users.c_person', 'like', '%' . $request->name . '%');
+    //         });
+    //     }
+
+    //     $query->select(
+    //         'users.unique_id as unique_id',
+    //         'users.name as name',
+    //         'users.email as email',
+    //         'users.entrance_date as entrance_date',
+    //         'users.image as image',
+    //         'users.phone as phone',
+    //         'users.debt as debt',
+    //         'users.c_person as c_person',
+    //     );
+        
+    //     $params['totalusers'] =  $query->get();
+    //     return $params;
+    // }
+
+    public function all(Request $request)
+    {
+        $params = [];
+        set_time_limit(0);
+        // $this->calculateDebt();
+        $query = User::where('deleted_at', NULL) ->where('role', 0)->orderBy('name', 'asc');
+
+        if($request->member_id) {
+            $query->where('unique_id', '<=', (int)$request->member_id);
+        }
+
+        if ($request->state) {
+            $query->where('state', $request->state);
+        }
+
+        if ($request->picture) {
+            if ($request->picture==1) {
+                $query->where('image', '!=', NULL);
+            }
+            elseif ($request->picture==2) {
+                $query->where(function($qy) {
+                    $qy->where('image', '')->orWhere('image', NULL);
+                });
+            }
+        }
+
+        if ($request->debt) {
+            if ($request->debt==1) {
+                $query->where('debt', '>', 0);
+            }
+            elseif ($request->debt==2) {
+                $query->where('debt', '<=', 0);
+                // $query->where(function($qy) {
+                //     $qy->where('debt', 0)->orWhere('debt', NULL);;
+                // });
+            }
+        }
+
+        if ($request->before) {
+            $query->where('created_at', '<=', $request->before);
+        }
+
+        if ($request->name) {
+            $query->where(function($qy)use($request) {
+                $qy->where('name', 'like', '%' . $request->name . '%')
+                ->orWhere('unique_id', 'like', '%' . $request->name . '%')
+                ->orWhere('phone', 'like', '%' . $request->name . '%')
+                ->orWhere('email', 'like', '%' . $request->name . '%')
+                ->orWhere('c_person', 'like', '%' . $request->name . '%');
+            });
+        }
+
+        $query->select(
+            'unique_id as unique_id',
+            'name as name',
+            'email as email',
+            'entrance_date as entrance_date',
+            'image as image',
+            'phone as phone',
+            'debt as debt',
+            'c_person as c_person',
+        );
+        
+        $params['totalusers'] =  $query->get();
         return $params;
     }
 
