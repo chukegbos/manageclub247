@@ -39,6 +39,15 @@ class PurchaseController extends Controller
             $query->where('purchase_id', 'like', '%' . $request->name . '%');
         }
 
+        if ($request->time==1) {
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('purchase_date', '>=', $date);
+        }
+        else{
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('purchase_date', '<', $date);
+        }
+        
         if ($request->selected==0) {
             $params['purchases'] =  $query->get();
         }
@@ -54,6 +63,15 @@ class PurchaseController extends Controller
         $params = [];
 
         $query = Purchase::where('deleted_at', NULL)->latest();
+
+        if ($request->time==1) {
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('purchase_date', '>=', $date);
+        }
+        else{
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('purchase_date', '<', $date);
+        }
 
         if ($request->start_date) {
                 $query->where('purchase_date', '>=', $request->start_date);

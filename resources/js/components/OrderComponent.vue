@@ -7,8 +7,7 @@
                 </div>
 
                 <div class="col-md-8">
-                    <b-button size="sm" variant="outline-info"class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
-
+                    <b-button size="sm" variant="outline-info" class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
                     <b-button variant="outline-primary" class="pull-right m-2" size="sm" v-b-modal.filter-modal><i class="fa fa-filter"></i> Filter</b-button>
 
                     <b-modal id="filter-modal" ref="filter" title="Report Filter" hide-footer>
@@ -75,9 +74,17 @@
             </div>
 
             <div class="card">
-                <div class="card-footer">
+                <div class="card-header text-center">
+                    <button class="btn btn-info" @click="oldOrder">Old Order</button>
+                    <button class="btn btn-info" @click="newOrder">New Order</button>
+                    <p>
+                        Older orders are from <b>Inception to 31st of March 2023</b><br>
+                        New orders are from <b>1st of April 2023 to date.</b>
+                    </p>
+                </div>
+                <div class="card-header">
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <b>Show <select v-model="filterForm.selected" @change="onChange($event)">
                                     <option value="5">5</option>
                                     <option value="10">10</option>
@@ -87,14 +94,17 @@
                                     <option value="0">All</option>
                                 </select>
                             Entries</b>
-                            <br> Total Sale: <b>{{ count_all }} Items</b>
                         </div>
 
-                        <div class="col-md-2">
-                            <br> Total Amount: <b><span v-html="nairaSign"></span>{{ formatPrice(total_amount) }}</b>
+                        <div class="col-md-3">
+                            Total Sale: <b>{{ count_all }} Items</b>
                         </div>
 
-                        <div class="col-md-8" v-if="this.filterForm.selected!=0">
+                        <div class="col-md-3">
+                           Total Amount: <b><span v-html="nairaSign"></span>{{ formatPrice(total_amount) }}</b>
+                        </div>
+
+                        <div class="col-md-6" v-if="this.filterForm.selected!=0">
                             <pagination :data="report_items" @pagination-change-page="getResults" :limit="-1"></pagination>
                         </div>
                     </div>
@@ -154,7 +164,6 @@
 <script>
     import VueBootstrap4Table from 'vue-bootstrap4-table';
     import moment from 'moment';
-
     export default {
         created() {
             this.loadSales();
@@ -171,6 +180,7 @@
                     selected: '20',
                     steward_id: 0,
                     frontdesk_id: 0,
+                    time: 1
                 },
                 action: {
                     selected: []
@@ -202,6 +212,18 @@
             getSdID(data){
                 console.log(data)
                 this.filterForm.steward_id = data.id;
+            },
+
+            newOrder(){
+                this.filterForm.time= 1;
+                this.loadSales();
+                this.getUser();
+            },
+
+            oldOrder(){
+                this.filterForm.time= 0;
+                this.loadSales();
+                this.getUser();
             },
 
             getFdID(data){

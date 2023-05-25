@@ -6,10 +6,10 @@
                     <h2><strong>Make Order</strong></h2>
                 </div>
                 <div class="col-md-5">
-                    <b-button type="button" variant="primary" @click="onAddNewProduct" size="sm" class="float-right m-2" v-if="user.role==7">
+                    <b-button type="button" variant="primary" @click="onAddNewProduct" size="sm" class="float-right m-2" v-if="user.role==7 || user.role==1">
                         Add Drink
                     </b-button>
-                    <b-button type="button" variant="primary" @click="onAddNewService" size="sm" class="float-right m-2" v-if="user.role==14">
+                    <b-button type="button" variant="primary" @click="onAddNewService" size="sm" class="float-right m-2" v-if="user.role==14 || user.role==1">
                         Add Food
                     </b-button>
                 </div>
@@ -18,8 +18,8 @@
             <div class="card">
                 <div class="card-body">
                     <b-form @submit.stop.prevent="is_edit ? updateForm() : onFormSubmit()">
-                        <h4 class="p-2" v-if="user.role==7"><b>Drink List</b></h4>
-                        <table class="table table-striped table-responsive-md text-center" v-if="user.role==7">
+                        <h4 class="p-2" v-if="user.role==7  ||  user.role==1"><b>Drink List</b></h4>
+                        <table class="table table-striped table-responsive-md text-center" v-if="user.role==7  ||  user.role==1">
                             <thead>
                                 <tr>
                                     <th>Product</th>
@@ -35,7 +35,7 @@
                             </thead>
 
                             <tbody>
-                                <tr v-for="(item) in form.productItems"  :key="item.id"">
+                                <tr v-for="(item) in form.productItems"  :key="item.id">
                                     <td>
                                         <!--<vue-typeahead-bootstrap
                                           v-model="item.product_name"
@@ -74,9 +74,9 @@
                             </tbody>
                         </table>
                         
-                        <h4 class="p-2" v-if="user.role==14"><b>Food List</b></h4>
+                        <h4 class="p-2" v-if="user.role==14  ||  user.role==1"><b>Food List</b></h4>
 
-                        <table class="table table-striped table-responsive-md text-center" v-if="user.role==14">
+                        <table class="table table-striped table-responsive-md text-center" v-if="user.role==14  ||  user.role==1">
                             <thead>
                                 <tr>
                                     <th width="600px">Food</th>
@@ -388,8 +388,7 @@
                     });
                 }
                 else{
-                    this.form.productItems.push(this.setItemModel({}));
-                    //this.form.serviceItems.push(this.setServiceModel({}));
+                    this.onAddNewProduct();
                 }  
             },
 
@@ -491,7 +490,7 @@
             },
 
             setItemModel(model, newModel){
-                
+                console.log(newModel)
                 model.id = newModel !== undefined ? newModel.id: 0;
                 model.price = newModel !== undefined ? newModel.price: 0;
                 model.cost_price = newModel !== undefined ? newModel.cost_price: 0;

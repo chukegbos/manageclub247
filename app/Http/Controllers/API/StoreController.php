@@ -991,9 +991,6 @@ class StoreController extends Controller
         return 'ok';
     }
 
-    
-
-
     public function reports(Request $request)
     {
         $params = [];
@@ -1055,6 +1052,16 @@ class StoreController extends Controller
         if ($request->steward_id) {
             $query->where('market_id', $request->steward_id);
         }
+
+        if ($request->time==1) {
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('main_date', '>=', $date);
+        }
+        else{
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('main_date', '<', $date);
+        }
+
 
         if ($request->start_date) {
             $query->where('main_date', '>=', $request->start_date);
@@ -1231,6 +1238,14 @@ class StoreController extends Controller
 
         if ($request->buyer) {
             $query->where('sales.buyer', $request->buyer);
+        }
+        if ($request->time==1) {
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('main_date', '>=', $date);
+        }
+        else{
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('main_date', '<', $date);
         }
 
         if ($request->customer) {

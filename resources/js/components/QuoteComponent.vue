@@ -58,7 +58,14 @@
             </div>
 
             <div class="card">
-
+                <div class="card-header text-center">
+                    <button class="btn btn-info" @click="oldOrder">Old Order</button>
+                    <button class="btn btn-info" @click="newOrder">New Order</button>
+                    <p>
+                        Older orders are from <b>Inception to 31st of March 2023</b><br>
+                        New orders are from <b>1st of April 2023 to date.</b>
+                    </p>
+                </div>
                 <div class="card-body table-responsive p-0" v-if="report_items.data.length>0" id="printMe">
                     <table class="table table-hover">
                         <tr>
@@ -142,6 +149,7 @@
                     end_date: '',
                     customer: '',
                     selected: '15',
+                    time: 1
                 },
                 action: {
                     selected: []
@@ -190,6 +198,18 @@
                 this.$htmlToPaper('printMe');
             },
 
+            newOrder(){
+                this.filterForm.time= 1;
+                this.loadSales();
+                this.getUser();
+            },
+
+            oldOrder(){
+                this.filterForm.time= 0;
+                this.loadSales();
+                this.getUser();
+            },
+            
             loadSales() {
                 if(this.is_busy) return;
                 this.is_busy = true;

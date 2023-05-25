@@ -95,7 +95,7 @@
                             <tr v-for="debt in debits.data" :key="debt.id">
                                 <td>{{ debt.rec_id }}</td>
                                 <td>{{ debt.get_member.get_member }}</td>
-                                <td>{{ debt.get_product.description }}</td>
+                                <td><span v-if="debt.get_product">{{ debt.get_product.description }}</span></td>
                                 <td><span v-html="nairaSign"></span>{{ formatPrice(debt.amount)  }}</td>
                                 <td>{{ debt.created_at | myDate }}</td> 
                                 <td>{{ debt.created_by }}</td>

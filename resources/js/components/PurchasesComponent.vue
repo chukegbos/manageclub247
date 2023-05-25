@@ -55,6 +55,14 @@
             </div>
 
             <div class="card">
+                <div class="card-header text-center">
+                    <button class="btn btn-info" @click="oldOrder">Old Purchase</button>
+                    <button class="btn btn-info" @click="newOrder">New Purchase</button>
+                    <p>
+                        Older purchase are from <b>Inception to 31st of March 2023</b><br>
+                        New purchase are from <b>1st of April 2023 to date.</b>
+                    </p>
+                </div>
                 <div class="card-body table-responsive p-0" v-if="purchases.data.length>0">
                     <table class="table table-hover">
                         <tr>
@@ -152,6 +160,7 @@
                     end_date: '',
                     name: '',
                     selected: '10',
+                    time: 1,
                 },
 
                 is_busy: false,
@@ -191,6 +200,18 @@
                 this.getUser();
             },
 
+            newOrder(){
+                this.filterForm.time= 1;
+                this.loadPurchase();
+                this.getUser();
+            },
+
+            oldOrder(){
+                this.filterForm.time= 0;
+                this.loadPurchase();
+                this.getUser();
+            },
+            
             loadPurchase() {
                 if (this.is_busy) return;
                 this.is_busy = true;
