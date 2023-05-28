@@ -67,7 +67,9 @@
                     <table class="table table-hover">
                         <tr>
                             <th>Purchase ID</th>
-                            <th>Recieved By</th>
+                            <th>Initiated By</th>
+                            <th>Approved By</th>
+                            <th>Accepted By</th>
                             <th>Amount</th>
                             <th>Supplier</th>
                             <th>Action</th>
@@ -76,9 +78,11 @@
                         <tr v-for="purchase in purchases.data" :key="purchase.purchase_id">
                           
                             <td>{{ purchase.purchase_id }}<br><b>{{ purchase.purchase_date | myDate }}</b></td>
-                            <td>{{ purchase.initiated_by }}</b></td>
+                            <td>{{ purchase.initiated_by }}</td>
+                            <td>{{ purchase.approved_by }}</td>
+                            <td>{{ purchase.accepted_by }}</td>
                             <td>
-                                <span v-html="nairaSign"></span>{{ formatPrice(purchase.total_price) }}</b>
+                                <span v-html="nairaSign"></span>{{ formatPrice(purchase.total_price) }}
                             </td>
                             <td>{{ purchase.supplier }}<br><b>{{ purchase.mop }}</b></td>
                           
@@ -90,7 +94,7 @@
                                         </router-link>
                                     </b-dropdown-item>
 
-                                    <span v-if="user.role=='Admin' && purchase.status==0 && purchase.status_accept==0">
+                                    <span v-if="(user.role==6 || user.role==1) && purchase.status==0 && purchase.status_accept==0">
                                         <b-dropdown-item>
                                             <a href="javascript:void(0)" @click="edit(purchase)">
                                                 Edit Items
@@ -98,10 +102,20 @@
                                         </b-dropdown-item>
                                     </span>
 
-                                    <span v-if="user.role=='Admin' && purchase.status==1 && purchase.status_accept==0">
-                                        <b-dropdown-item>
-                                            <a href="javascript:void(0)" @click="edit(purchase)">
-                                                Recieve/Accept
+                                    <span v-if="purchase.status==1 && purchase.status_accept==0">
+                                        <b-dropdown-item v-if="(user.role==12 || user.role==1) && purchase.approved_by=='---'">
+                                            <a href="javascript:void(0)" @click="approve(purchase)">
+                                                Approve
+                                            </a>
+                                        </b-dropdown-item>
+                                        <b-dropdown-item v-if="(user.role==12 || user.role==1) && purchase.approved_by=='---'">
+                                            <a href="javascript:void(0)" @click="reject(purchase)">
+                                                Reject
+                                            </a>
+                                        </b-dropdown-item>
+                                        <b-dropdown-item v-if="(user.role==6 || user.role==1) && purchase.approved_by!='---'">
+                                            <a href="javascript:void(0)" @click="accept(purchase)">
+                                                Accept
                                             </a>
                                         </b-dropdown-item>
                                     </span>
@@ -137,7 +151,7 @@
                             <b-button variant="outline-danger" size="sm" v-if="action.selected.length" class="pull-right" @click="onDeleteAll"><i class="fa fa-trash"></i> Delete Selected</b-button>
 
                             <b-button disabled size="sm" variant="outline-danger" v-else class="pull-right"> <i class="fa fa-trash"></i> Delete Selected</b-button>-->
-                        </div>
+                        <!-- </div> -->
                     </div>
                 </div>
             </div>
@@ -251,15 +265,79 @@
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             },
 
+            approve(purchase)
+            {
+                if (this.is_busy) return;
+                this.is_busy = true;
+                axios.get('/api/purchases/approve/' + purchase.purchase_id)
+                .then(({ data }) => {
+                    Swal.fire(
+                        "Accepted!",
+                        "You have approved the purchase.",
+                        "success"
+                    );
+                })
+                .catch(() => {
+                    Swal,fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.loadPurchase();
+                    this.getUser();
+                });
+            },
+
             accept(purchase)
             {
+                if (this.is_busy) return;
+                this.is_busy = true;
                 axios.get('/api/purchases/accept/' + purchase.purchase_id)
                 .then(({ data }) => {
                     Swal.fire(
                         "Accepted!",
-                        "You have accepted the products.",
+                        "You have accepted the purchase.",
                         "success"
                     );
+                })
+                .catch(() => {
+                    Swal,fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.loadPurchase();
+                    this.getUser();
+                });
+            },
+
+            reject(purchase)
+            {
+                if (this.is_busy) return;
+                this.is_busy = true;
+                axios.get('/api/purchases/reject/' + purchase.purchase_id)
+                .then(({ data }) => {
+                    Swal.fire(
+                        "Rejected!",
+                        "You have rejected the purchase.",
+                        "success"
+                    );
+                })
+                .catch(() => {
+                    Swal,fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
                     this.loadPurchase();
                     this.getUser();
                 });

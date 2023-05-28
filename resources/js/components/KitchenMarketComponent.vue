@@ -52,16 +52,20 @@
                     <table class="table table-hover">
                         <tr>
                             <th>Market ID</th>
-                            <th>Created By</th>
+                            <th>Bought By</th>
+                            <th>Status</th>
+                            <th>Approved By</th>
                             <th>Amount</th>
                             <th>Action</th>
                         </tr>
 
                         <tr v-for="market in markets.data" :key="market.market_id">
                             <td>{{ market.market_id }}<br><b>{{ market.purchase_date | myDate }}</b></td>
-                            <td>{{ market.user_id }}</b></td>
+                            <td>{{ market.user_id }}</td>
+                            <td>{{ market.status }}</td>
+                            <td>{{ market.approved_by }}</td>
                             <td>
-                                <span v-html="nairaSign"></span>{{ formatPrice(market.amount) }}</b>
+                                <span v-html="nairaSign"></span>{{ formatPrice(market.amount) }}
                             </td>
                             <td>
                                 <b-dropdown id="dropdown-right" text="Action" size="sm" variant="info">
@@ -69,6 +73,18 @@
                                         <router-link :to="'/kitchen/markets/' + market.market_id">
                                             View Items
                                         </router-link>
+                                    </b-dropdown-item>
+
+                                    <b-dropdown-item v-if="(admin.role==9 || admin.role==1) && market.approved_by=='---'">
+                                        <a href="javascript:void(0)" @click="approve(market)">
+                                            Approve
+                                        </a>
+                                    </b-dropdown-item>
+
+                                    <b-dropdown-item v-if="(admin.role==9 || admin.role==1) && market.approved_by=='---'">
+                                        <a href="javascript:void(0)" @click="reject(market)">
+                                            Reject
+                                        </a>
                                     </b-dropdown-item>
                                 </b-dropdown>
                             </td>
@@ -82,7 +98,7 @@
 
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <b>Show <select v-model="filterForm.selected" @change="onChange($event)">
                                     <option value="5">5</option>
                                     <option value="10">10</option>
@@ -102,7 +118,7 @@
                             <b-button variant="outline-danger" size="sm" v-if="action.selected.length" class="pull-right" @click="onDeleteAll"><i class="fa fa-trash"></i> Delete Selected</b-button>
 
                             <b-button disabled size="sm" variant="outline-danger" v-else class="pull-right"> <i class="fa fa-trash"></i> Delete Selected</b-button>-->
-                        </div>
+                        <!-- </div> -->
                     </div>
                 </div>
             </div>
@@ -193,7 +209,7 @@
 
             onFilterSubmit()
             {
-                this.loadmarket();
+                this.loadMarket();
                 this.getUser();
                 this.$refs.filter.hide();
             },
@@ -203,16 +219,30 @@
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             },
 
-            accept(market)
+            approve(market)
             {
-                axios.get('/api/markets/accept/' + market.market_id)
+                axios.get('/api/markets/approve/' + market.market_id)
+                .then(({ data }) => {
+                    Swal.fire(
+                        "Approved!",
+                        "You have approved the list.",
+                        "success"
+                    );
+                    this.loadMarket();
+                    this.getUser();
+                });
+            },
+
+            reject(market)
+            {
+                axios.get('/api/markets/reject/' + market.market_id)
                 .then(({ data }) => {
                     Swal.fire(
                         "Accepted!",
-                        "You have accepted the products.",
+                        "You have rejected the list.",
                         "success"
                     );
-                    this.loadmarket();
+                    this.loadMarket();
                     this.getUser();
                 });
             },

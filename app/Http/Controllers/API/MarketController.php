@@ -59,11 +59,6 @@ class MarketController extends Controller
             $it->amount = $item['amount'];
             $it->save();
             array_push($get_price, $item['amount']);
-
-            $inventory = FoodInventory::find($item['id']);
-            $inventory->quantity = $item['quantity'] + $inventory->quantity;
-            $inventory->amount = $item['amount'];
-            $inventory->update();
         }
 
         $totalPrice = array_sum($get_price);
@@ -77,6 +72,33 @@ class MarketController extends Controller
         return $marketId;
     }
 
+
+    public function approve($market_id)
+    {
+        $market = MarketList::where('deleted_at', NULL)->where('market_id', $market_id)->first();
+        $market->approved_by = auth('api')->user()->id;
+        $market->status = 1;
+        $set = $market->update();
+        if($set){
+            $items = MarketItem::where('market_id', $market_id)->where('deleted_at', NULL)->get();
+            foreach ($items as $item) {
+                $inventory = FoodInventory::find($item->getOriginal('item'));
+                $inventory->quantity = $item->quantity + $inventory->quantity;
+                $inventory->amount = $item->amount;
+                $inventory->update();
+            }    
+        }
+        return $market ;
+    }
+
+    public function reject($market_id)
+    {
+        $market = MarketList::where('deleted_at', NULL)->where('market_id', $market_id)->first();
+        $market->approved_by = auth('api')->user()->id;
+        $market->status = 2;
+        $market->update();
+        return $market;
+    }
     public function viewstore(Request $request){
         $params = [];
         $qy = MarketItem::where('deleted_at', NULL)->where('status', 1);
@@ -249,8 +271,6 @@ class MarketController extends Controller
         }
         return 'ok';
     }
-
-    
 
     public function storenon(Request $request)
     {

@@ -81,6 +81,8 @@ Route::group(['prefix' => 'purchases'], function(){
 Route::group(['prefix' => 'markets'], function(){
 	Route::get('/', 'API\MarketController@index');
 	Route::post('/', 'API\MarketController@store');
+	Route::get('approve/{market_id}', 'API\MarketController@approve');
+    Route::get('reject/{market_id}', 'API\MarketController@reject');
 	Route::put('{id}', 'API\MarketController@update');
 	Route::get('{id}', 'API\MarketController@show');
 	Route::delete('{id}', 'API\MarketController@destroy');

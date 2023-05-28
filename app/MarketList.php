@@ -15,7 +15,7 @@ class MarketList extends Model
     protected $table = 'market_lists';
 
     protected $fillable = [
-        'purchase_date', 'market_id', 'user_id', 'amount', 'status'
+        'purchase_date', 'market_id', 'user_id', 'amount', 'status', 'approved_by'
     ];
 
     protected $dates = [
@@ -25,6 +25,44 @@ class MarketList extends Model
     public function getUserIdAttribute()
     {
         $id = $this->attributes['user_id'];
+        if ($id) {
+            $reciever_id = User::where('deleted_at', NULL)->find($id);
+            if ($reciever_id) {
+                return $reciever_id->name;
+            } 
+            else
+            {
+                return '---';
+            }
+        }
+        else
+        {
+            return '---';
+        }
+        
+    }
+
+
+    public function getStatusAttribute()
+    {
+        $id = $this->attributes['status'];
+        if ($id) {
+            if ($id==1) {
+                return 'Approved';
+            } 
+            else
+            {
+                return 'Rejected';
+            }
+        }else{
+            return 'Pending';
+        }
+        
+    }
+
+    public function getApprovedByAttribute()
+    {
+        $id = $this->attributes['approved_by'];
         if ($id) {
             $reciever_id = User::where('deleted_at', NULL)->find($id);
             if ($reciever_id) {

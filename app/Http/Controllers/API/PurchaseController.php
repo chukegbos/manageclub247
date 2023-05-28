@@ -160,13 +160,16 @@ class PurchaseController extends Controller
             }
             array_push($get_price, $item->amount);
 
-            $inventory = InventoryStore::where('deleted_at', NULL)
+            $inventoryStore = InventoryStore::where('deleted_at', NULL)
                 ->where('store_id', auth('api')->user()->store)
                 ->where('deleted_at', NULL)
                 ->where('inventory_id', $item->product_id)
                 ->first();
-            $inventory->number = $inventory->number + $item->qty;
-            $inventory->update();
+            if($inventoryStore)
+            {
+                $inventoryStore->number = $inventoryStore->number + $item->qty;
+                $inventoryStore->update();
+            }
         }
 
         $totalPrice = array_sum($get_price);
@@ -247,7 +250,6 @@ class PurchaseController extends Controller
             $it->product_id = $item['id'];
 
             $it->qty = $item['quantity'] * $item['number_per_crate'];
-
             $it->total = $item['unit_amount'] * $item['quantity'];
             $it->cost = $item['unit_amount']/$item['number_per_crate'];
             $it->save();

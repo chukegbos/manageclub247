@@ -16,7 +16,7 @@
                                 <div class="form-group">
                                     <label>Type of Purchase</label>
                                     <select v-model="form.mop" class="form-control">
-                                        <option v-for="option in options" v-bind:value="option.value">
+                                        <option v-for="option in options" v-bind:value="option.value" :key="option.id">
                                             {{ option.text }}
                                         </option>
                                     </select>
@@ -54,7 +54,7 @@
                             </thead>
 
                             <tbody>
-                                <tr v-for="(item, index) in form.productItems">
+                                <tr v-for="(item) in form.productItems"  :key="item.id">
                                     <td>
                                         <span v-if="item.purchaseId">{{ item.product_name }}</span>
                                       
@@ -160,21 +160,21 @@
 
                                 <div class="form-group">
                                     <label>Number Per Pack</label>
-                                    <input v-model="formItem.number_per_crate" type="number" name="number_per_crate" class="form-control":class="{'is-invalid': form.errors.has('number_per_crate')}" required/>
+                                    <input v-model="formItem.number_per_crate" type="number" name="number_per_crate" class="form-control" :class="{'is-invalid': form.errors.has('number_per_crate')}" required/>
 
                                     <has-error :form="formItem" field="number_per_crate"></has-error>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Cost Price</label>
-                                    <input v-model="formItem.cost_price" type="number" name="cost_price" class="form-control":class="{'is-invalid': form.errors.has('cost_price')}" required/>
+                                    <input v-model="formItem.cost_price" type="number" name="cost_price" class="form-control" :class="{'is-invalid': form.errors.has('cost_price')}" required/>
 
                                     <has-error :form="formItem" field="cost_price"></has-error>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Selling Price</label>
-                                    <input v-model="formItem.price" type="number" name="price" class="form-control":class="{'is-invalid': formItem.errors.has('price')}"/>
+                                    <input v-model="formItem.price" type="number" name="price" class="form-control" :class="{'is-invalid': formItem.errors.has('price')}"/>
                                     <has-error :form="formItem" field="price"></has-error>
                                 </div>
 
