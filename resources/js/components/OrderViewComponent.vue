@@ -1,7 +1,7 @@
 <template>
     <b-overlay :show="is_busy" rounded="sm">
-        <div class="container mb-2">
-            <div class="card">
+        <div class="container">
+            <div class="card my-2">
                 <div class="card-body">
                     <h2><b>
                         <span v-if="store">{{ store.name }}</span>
@@ -35,21 +35,23 @@
                     </p>
                     <span v-if="items.length!=0">
                         <h5>Drink List</h5>
-                        <span v-for="(item) in items">
+                        <span v-for="(item) in items" :key="item.id">
                             {{ item.product_name}} ({{ item.qty }}) - {{ formatPrice((item.qty * item.price) - ((item.discount/100)*(item.qty * item.price))) }}<br>
                         </span> 
                     </span>  
                     <span v-if="services.length!=0">                              
                         <br>
                         <h5>Food List</h5>
-                        <p v-for="(item) in services">
+                        <p v-for="(item) in services" :key="item.id">
                             {{ item.food }} ({{ item.qty }}) - {{ formatPrice(item.qty * item.amount) }}
                         </p>
                     </span> 
                     <h6>Total: <b><span v-html="nairaSign"></span>{{ formatPrice(this.sale.totalPrice) }}</b></h6>
                   
-                    <p>Steward: <b>{{ sale.market_id }}</b><br>
-                    Desk Officer: <b>{{ sale.cashier_id}}</b></p>
+                    <p>
+                        Steward: <b>{{ sale.market_id }}</b><br>
+                        Desk Officer: <b>{{ sale.cashier_id}}</b>
+                    </p>
                     <i v-if="sale.status=='concluded'">Thanks and please call again</i>              
                 </div>
             </div>
@@ -57,12 +59,9 @@
             <div class="row hidden-print">
                 <div class="col-md-2"></div>
                 <div class="col-md-8">
-                    <button v-if="sale.status=='pending'" class="btn btn-info btn-sm mb-2"  @click="newModal">Complete Transaction</button>
-
-                   
-                    <!--<button v-if="sale.status=='pending'" class="btn btn-primary btn-sm mb-2"  @click="editInvoice">Edit</button>-->
-
-                    <button id="btnPrint" class="btn btn-success p-1 m-2 text-center">Print</button>
+                    <button v-if="sale.status=='pending'" class="btn btn-info mb-2"  @click="newModal">Complete Transaction</button>
+                    <!-- <button v-if="sale.status=='pending'" class=s"btn btn-primary mb-2"  @click="editInvoice">Edit</button> -->
+                    <button id="btnPrint" class="btn btn-success mb-2">Print</button>
 
                 </div>
             </div>
@@ -121,7 +120,7 @@
                             <span v-else>
                                 <b-form-group label="Method of Fund:" label-for="payment_method">
                                     <select v-model="form.channel" class="form-control">
-                                        <option v-for="option in payment_types" v-bind:value="option.id">
+                                        <option v-for="option in payment_types" v-bind:value="option.id" :key="option.id">
                                             <span v-if="(option.id==1) || (option.id==2) || (option.id==7)">{{ option.title }}</span>
                                         </option>
                                     </select>
@@ -129,7 +128,7 @@
 
                                 <b-form-group label="Select Bank:" v-if="form.channel==3">
                                     <select v-model="form.link" class="form-control">
-                                        <option v-for="option in banks" v-bind:value="option.id">
+                                        <option v-for="option in banks" v-bind:value="option.id" :key="option.id">
                                             {{ option.get_bank_name }} ({{ option.account_number }})
                                         </option>
                                     </select>
@@ -137,7 +136,7 @@
 
                                 <b-form-group label="Select POS:" v-if="form.channel==2">
                                     <select v-model="form.link" class="form-control">
-                                        <option v-for="option in pos" v-bind:value="option.id">
+                                        <option v-for="option in pos" v-bind:value="option.id" :key="option.id">
                                             {{ option.name }} ({{ option.code }})
                                         </option>
                                     </select>
@@ -328,7 +327,6 @@
 </template>
 
 <script>
-    import VueBootstrap4Table from 'vue-bootstrap4-table';
     export default {
     created() {
         

@@ -11,6 +11,15 @@
             </div>
 
             <div class="card">
+                <div class="card-header text-center">
+                    <button class="btn btn-info" @click="oldOrder">Old Transactions</button>
+                    <button class="btn btn-info" @click="newOrder">New Transactions</button>
+                    <p>
+                        Older transactions are from <b>Inception to 31st of March 2023</b><br>
+                        New transactions are from <b>1st of April 2023 to date.</b>
+                    </p>
+                </div>
+
                 <div class="card-body table-responsive p-0" v-if="services.data.length>0" id="printMe">
                     <table class="table table-hover">
                         <thead>
@@ -39,7 +48,7 @@
                                     </span>
                                     <span v-else>
                                         <span class="text-danger">Pending</span>
-                                        <span v-if="admin.role==14 || admin.role==15">
+                                        <span v-if="admin.role==14 || admin.role==15 || admin.role==1">
                                             <a href="javascript:void(0)" @click="mark(item)" class="btn btn-success btn-sm">Mark as Delivered</a>
                                         </span>
                                     </span>
@@ -64,7 +73,7 @@
                                     <!--<option value="0">All</option>-->
                                 </select>
                             Entries</b>
-                            <br> Total: <b>{{ count_all }} Bars</b>
+                            <br> Total: <b>{{ count_all }} Orders</b>
                         </div>
 
                         <div class="col-md-8" v-if="this.filterForm.selected!=0">
@@ -96,6 +105,7 @@
                 filterForm: {
                     name: '',
                     selected: '10',
+                    time: 1,
                 },
 
                 action: {
@@ -171,6 +181,18 @@
 
             view(service) {
                 this.$router.push({ path: "/outlets/" + service.code });
+            },
+
+            newOrder(){
+                this.filterForm.time= 1;
+                this.loadservices();
+                this.getUser();
+            },
+
+            oldOrder(){
+                this.filterForm.time= 0;
+                this.loadservices();
+                this.getUser();
             },
 
             mark(item) {

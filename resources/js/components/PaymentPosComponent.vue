@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5 || admin.role==11">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11">
                         Add POS
                     </b-button>
                
@@ -29,18 +29,18 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11"><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11"><input type="checkbox" v-model="selectAll"></th>
                                 <th>Code</th>
                                 <th>Name</th>
-                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11">Action</th>
+                                <th v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="channel in pos.data" :key="channel.id">
-                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11"> <input type="checkbox" v-model="action.selected" :value="channel.id" number></td>
+                                <td v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11"> <input type="checkbox" v-model="action.selected" :value="channel.id" number></td>
                                 <td>{{ channel.code }}</td>
                                 <td>{{ channel.name }}</td>
-                                <td  v-if="admin.role==1 || admin.role==5 || admin.role==11">
+                                <td  v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(channel)">Edit</b-dropdown-item>
 

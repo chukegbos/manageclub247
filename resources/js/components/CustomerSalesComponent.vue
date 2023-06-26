@@ -59,7 +59,7 @@
                             <th>Amount (<span v-html="nairaSign"></span>)</th>
                         </tr>
 
-                        <tr v-for="item in items">
+                        <tr v-for="item in items" :key="item.id">
                             <td>{{ item.date | myDate }}</td> 
                             <td>{{ item.ref_id }}</td> 
                             <td>{{ item.name  }}</td>
@@ -97,6 +97,7 @@
                 nairaSign: "&#x20A6;",
                 users: [],
                 userQuery: '',
+                time: 1,
             };
         },
 
@@ -202,7 +203,19 @@
             formatPrice(value) {
                 let val = (value/1).toFixed(2).replace(',', '.')
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            }
+            },
+
+            newOrder(){
+                this.filterForm.time= 1;
+                this.loadPurchase();
+                this.getUser();
+            },
+
+            oldOrder(){
+                this.filterForm.time= 0;
+                this.loadPurchase();
+                this.getUser();
+            },
         }
     };
 </script>

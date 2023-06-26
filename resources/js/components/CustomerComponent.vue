@@ -7,9 +7,9 @@
                 </div>
 
                 <div class="col-md-8">
-                    <!-- <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5  || admin.role==11">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1  || admin.role==16  || admin.role==11">
                         Add Member
-                    </b-button> -->
+                    </b-button>
                     <b-button size="sm" variant="outline-info" class="pull-right m-2" @click="calcDebt"> <i class="fa fa-print"></i> Recalculate Debt</b-button>
                     <b-button size="sm" variant="outline-info" class="pull-right m-2" @click="onPrint"> <i class="fa fa-print"></i> Print</b-button>
 
@@ -57,7 +57,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==5 || admin.role==11"> 
+                                <th v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11"> 
                                     <span v-if="unprintable==false">
                                         <input type="checkbox" v-model="selectAll">
                                     </span>
@@ -76,7 +76,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="user in users.data" :key="user.id">
-                                <td v-if="admin.role==1 || admin.role==5 || admin.role==11"> 
+                                <td v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11"> 
                                     <span v-if="unprintable==false">
                                         <input type="checkbox" v-model="action.selected" :value="user.id" number>
                                     </span>
@@ -121,16 +121,16 @@
                                             <b-dropdown-item href="javascript:void(0)" @click="approveUser(user)" v-if="!user.approved">Approve</b-dropdown-item>
                                         </span>
                                         
-                                        <span v-if="admin.role==1 || admin.role==4 || admin.role==5 || admin.role==11">
+                                        <span v-if="admin.role==1 || admin.role==4 ||  admin.role==5  || admin.role==16 || admin.role==11">
                                             <b-dropdown-item href="javascript:void(0)" @click="doorUser(user)" v-if="user.door_access==0">Activate Door</b-dropdown-item>
 
                                             <b-dropdown-item href="javascript:void(0)" @click="doorUser(user)" v-else>Deactivate Door</b-dropdown-item>
                                         </span>
 
-                                        <span v-if="admin.role==1 || admin.role==5 || admin.role==11">
-                                            <b-dropdown-item href="javascript:void(0)" @click="editModal(user)">Edit</b-dropdown-item>
+                                        <span v-if="admin.role==1 ||  admin.role==5  || admin.role==16 || admin.role==11">
+                                            <b-dropdown-item href="javascript:void(0)" @click="editModal(user)" v-if="admin.role==1 || admin.role==16 || admin.role==11">Edit</b-dropdown-item>
 
-                                            <b-dropdown-item href="javascript:void(0)" @click="deleteUser(user.id)">Delete</b-dropdown-item>
+                                            <b-dropdown-item href="javascript:void(0)" @click="deleteUser(user.id)" v-if="admin.role==1 || admin.role==16 || admin.role==11">Delete</b-dropdown-item>
 
                                         
                                             <b-dropdown-item href="javascript:void(0)" @click="suspendUser(user)" v-if="user.c_person.member_type!=15">Suspend</b-dropdown-item>

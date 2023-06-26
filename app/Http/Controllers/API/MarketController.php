@@ -28,10 +28,17 @@ class MarketController extends Controller
         $params = [];
 
         $query = MarketList::where('deleted_at', NULL)->latest();
-
-
         if ($request->name) {
             $query->where('market_id', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->time==1) {
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('created_at', '>=', $date);
+        }
+        else{
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('created_at', '<', $date);
         }
 
         if ($request->selected==0) {

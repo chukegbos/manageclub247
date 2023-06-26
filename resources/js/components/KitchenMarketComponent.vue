@@ -48,6 +48,15 @@
             </div>
 
             <div class="card">
+                <div class="card-header text-center">
+                    <button class="btn btn-info" @click="oldOrder">Old Transactions</button>
+                    <button class="btn btn-info" @click="newOrder">New Transactions</button>
+                    <p>
+                        Older transactions are from <b>Inception to 31st of March 2023</b><br>
+                        New transactions are from <b>1st of April 2023 to date.</b>
+                    </p>
+                </div>
+                
                 <div class="card-body table-responsive p-0" v-if="markets.data.length>0">
                     <table class="table table-hover">
                         <tr>
@@ -141,6 +150,7 @@
                     end_date: '',
                     name: '',
                     selected: '10',
+                    time: 1,
                 },
 
                 is_busy: false,
@@ -217,6 +227,18 @@
             formatPrice(value) {
                 let val = (value/1).toFixed(2).replace(',', '.')
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            },
+
+            newOrder(){
+                this.filterForm.time= 1;
+                this.loadMarket();
+                this.getUser();
+            },
+
+            oldOrder(){
+                this.filterForm.time= 0;
+                this.loadMarket();
+                this.getUser();
             },
 
             approve(market)

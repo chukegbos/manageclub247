@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <router-link to="/admin/customers/fund" class="pull-right m-2 btn btn-primary btn-sm" v-if="admin.role==1 || admin.role==3 || admin.role==4 || admin.role==1 || admin.role==4 || admin.role==5 || admin.role==11">
+                    <router-link to="/admin/customers/fund" class="pull-right m-2 btn btn-primary btn-sm" v-if="admin.role==1 || admin.role==3 || admin.role==4 || admin.role==1 || admin.role==4 ||  admin.role==5  || admin.role==16 || admin.role==11">
                         Fund Member
                     </router-link>
 

@@ -8,6 +8,23 @@
             </div>
 
             <div class="card">
+                <div class="card-header text-center" v-if="thePurchase.status==1 && thePurchase.status_accept==0">
+                    <span v-if="(user.role==12 || user.role==1) && thePurchase.approved_by=='---'">
+                        <a href="javascript:void(0)" @click="approve(thePurchase)" class="btn btn-info">
+                            Approve
+                        </a>
+                    </span>
+                    <span v-if="(user.role==12 || user.role==1) && thePurchase.approved_by=='---'">
+                        <a href="javascript:void(0)" @click="reject(thePurchase)" class="btn btn-info">
+                            Reject
+                        </a>
+                    </span>
+                    <span v-if="(user.role==6 || user.role==1) && thePurchase.approved_by!='---'">
+                        <a href="javascript:void(0)" @click="accept(thePurchase)" class="btn btn-info">
+                            Accept
+                        </a>
+                    </span>
+                </div>
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover">
                         <tr>
@@ -140,6 +157,87 @@ export default {
             let val = (value/1).toFixed(2).replace(',', '.')
             return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
         },
+
+        approve(purchase)
+            {
+                if (this.is_busy) return;
+                this.is_busy = true;
+                axios.get('/api/purchases/approve/' + purchase.purchase_id)
+                .then(({ data }) => {
+                    Swal.fire(
+                        "Accepted!",
+                        "You have approved the purchase.",
+                        "success"
+                    );
+                })
+                .catch(() => {
+                    Swal,fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.viewPurchase();
+                    this.getProduct();
+                    this.getUser();
+                });
+            },
+
+            accept(purchase)
+            {
+                if (this.is_busy) return;
+                this.is_busy = true;
+                axios.get('/api/purchases/accept/' + purchase.purchase_id)
+                .then(({ data }) => {
+                    Swal.fire(
+                        "Accepted!",
+                        "You have accepted the purchase.",
+                        "success"
+                    );
+                })
+                .catch(() => {
+                    Swal,fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.viewPurchase();
+                    this.getProduct();
+                    this.getUser();
+                });
+            },
+
+            reject(purchase)
+            {
+                if (this.is_busy) return;
+                this.is_busy = true;
+                axios.get('/api/purchases/reject/' + purchase.purchase_id)
+                .then(({ data }) => {
+                    Swal.fire(
+                        "Rejected!",
+                        "You have rejected the purchase.",
+                        "success"
+                    );
+                })
+                .catch(() => {
+                    Swal,fire(
+                        "Failed!",
+                        "Ops, Something went wrong, try again.",
+                        "warning"
+                    );
+                })
+                .finally(() => {
+                    this.is_busy = false;
+                    this.viewPurchase();
+                    this.getProduct();
+                    this.getUser();
+                });
+            },
     }
 };
 </script>

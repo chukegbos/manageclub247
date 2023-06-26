@@ -34,7 +34,7 @@ class KitchenController extends Controller
         if ($request->name) {
             $query->where('kitchens.name', 'like', '%' . $request->name . '%')->orWhere('kitchens.code', 'like', '%' . $request->name . '%');
         }
-
+        
         if ($request->selected==0) {
             $params['kitchens'] =  $query->get();
         }
@@ -134,6 +134,15 @@ class KitchenController extends Controller
             $kitchen_id = auth('api')->user()->getOriginal('kitchen');
 
             $query->where('main_kitchen', $kitchen_id);
+        }
+
+        if ($request->time==1) {
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('created_at', '>=', $date);
+        }
+        else{
+            $date =  Carbon::create(2023, 4, 1, 0, 0, 0);
+            $query->where('created_at', '<', $date);
         }
 
         if ($request->selected==0) {
