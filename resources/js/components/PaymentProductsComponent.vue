@@ -11,7 +11,7 @@
                         <i class="fa fa-filter"></i> Filter
                     </b-button>
 
-                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5">
+                    <b-button variant="outline-primary" size="sm" @click="newModal" class="pull-right m-2" v-if="admin.role==1 || admin.role==5 || admin.role==16">
                         Add Payment Products
                     </b-button>
 
@@ -71,7 +71,7 @@
                                 <th>Category</th>
                                 <th>Door Access</th>
                                 <th>Creator </th>
-                                <th v-if="admin.role==1 || admin.role==5">Action</th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==16">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -92,7 +92,7 @@
                                     <span v-else class="badge badge-primary">Enabled</span>
                                 </td>
                                 <td><span v-if="method.created_by">{{ method.created_by.name }}<br>{{ method.created_at | myDate }}</span></td>
-                                <td v-if="admin.role==1 || admin.role==5">
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==16">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info"> 
                                         <b-dropdown-item href="javascript:void(0)" @click="editModal(method)">Edit</b-dropdown-item>
 
@@ -242,7 +242,7 @@
                                     <label>Deduction Wallet</label>
 
                                     <select v-model="form.wallet" class="form-control">
-                                        <option v-for="wallet in wallets" v-bind:value="wallet.value">
+                                        <option v-for="wallet in wallets" v-bind:value="wallet.value" :key="wallet.id">
                                             {{ wallet.text }}
                                         </option>
                                     </select>

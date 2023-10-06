@@ -182,7 +182,17 @@
                 form: new Form({
                     user: '',
                     user_id: '',
-                    productItems: [],
+                    productItems: [
+                        {
+
+                        },
+                        {
+
+                        },
+                        {
+
+                        },
+                    ],
                     serviceItems: [],
                     amount: 0,
                     mop: 1,

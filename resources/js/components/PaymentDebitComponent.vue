@@ -7,7 +7,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <b-button variant="outline-primary" size="sm" @click="newModal()" class="pull-right m-2" v-if="admin.role==1 || admin.role==5">
+                    <b-button variant="outline-primary" size="sm" @click="newModal()" class="pull-right m-2" v-if="admin.role==1 || admin.role==5 || admin.role==16">
                         Add Debit
                     </b-button>
                
@@ -28,19 +28,19 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
-                                <th v-if="admin.role==1 || admin.role==5"><input type="checkbox" v-model="selectAll"></th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==16"><input type="checkbox" v-model="selectAll"></th>
                                 <th>Member</th>
                                 <th>Payment</th>
                                 <th>Description</th>
                                 <th>Amount</th>
                                 <th>Date Created</th>
                                 <th>Grace Period</th>
-                                <th v-if="admin.role==1 || admin.role==5">Action</th>
+                                <th v-if="admin.role==1 || admin.role==5 || admin.role==16">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="debt in debits.data" :key="debt.id">
-                                <td v-if="admin.role==1 || admin.role==5"> <input type="checkbox" v-model="action.selected" :value="debt.id" number></td>
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==16"> <input type="checkbox" v-model="action.selected" :value="debt.id" number></td>
                                 <td>{{ debt.last_name }} {{ debt.first_name }} {{ debt.middle_name }}</td>
                                 <td><span v-if="debt.product">{{ debt.product.payment_name }}</span></td>
                                 <td>{{ debt.description }}</td>
@@ -54,7 +54,7 @@
                                     <span class="badge badge-danger" v-if="debt.period==0">Expired</span><br>
                                     {{ startDateMoment(debt.start_date, debt.grace_period) }}
                                 </td> 
-                                <td v-if="admin.role==1 || admin.role==5">
+                                <td v-if="admin.role==1 || admin.role==5 || admin.role==16">
                                     <b-dropdown id="dropdown-right" text="Action" variant="info">
                                       
                                             <b-dropdown-item href="javascript:void(0)" @click="extendPeriod(debt)">Extend Period</b-dropdown-item>

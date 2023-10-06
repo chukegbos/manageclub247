@@ -595,8 +595,7 @@ export default {
         },
 
         newModal() {
-            
-            // this.$router.push({ path: "/admin/customers/create"});
+            this.$router.push({ path: "/admin/customers/create"});
         },
 
         calcDebt(){

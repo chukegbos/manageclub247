@@ -271,7 +271,7 @@
                                         <th>Date Created</th>
                                         <th>Grace Period</th>
                                         <th>Status</th>
-                                        <th v-if="admin.role==1 || admin.role==5">Action</th>
+                                        <th v-if="admin.role==1 || admin.role==5 || admin.role==16">Action</th>
                                     </tr>
 
                                     <tr  v-for="(debt, index) in payment_debts">
@@ -292,7 +292,7 @@
                                         </td> 
                                         
                                         <td><span class="badge badge-danger btn-sm">Unpaid</span></td>
-                                        <td v-if="admin.role==1 || admin.role==5">
+                                        <td v-if="admin.role==1 || admin.role==5 || admin.role==16">
                                             <a href="javascript:void(0)" @click="extendPeriod(debt)" class="btn btn-info btn-sm">Extend Period</a> 
 
                                             <a href="javascript:void(0)" @click="onPay(debt)" class="btn btn-success btn-sm">Pay</a>
