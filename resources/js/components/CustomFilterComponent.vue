@@ -249,6 +249,7 @@ export default {
                 before: '',
                 transactions_after: '',
                 member_id: '',
+                death: '1'
             },
             action: {
                 selected: []

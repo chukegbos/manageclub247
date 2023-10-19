@@ -132,6 +132,7 @@ class PaymentController extends Controller
         if (!$product->wallet) {
             return ['error' => 'This payment product does not have any wallet attached to it, set a wallet to it and try again'];
         }
+        return 'ok';
 
         $payment_debit = PaymentDebit::create([
             'product' => $request['product'],
@@ -782,7 +783,6 @@ class PaymentController extends Controller
             'message' => 'Group Debit Message',
             'page_count' => 1,
         ]);
-         
     }
 
     public function makeDebit($member_id, $product_id, $amount, $description, $debit_type, $grace_period){
@@ -916,56 +916,56 @@ class PaymentController extends Controller
                 }
             }
 
-            $suspends = Suspend::where('deleted_at', NULL)->where('former_type', $id)->where('status', 0)->get();
-            foreach ($suspends as $suspend) {
-                $payment_debit = $this->makeDebit($suspend->membership_id, $request->product, $request->amount, $request->description, $request->debit_type, $request->grace_period);
-                $the_member = User::where('deleted_at', NULL)->where('unique_id', $suspend->membership_id)->first();
+            // $suspends = Suspend::where('deleted_at', NULL)->where('former_type', $id)->where('status', 0)->get();
+            // foreach ($suspends as $suspend) {
+            //     $payment_debit = $this->makeDebit($suspend->membership_id, $request->product, $request->amount, $request->description, $request->debit_type, $request->grace_period);
+            //     $the_member = User::where('deleted_at', NULL)->where('unique_id', $suspend->membership_id)->first();
 
-                if($the_member){
-                    if ($product->wallet==0) {
-                        $wallet = $the_member->bar_wallet;
-                        $the_member->bar_wallet = $the_member->bar_wallet - $request->amount;
-                    }
-                    elseif ($product->wallet==1) {
-                        $wallet = $the_member->wallet_balance;
-                        $the_member->wallet_balance = $the_member->wallet_balance - $request->amount;
-                    }
-                    else {
-                        $wallet = $the_member->credit_unit;
-                        $the_member->credit_unit = $the_member->credit_unit - $request->amount;
-                    }
+            //     if($the_member){
+            //         if ($product->wallet==0) {
+            //             $wallet = $the_member->bar_wallet;
+            //             $the_member->bar_wallet = $the_member->bar_wallet - $request->amount;
+            //         }
+            //         elseif ($product->wallet==1) {
+            //             $wallet = $the_member->wallet_balance;
+            //             $the_member->wallet_balance = $the_member->wallet_balance - $request->amount;
+            //         }
+            //         else {
+            //             $wallet = $the_member->credit_unit;
+            //             $the_member->credit_unit = $the_member->credit_unit - $request->amount;
+            //         }
 
-                    if ($wallet >= $request->amount) {
-                        $this->makeCredit($payment_debit->member_id, $payment_debit->id, $request->amount);
-                        $payment_debit->status = 1;
-                        $payment_debit->update();
-                        $the_member->update();
-                    }
-                    else{
-                        if($member->phone_1 || $member->phone_2 || $the_member->phone){
-                            if ($the_member->phone) {
-                                $phone = $the_member->phone;
-                            }
-                            elseif ($member->phone_1) {
-                                $phone = $member->phone_1;
-                            }
-                            else {
-                                $phone = $member->phone_2;
-                            }
+            //         if ($wallet >= $request->amount) {
+            //             $this->makeCredit($payment_debit->member_id, $payment_debit->id, $request->amount);
+            //             $payment_debit->status = 1;
+            //             $payment_debit->update();
+            //             $the_member->update();
+            //         }
+            //         else{
+            //             if($member->phone_1 || $member->phone_2 || $the_member->phone){
+            //                 if ($the_member->phone) {
+            //                     $phone = $the_member->phone;
+            //                 }
+            //                 elseif ($member->phone_1) {
+            //                     $phone = $member->phone_1;
+            //                 }
+            //                 else {
+            //                     $phone = $member->phone_2;
+            //                 }
 
-                            $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount.' Enugu Sports Club (FCMB ACCT NO) 1685653012';
+            //                 $message = 'Membership ID: '.$the_member->unique_id.'; Debit for '.$request->description.'; Amount: N'.$request->amount.' Enugu Sports Club (FCMB ACCT NO) 1685653012';
 
-                            $data = [
-                                'from' => 'ESPORTSCLUB',
-                                'to' => $this->prep_number($phone),
-                                'text' => $message,
-                            ];
+            //                 $data = [
+            //                     'from' => 'ESPORTSCLUB',
+            //                     'to' => $this->prep_number($phone),
+            //                     'text' => $message,
+            //                 ];
 
-                            // $this->sendMessage($data, $msg->id, $the_member->unique_id, $phone)
-                        }
-                    }
-                }
-            }
+            //                 // $this->sendMessage($data, $msg->id, $the_member->unique_id, $phone)
+            //             }
+            //         }
+            //     }
+            // }
         }
         return ['message' => "Success"];
     }

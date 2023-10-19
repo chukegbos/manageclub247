@@ -63,7 +63,7 @@ class HomeController extends Controller
     {
         set_time_limit(0);
 
-        $members = Member::where('deleted_at', NULL)->get();
+        // $members = Member::where('deleted_at', NULL)->get();
         // foreach ($members as $member) {
         //     $the_member = User::where('unique_id', $member->membership_id)->first();
         //     $dt = PaymentDebit::where('member_id', $member->id)->where('product', '347')->latest()->first();

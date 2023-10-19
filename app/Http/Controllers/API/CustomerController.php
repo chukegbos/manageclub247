@@ -267,12 +267,12 @@ class CustomerController extends Controller
         $params = [];
         set_time_limit(0);
         // $this->calculateDebt();
-        $query = User::where('deleted_at', NULL) ->where('role', 0)->orderBy('name', 'asc');
+        $query = User::where('users.deleted_at', NULL) ->where('users.role', 0)->orderBy('users.name', 'asc');
     
         if ($request->state) {
-            $query->where('state', $request->state);
+            $query->where('users.state', $request->state);
         }
-
+        
         if ($request->picture) {
             if ($request->picture==1) {
                 $query->where('image', '!=', NULL);
@@ -285,29 +285,29 @@ class CustomerController extends Controller
         }
 
         if ($request->before) {
-            $query->where('created_at', '<=', $request->before);
+            $query->where('users.created_at', '<=', $request->before);
         }
 
         if($request->member_id) {
-            $query->where('unique_id', '<=', (int)$request->member_id);
+            $query->where('users.unique_id', '<=', (int)$request->member_id);
         }
 
         if ($request->name) {
             $query->where(function($qy)use($request) {
-                $qy->where('name', 'like', '%' . $request->name . '%')
-                ->orWhere('unique_id', 'like', '%' . $request->name . '%')
-                ->orWhere('phone', 'like', '%' . $request->name . '%')
-                ->orWhere('email', 'like', '%' . $request->name . '%')
-                ->orWhere('c_person', 'like', '%' . $request->name . '%');
+                $qy->where('users.name', 'like', '%' . $request->name . '%')
+                ->orWhere('users.unique_id', 'like', '%' . $request->name . '%')
+                ->orWhere('users.phone', 'like', '%' . $request->name . '%')
+                ->orWhere('users.email', 'like', '%' . $request->name . '%')
+                ->orWhere('users.c_person', 'like', '%' . $request->name . '%');
             });
         }
 
         if ($request->debt) {
             if ($request->debt==1) {
-                $query->where('debt', '>', 0);
+                $query->where('users.debt', '>', 0);
             }
             elseif ($request->debt==2) {
-                $query->where('debt', '<=', 0);
+                $query->where('users.debt', '<=', 0);
                 // $query->where(function($qy) {
                 //     $qy->where('debt', 0)->orWhere('debt', NULL);;
                 // });
@@ -320,23 +320,28 @@ class CustomerController extends Controller
         //         ->groupBy('default_esc_payments.member_id');
         // }
 
+        if($request->member_type){
+            $query->join('default_esc_members',  'users.unique_id', '=','default_esc_members.membership_id')
+                ->where('default_esc_members.member_type', $request->member_type);
+        }
+
         $query->select(
-            'id as id',
-            'unique_id as unique_id',
-            'name as name',
-            'state as state',
-            'city as city',
-            'email as email',
-            'entrance_date as entrance_date',
-            'created_at as created_at',
-            'image as image',
-            'access as access',
-            'phone as phone',
-            'debt as debt',
-            'c_person as c_person',
-            'approved as approved',
-            'approved_by as approved_by',
-            'door_access as door_access'
+            'users.id as id',
+            'users.unique_id as unique_id',
+            'users.name as name',
+            'users.state as state',
+            'users.city as city',
+            'users.email as email',
+            'users.entrance_date as entrance_date',
+            'users.created_at as created_at',
+            'users.image as image',
+            'users.access as access',
+            'users.phone as phone',
+            'users.debt as debt',
+            'users.c_person as c_person',
+            'users.approved as approved',
+            'users.approved_by as approved_by',
+            'users.door_access as door_access'
         );
         
         $all = $query->get();
@@ -347,6 +352,7 @@ class CustomerController extends Controller
             $params['customers'] = $query->paginate($request->selected);
         }
         
+        // $params['all'] = Member::where('deleted_at', NULL)->where('member_type', '!=', 14)->count();
         $params['all'] = count($all);
         $params['user'] = auth('api')->user();
         return $params;

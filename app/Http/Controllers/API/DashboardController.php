@@ -7,6 +7,11 @@ use App\Http\Controllers\Controller;
 use App\User;
 use App\Purchase;
 use App\Inventory;
+use App\PaymentDebit;
+use App\Suspend;
+use App\Death;
+use App\Fill;
+use App\Product;
 use App\Item;
 use App\Fund;
 use App\Member;
@@ -180,6 +185,7 @@ class DashboardController extends Controller
     public function stat(Request $request)
     {
         $params = [];
+        $this->sync();
         $user = auth('api')->user();
         $params['users'] = User::where('deleted_at', NULL)->where('role', '!=', 0)->count();
         $params['customers'] = User::where('deleted_at', NULL)->where('role', 0)->count();
@@ -252,5 +258,242 @@ class DashboardController extends Controller
         $login->verified_by = $user->id;
         $login->update();
         return 'ok';
+    }
+
+    public function sync()
+    {
+       
+        set_time_limit(0);
+        ini_set('memory_limit', '-1');
+        /*$sales = Sale::where('deleted_at', NULL)->where('status', 'concluded')->get();
+        foreach ($sales as $sale) {
+            $items = Item::where('deleted_at', NULL)->where('code', $sale->sale_id)->get();
+            foreach ($items as $item) {
+                $product = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->product_id)->where('store_id', $sale->getOriginal('store_id'))->first();
+
+                if ($product) {
+                    $product->number = $product->number - $item->qty;
+                    $product->update();
+                }
+            }
+        }
+        $inventories = Inventory::where('deleted_at', NULL)->get();
+        $stores = Store::where('deleted_at', NULL)->get();
+
+        foreach ($inventories as $inventory) {
+            foreach ($stores as $store) {
+                $product = InventoryStore::where('deleted_at', NULL)
+                    ->where('store_id', $store->id)
+                    ->where('inventory_id', $inventory->id)
+                    ->first();
+                if (!$product) {
+                    InventoryStore::create([
+                        'inventory_id' =>$inventory->id,
+                        'store_id' => $store->id,
+                        'number' => 0,
+                    ]);
+                }
+
+            }
+        }
+
+        $purchases = Purchase::where('deleted_at', NULL)->get();
+        foreach ($purchases as $purchase) {
+            $items = ItemPurchase::where('deleted_at', NULL)->where('purchase_id', $purchase->purchase_id)->get();
+            foreach ($items as $item) {
+                $inventory = InventoryStore::where('deleted_at', NULL)->where('inventory_id', $item->product_id)->where('store_id', 1)->first();
+                $inventory->number = $inventory->number + $item->qty;
+                $inventory->update();
+            }
+        }
+   
+        $pays = Payment::get();
+        foreach ($pays as $pay) {
+            $the_pay = Payment::find($pay->id);
+            $the_pay->rec_id = 'ESC'.$the_pay->debit_id.$the_pay->member_id;
+            $the_pay->update();
+        }
+        //sync payment with debit
+        $allpayment = Payment::get();
+        foreach ($allpayment as $pay) {
+            $getdebt = PaymentDebit::where('deleted_at', NULL)->find($pay->debit_id);
+            if (($getdebt) && (($getdebt->status==0) || ($getdebt->status==NULL))) {
+                $getdebt->status = 1;
+                $getdebt->update();
+            }
+        }*/
+
+        $debits = PaymentDebit::where('deleted_at', NULL)->get();
+        $today = Carbon::today();
+        foreach ($debits as $db) {
+           
+            $product = Product::where('deleted_at', NULL)->find($db->getOriginal('product'));
+            if ($product) {
+                $grace_period = $product->grace_period;
+                $door_access = $product->door_access;
+            }
+            else {
+                $grace_period = 30;
+                $door_access = 0;
+
+            }
+            
+            if (($db->start_date) && ($today > Carbon::parse($db->start_date)->addDays($grace_period))) {
+                $period = 0;
+            }
+            else {
+                $period = 1;
+            }
+
+
+            $debt = PaymentDebit::where('deleted_at', NULL)->find($db->id);
+            $debt->grace_period = $grace_period;
+            $debt->door_access = $door_access;
+            $debt->period = $period;
+            $debt->update();
+        }
+
+        $suspends = Suspend::where('deleted_at', NULL)->where('status', 0)->where('end_date', '<=', Carbon::today())->get();
+        foreach ($suspends as $suspend) {
+            $getSus = Suspend::find($suspend->id);
+            $getSus->status = 1;
+            $getSus->unsuspended_by = 0;
+            $getSus->reason = 'Unsuspended by system because the duration has elapsed.';
+            $getSus->update();
+
+            $member = Member::where('deleted_at', NULL)->where('membership_id', $getSus->membership_id)->first();
+            $member->update([
+                'member_type' => $getSus->former_type,
+            ]);
+
+            $getUser = User::where('deleted_at', NULL)->where('unique_id', $getSus->membership_id)->first();
+
+            $getUser->update([
+                'door_access' => 1,
+            ]);
+        }
+
+        $pproducts = Product::where('type', 1)->where('deleted_at', NULL)->get();
+        $dt = Carbon::today();
+
+        switch ($dt->month) {
+            case 1:
+                $month = 'February';
+                $year = $dt->year;
+                break;
+
+            case 2:
+                $month = 'March';
+                $year = $dt->year;
+                break;
+
+            case 3:
+                $month = 'April';
+                $year = $dt->year;
+                break;
+
+            case 4:
+                $month = 'May';
+                $year = $dt->year;
+                break;
+
+            case 5:
+                $month = 'June';
+                $year = $dt->year;
+                break;
+
+            case 6:
+                $month = 'July';
+                $year = $dt->year;
+                break;
+
+            case 7:
+                $month = 'August';
+                $year = $dt->year;
+                break;
+
+            case 8:
+                $month = 'September';
+                $year = $dt->year;
+                break;
+
+            case 9:
+                $month = 'October';
+                $year = $dt->year;
+                break;
+
+            case 10:
+                $month = 'November';
+                $year = $dt->year;
+                break;
+
+            case 11:
+                $month = 'December';
+                $year = $dt->year;
+                break;
+            
+            default:
+                $month = 'January';
+                $year = $dt->year + 1;
+                break;
+        }
+
+        //product check
+        $members = Member::where('member_type', '!=', 14)->get();
+        /*foreach ($members as $member) {
+            foreach ($pproducts as $pp) {
+                $findPayment = PaymentDebit::where('member_id', $member->id)->where('product', $pp->id)->where('year', $dt->year)->where('month', $dt->month)->first();
+
+                if ((!$findPayment )&& ($dt->day >= $pp->reoccuring_day)) {
+                    $payment_debit = PaymentDebit::create([
+                        'member_id' => $member->id,
+                        'product' => $pp->id,
+                        'amount' => $pp->amount,
+                        'description' => ucwords($month.' '.$year. ' Monthly Payment for '.$pp->payment_name),
+                        'debit_type' => 0,
+                        'grace_period' => ($pp->grace_period) ? $pp->grace_period : 30,
+                        'month' => $dt->month,
+                        'year' => $dt->year,
+                        'date_entered' => Carbon::today(),
+                        'start_date' => $dt->year.'-'.$dt->month.'-'.$pp->reoccuring_day,
+                        'created_by' => auth()->user()->id,
+                    ]);
+                }
+            }
+        }*/
+        $Users = User::where('deleted_at', NULL)->where('role', 0)->get();
+        foreach ($Users as $mem) {
+            $user = User::find($mem->id);
+            $member = Member::where('deleted_at', NULL)->where('membership_id', $user->unique_id)->first();
+            if($member){
+                $suspend = Suspend::where('deleted_at', NULL)->where('status', 0)->where('membership_id', $user->unique_id)->first();
+                $death = Death::where('deleted_at', NULL)->where('member_id', $user->unique_id)->first();
+                if($death){
+                    $member->member_type = 14;
+                    $member->update();
+                }
+                $debit = PaymentDebit::where('deleted_at', NULL)->where('member_id', $member->id)->where('period', 0)->where('status', 0)->where('door_access', 1)->first();
+                $approved = User::where('deleted_at', NULL)->where('approved', 0)->where('unique_id', $user->unique_id)->first();
+
+                if ($suspend || $death || $approved || $debit || !$member->phone_1) {
+                    $user->door_access = 0;
+                }
+                else{
+                $user->door_access = 1; 
+                }
+            }
+            /*if (!$suspend && !$death && !$debit && $approved && $member->phone_1) {
+                $user->door_access = 1;
+            }
+            else{
+                $user->door_access = 0;
+            }*/
+            $user->update();
+        }
+
+        Fill::create([
+            'user_id' => auth()->user()->id,
+        ]);
+        return redirect()->route('index');
     }
 }
